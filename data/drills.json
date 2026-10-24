@@ -1,350 +1,954 @@
 {
-  "version": "2026-10-24",
-  "drills": [
+ "version": "2026-10-24b",
+ "drills": [
+  {
+   "id": "chaise-hanches",
+   "name": "Chair drill : rotation des hanches",
+   "area": "Long jeu",
+   "fault": "Rotation des hanches insuffisante",
+   "objective": "Sentir la hanche arrière tourner vers l'arrière au backswing au lieu de glisser latéralement, pour créer l'espace qui évite la compensation du haut du corps.",
+   "equipment": [
+    "Une chaise ou un sac de golf",
+    "Un fer 7"
+   ],
+   "setup": [
+    "Place la chaise derrière toi, le dossier touchant l'extérieur de la fesse droite à l'adresse.",
+    "Posture normale de fer 7, sans balle pour commencer."
+   ],
+   "steps": [
+    "Backswing lent : la fesse droite recule et reste en contact avec la chaise pendant toute la montée.",
+    "En haut, marque un temps d'1 seconde : la ceinture doit pointer derrière la balle.",
+    "Descente : la fesse gauche vient à son tour toucher la chaise (déplace la chaise côté gauche pour cette phase).",
+    "5 swings à vide, puis 10 balles en demi-swing, puis 10 balles en 3/4."
+   ],
+   "cues": [
+    "Fesse droite qui recule, pas genou droit qui se tend",
+    "Le dos se tourne vers la cible en haut du backswing",
+    "Garder l'angle de buste : la tête ne se relève pas"
+   ],
+   "errors": [
+    "Perdre le contact avec la chaise en montant : tu glisses (sway)",
+    "Se redresser pour toucher la chaise : tu perds la posture",
+    "Accélérer trop tôt : garde un tempo lent"
+   ],
+   "success": "10 swings consécutifs avec contact permanent et finish tenu 3 secondes",
+   "refs": [
     {
-      "id": "chaise-hanches",
-      "name": "Chair drill : rotation des hanches",
-      "area": "Long jeu",
-      "fault": "Rotation des hanches insuffisante",
-      "objective": "Sentir la hanche arrière tourner vers l'arrière au backswing au lieu de glisser latéralement, pour créer l'espace qui évite la compensation du haut du corps.",
-      "equipment": ["Une chaise ou un sac de golf", "Un fer 7"],
-      "setup": ["Place la chaise derrière toi, le dossier touchant l'extérieur de la fesse droite à l'adresse.", "Posture normale de fer 7, sans balle pour commencer."],
-      "steps": ["Backswing lent : la fesse droite recule et reste en contact avec la chaise pendant toute la montée.", "En haut, marque un temps d'1 seconde : la ceinture doit pointer derrière la balle.", "Descente : la fesse gauche vient à son tour toucher la chaise (déplace la chaise côté gauche pour cette phase).", "5 swings à vide, puis 10 balles en demi-swing, puis 10 balles en 3/4."],
-      "cues": ["Fesse droite qui recule, pas genou droit qui se tend", "Le dos se tourne vers la cible en haut du backswing", "Garder l'angle de buste : la tête ne se relève pas"],
-      "errors": ["Perdre le contact avec la chaise en montant : tu glisses (sway)", "Se redresser pour toucher la chaise : tu perds la posture", "Accélérer trop tôt : garde un tempo lent"],
-      "success": "10 swings consécutifs avec contact permanent et finish tenu 3 secondes",
-      "refs": [{"label": "Rotary Swing — Chair Drill", "url": "https://rotaryswing.com/c4/382-body-rotation-in-golf-backswing-chair-drill"}, {"label": "GOLF.com — Chris Como, chair drill", "url": "https://golf.com/instruction/swing-rotation-chair-drill-chris-como/"}],
-      "yt": "chair drill golf hip rotation backswing"
+     "label": "Rotary Swing — Chair Drill",
+     "url": "https://rotaryswing.com/c4/382-body-rotation-in-golf-backswing-chair-drill"
     },
     {
-      "id": "elastique-hanches",
-      "name": "Élastique : démarrer la descente par les hanches",
-      "area": "Long jeu",
-      "fault": "Rotation des hanches insuffisante",
-      "objective": "Automatiser la séquence de transition : les hanches lancent la descente pendant que les bras restent passifs.",
-      "equipment": ["Élastique de résistance moyen", "Un point d'accroche à hauteur de hanche (poteau, porte)"],
-      "setup": ["Élastique autour des hanches, ancré derrière toi côté droit (côté cible opposé).", "Posture de swing, bras croisés sur la poitrine."],
-      "steps": ["Monte en rotation : l'élastique se détend légèrement.", "Transition : tourne la boucle de ceinture vers la cible contre la résistance, épaules encore fermées 1/2 seconde.", "Termine la rotation complète, poids sur le pied gauche.", "3 séries de 10, puis 10 swings avec club sans élastique en reproduisant la sensation."],
-      "cues": ["Ceinture d'abord, épaules ensuite", "Pied gauche qui pousse le sol au démarrage", "Bras passifs à la transition"],
-      "errors": ["Tirer avec les épaules en premier : c'est exactement le over-the-top", "Glisser latéralement vers la cible sans tourner"],
-      "success": "Sensation de séparation hanches/épaules reproduite sur 7 swings sur 10 sans élastique",
-      "refs": [{"label": "Today's Golfer — Create resistance home drill", "url": "https://www.todays-golfer.com/tips-and-tuition/swing-drills/video-tips/2010/november/create-resistance-home-drill/"}],
-      "yt": "resistance band golf hip rotation downswing drill"
-    },
-    {
-      "id": "porte-chemin",
-      "name": "Porte : chemin de club in-to-out",
-      "area": "Long jeu",
-      "fault": "Chemin over-the-top",
-      "objective": "Feedback direct du chemin de club : la tête de club doit passer dans un couloir orienté légèrement de l'intérieur vers l'extérieur.",
-      "equipment": ["2 alignment sticks ou 2 tees longs", "Fers 7 puis driver"],
-      "setup": ["Pose un stick 10 cm à l'extérieur de la balle, parallèle à la ligne de jeu.", "Pose le second 10 cm à l'intérieur, 30 cm derrière la balle : la porte est légèrement ouverte vers la droite de la cible.", "Largeur de la porte : 2 têtes de club au début, 1,5 ensuite."],
-      "steps": ["5 demi-swings au ralenti en passant dans la porte sans balle.", "10 balles en demi-swing.", "10 balles en 3/4, puis plein swing quand 7/10 passent proprement.", "Note le nombre de balles qui passent sans toucher le stick extérieur."],
-      "cues": ["Arriver par l'intérieur, comme si tu visais le champ droit", "La crosse descend derrière toi à la transition", "Laisser les hanches tirer, ne pas lancer les mains"],
-      "errors": ["Toucher le stick extérieur : chemin out-to-in", "Bloquer le corps pour passer : tu pousses la balle à droite"],
-      "success": "8/10 balles dans la porte au fer 7",
-      "refs": [{"label": "The DIY Golfer — Fleetwood's gate drill", "url": "https://www.thediygolfer.com/golf-drills/fleetwood-gate-drill"}, {"label": "MyGolfSpy — 3 drills over-the-top", "url": "https://mygolfspy.com/news-opinion/instruction/my-3-go-to-drills-for-fixing-an-over-the-top-golf-swing/"}],
-      "yt": "gate drill alignment sticks fix over the top club path"
-    },
-    {
-      "id": "headcover-exterieur",
-      "name": "Headcover à l'extérieur de la balle",
-      "area": "Long jeu",
-      "fault": "Chemin over-the-top",
-      "objective": "Punir le chemin extérieur-intérieur : un chemin over-the-top touche le headcover avant la balle.",
-      "equipment": ["Un headcover de bois", "Fer 7"],
-      "setup": ["Headcover posé 10 à 12 cm au-delà de la balle et 15 cm derrière, côté opposé à toi.", "Commence avec plus de marge, rapproche au fil des séries."],
-      "steps": ["10 demi-swings sans toucher le headcover.", "10 balles en 3/4.", "Rapproche le headcover de 2 cm et refais 10 balles."],
-      "cues": ["La descente part vers l'intérieur", "Les mains restent proches du corps au début de la descente"],
-      "errors": ["Ralentir pour éviter le headcover : garde la vitesse", "Ouvrir la face pour compenser : surveille la direction de départ"],
-      "success": "10 balles consécutives sans contact au 3/4",
-      "refs": [{"label": "Golf Magic — Headcover drill", "url": "https://www.golfmagic.com/tips-and-instruction/best-golf-tips-how-stop-slicing-your-driver-using-headcover-drill"}],
-      "yt": "headcover drill golf stop coming over the top"
-    },
-    {
-      "id": "crayon-gant",
-      "name": "Crayon dans le gant : anti-flip",
-      "area": "Long jeu",
-      "fault": "Release bloqué / flip",
-      "objective": "Garder le poignet gauche plat ou légèrement fléchi à l'impact, sans casser vers l'arrière.",
-      "equipment": ["Un crayon ou un tee long glissé sous la bande du gant, dos de main gauche", "Wedge ou fer 9"],
-      "setup": ["Le crayon dépasse vers le poignet, le long de l'avant-bras.", "Balle au centre du stance."],
-      "steps": ["10 demi-swings : à l'impact et après, le crayon ne doit pas pointer loin de l'avant-bras.", "10 balles en demi-swing, finish à hauteur de hanche.", "10 balles en 3/4."],
-      "cues": ["Le dos de la main gauche regarde la cible à l'impact", "Le corps continue de tourner, les mains ne prennent pas le relais"],
-      "errors": ["Le crayon se décolle de l'avant-bras après l'impact : flip", "Arrêter la rotation du corps : cause du blocage"],
-      "success": "Contact balle-sol propre sur 8/10 avec le crayon qui reste aligné",
-      "refs": [],
-      "yt": "golf drill flat lead wrist impact pencil glove"
-    },
-    {
-      "id": "tete-stable",
-      "name": "Tête stable derrière la balle",
-      "area": "Long jeu",
-      "fault": "Tête qui avance/plonge à la transition",
-      "objective": "Garder la tête derrière la balle jusqu'à l'impact, au plein swing comme au chipping.",
-      "equipment": ["Un tee ou une pièce", "Téléphone sur trépied (vue de face)"],
-      "setup": ["Place un tee au sol à l'aplomb de ton oreille gauche à l'adresse (vue de face).", "Caméra de face, à hauteur de hanche."],
-      "steps": ["10 demi-swings : à l'impact, l'oreille gauche n'a pas dépassé le tee.", "10 balles en 3/4, film les 3 dernières.", "Compare la position de la tête adresse / impact sur la vidéo."],
-      "cues": ["La poitrine tourne autour de la colonne, la tête reste le centre", "Regarder l'arrière de la balle jusqu'au contact"],
-      "errors": ["Bloquer la tête au point d'empêcher la rotation", "Plonger vers le bas en descente"],
-      "success": "Vidéo : tête derrière la balle à l'impact sur 3/3 swings",
-      "refs": [{"label": "GOLF.com — range fix over the top", "url": "https://golf.com/instruction/range-fix-stop-you-swinging-over-top/"}],
-      "yt": "golf drill keep head behind ball impact"
-    },
-    {
-      "id": "split-grip",
-      "name": "Split grip : libérer la face",
-      "area": "Long jeu",
-      "fault": "Release bloqué",
-      "objective": "Sentir la rotation naturelle des avant-bras après l'impact.",
-      "equipment": ["Fer 8 ou 9"],
-      "setup": ["Mains écartées de 10 à 15 cm sur le grip, main droite en bas.", "Stance légèrement réduit."],
-      "steps": ["10 demi-swings à vide : après l'impact, la main droite passe au-dessus de la gauche.", "15 balles en demi-swing, finish à hauteur de hanche avec le bout de grip qui pointe vers ta hanche gauche.", "5 balles en grip normal en reproduisant la sensation."],
-      "cues": ["Les avant-bras se croisent après la balle", "La pointe du club vers le ciel à hauteur de hanche après l'impact"],
-      "errors": ["Rester bloqué avec la face qui regarde le ciel après l'impact", "Couper la rotation du corps pour forcer le croisement"],
-      "success": "Vol de balle droit ou léger draw sur 7/10",
-      "refs": [{"label": "Keiser University — split grip drill", "url": "https://collegeofgolf.keiseruniversity.edu/the-split-grip-drill-in-golf-improve-swing-path-and-club-control/"}],
-      "yt": "split grip drill golf release"
-    },
-    {
-      "id": "serviette-aisselle",
-      "name": "Serviette sous l'aisselle gauche",
-      "area": "Long jeu",
-      "fault": "Chicken wing / bras déconnecté",
-      "objective": "Garder le bras gauche connecté au torse pendant la traversée pour que le corps pilote le club.",
-      "equipment": ["Une petite serviette", "Fer 8"],
-      "setup": ["Serviette coincée sous l'aisselle gauche."],
-      "steps": ["10 demi-swings : la serviette ne tombe pas avant le finish à hauteur de hanche.", "15 balles en 3/4."],
-      "cues": ["Le coude gauche reste orienté vers le sol après l'impact", "La poitrine tourne avec les bras"],
-      "errors": ["Serrer fort au point de raidir le swing", "La serviette tombe à l'impact : le coude gauche sort"],
-      "success": "Serviette en place jusqu'au finish sur 8/10",
-      "refs": [{"label": "GOLF.com — golf drills over the top", "url": "https://golf.com/instruction/golf-drills-over-the-top/"}],
-      "yt": "towel under arm golf drill connection"
-    },
-    {
-      "id": "video-dtl",
-      "name": "Protocole vidéo down-the-line et de face",
-      "area": "Contrôle",
-      "fault": "Mesure des progrès",
-      "objective": "Produire des vidéos comparables d'une séance à l'autre pour mesurer chemin, rotation et tête.",
-      "equipment": ["Téléphone + trépied", "Un alignment stick"],
-      "setup": ["Down-the-line : caméra à hauteur de hanche, alignée sur la ligne mains-cible, 3 m derrière.", "De face : caméra à hauteur de hanche, perpendiculaire, centrée sur le sternum, 3 m devant.", "Toujours le même club (fer 7) et le même cadrage."],
-      "steps": ["3 swings down-the-line, 3 swings de face.", "Uploade les vidéos dans la séance et demande l'analyse si besoin.", "Compare avec la vidéo du bilan de référence."],
-      "cues": ["Mode ralenti 120 ou 240 i/s si possible", "Le corps entier et le club en haut du backswing dans le cadre"],
-      "errors": ["Caméra trop haute ou désaxée : les angles deviennent faux"],
-      "success": "6 vidéos cadrées et uploadées",
-      "refs": [],
-      "yt": "how to film golf swing down the line face on camera position"
-    },
-    {
-      "id": "medecine-ball",
-      "name": "Lancers de medicine ball en rotation",
-      "area": "Physique",
-      "fault": "Vitesse et séquence",
-      "objective": "Développer la puissance de rotation et la séquence bas du corps → haut du corps.",
-      "equipment": ["Medicine ball 3 à 4 kg", "Un mur solide"],
-      "setup": ["Debout de profil, à 1 m du mur, en posture de golf légère."],
-      "steps": ["Rotation vers l'arrière, puis lance le ballon contre le mur en démarrant par les hanches.", "3 séries de 6 lancers par côté, 60 s de récupération.", "Qualité avant quantité : chaque lancer à intention maximale."],
-      "cues": ["Pied arrière qui pousse, hanches d'abord", "Bras comme des cordes"],
-      "errors": ["Lancer avec les bras", "Enchaîner sans récupération : la vitesse baisse"],
-      "success": "Séries complètes à intensité maximale",
-      "refs": [{"label": "GOLF.com — 5 rotational exercises", "url": "https://golf.com/instruction/fitness/rotational-movement-exercises-powerful-swing/"}],
-      "yt": "medicine ball rotational throw golf"
-    },
-    {
-      "id": "mobilite-90-90",
-      "name": "Mobilité hanches 90/90 et thoracique",
-      "area": "Physique",
-      "fault": "Rotation des hanches insuffisante",
-      "objective": "Gagner l'amplitude de rotation interne/externe des hanches et la rotation du haut du dos.",
-      "equipment": ["Un tapis"],
-      "setup": ["Assis au sol, jambe avant et jambe arrière pliées à 90°."],
-      "steps": ["90/90 : bascule les genoux d'un côté à l'autre, 10 transitions lentes.", "Maintiens 30 s penché sur la jambe avant, de chaque côté.", "Open book (allongé sur le côté, genoux pliés) : 10 rotations par côté.", "Total 10 à 15 min."],
-      "cues": ["Le buste reste droit en 90/90", "Expirer en allant chercher l'amplitude"],
-      "errors": ["Forcer dans la douleur", "Compenser avec le bas du dos"],
-      "success": "Transitions fluides des deux côtés sans appui des mains",
-      "refs": [],
-      "yt": "90 90 hip mobility golfers"
-    },
-    {
-      "id": "gainage-anti-rotation",
-      "name": "Gainage anti-rotation (Pallof press)",
-      "area": "Physique",
-      "fault": "Stabilité du tronc",
-      "objective": "Renforcer la capacité du tronc à résister à la rotation, base d'une rotation contrôlée.",
-      "equipment": ["Élastique ou poulie"],
-      "setup": ["Élastique à hauteur de poitrine, de profil, pieds largeur d'épaules."],
-      "steps": ["Pousse les mains devant la poitrine, tiens 2 s, ramène.", "3 séries de 10 par côté.", "Finir par 3 × 30 s de gainage latéral par côté."],
-      "cues": ["Le nombril ne tourne pas", "Bassin neutre"],
-      "errors": ["Se laisser tourner par l'élastique", "Cambrer"],
-      "success": "Séries complètes sans rotation du bassin",
-      "refs": [],
-      "yt": "pallof press golf core"
-    },
-    {
-      "id": "overspeed",
-      "name": "Swings d'overspeed",
-      "area": "Physique",
-      "fault": "Vitesse de club",
-      "objective": "Augmenter la vitesse de club en entraînant le système nerveux à swinguer plus vite.",
-      "equipment": ["Driver retourné (swing en tenant la tête) ou bâton léger", "Radar de vitesse si disponible"],
-      "setup": ["Échauffement complet avant.", "Driver tenu à l'envers, grip au sol pendant le swing."],
-      "steps": ["3 à 4 séries de 5 swings à intention maximale, côté droit.", "1 série de 5 swings du côté opposé (gaucher) pour l'équilibre.", "2 min de récupération entre séries."],
-      "cues": ["Le « swoosh » doit se faire entendre après la balle, pas avant", "Finir en équilibre"],
-      "errors": ["Faire l'exercice fatigué", "Perdre la posture pour aller plus vite"],
-      "success": "Vitesse mesurée et notée, tendance à la hausse sur 4 semaines",
-      "refs": [],
-      "yt": "golf overspeed training swoosh drill"
-    },
-    {
-      "id": "echelle-wedges",
-      "name": "Échelle de wedges 30–90 m",
-      "area": "Wedges",
-      "fault": "Contrôle de distance",
-      "objective": "Construire une matrice de distances fiable avec 2 ou 3 longueurs de backswing par wedge.",
-      "equipment": ["Wedges", "Repères de distance (drapeaux, télémètre)", "Carnet ou app"],
-      "setup": ["Cibles à 30, 45, 60, 75 et 90 m.", "Système horloge : backswing à 8 h, 9 h, 10 h 30."],
-      "steps": ["3 balles par distance, de la plus courte à la plus longue, puis l'inverse.", "Note l'écart en longueur de chaque balle (court/long en mètres).", "Calcule l'écart moyen en fin de séance."],
-      "cues": ["Même tempo quelle que soit la distance", "La longueur du backswing règle la distance, pas l'accélération"],
-      "errors": ["Accélérer ou freiner pour corriger la distance", "Changer de cible sans routine"],
-      "success": "Écart moyen ≤ 6 m, puis ≤ 5 m",
-      "refs": [{"label": "HackMotion — wedge distance control", "url": "https://hackmotion.com/wedge-distance-control/"}, {"label": "Coach Life — clock system", "url": "https://www.coachlife.com/videos/the-clock-system-consistent-wedge-iron-distance-control-under-pressure"}],
-      "yt": "wedge distance control clock system drill"
-    },
-    {
-      "id": "up-down-9",
-      "name": "Up & down : 9 positions",
-      "area": "Petit jeu",
-      "fault": "Scrambling",
-      "objective": "Mesurer et améliorer le scrambling dans des conditions proches du jeu.",
-      "equipment": ["1 balle", "Wedges et putter"],
-      "setup": ["9 positions autour d'un green : 3 chips (lie propre), 3 pitchs (15–25 m), 3 bunkers ou lies difficiles."],
-      "steps": ["Une seule balle par position, routine complète, on termine au trou.", "Compte les up & down réussis sur 9.", "2 tours, note le meilleur et la moyenne."],
-      "cues": ["Choisir le point de chute avant le club", "Routine identique au parcours"],
-      "errors": ["Rejouer un coup raté : le test perd sa valeur"],
-      "success": "5/9 puis 6/9",
-      "refs": [{"label": "Golfer Geeks — short game drills", "url": "https://golfergeeks.com/best-short-game-drills/"}],
-      "yt": "up and down short game drill golf practice game"
-    },
-    {
-      "id": "cercle-putting",
-      "name": "Cercle de putting 1–2 m",
-      "area": "Putting",
-      "fault": "Putts manqués < 2 m",
-      "objective": "Fiabiliser les putts courts sous pression avec toutes les pentes.",
-      "equipment": ["6 balles", "Tees pour marquer le cercle"],
-      "setup": ["6 tees en cercle autour du trou à 1 m, puis 1,5 m, puis 2 m."],
-      "steps": ["Rentre les 6 putts d'un cercle avant de passer au suivant.", "Un raté = recommencer le cercle.", "Note le nombre de réussis sur 20 à 1 m."],
-      "cues": ["Lire la pente à chaque position", "Tenir le finish, écouter la balle tomber"],
-      "errors": ["Enchaîner sans routine", "Accélérer la tête pour voir le résultat"],
-      "success": "18/20 à 1 m, 8/10 à 2 m",
-      "refs": [{"label": "The DIY Golfer — circle putting drill", "url": "https://www.thediygolfer.com/golf-drills/circle-putting-drill"}],
-      "yt": "circle putting drill 3 feet"
-    },
-    {
-      "id": "lag-zone",
-      "name": "Lag putting : zone d'1 m",
-      "area": "Putting",
-      "fault": "3-putts",
-      "objective": "Laisser les longs putts dans une zone où le 2-putt est quasi garanti.",
-      "equipment": ["Balles", "Un alignment stick ou des tees"],
-      "setup": ["Marque une zone d'1 m autour du trou (ou un stick 50 cm derrière le trou)."],
-      "steps": ["10 putts entre 10 et 15 m, distances variées.", "Compte ceux qui finissent dans la zone.", "Termine chaque putt hors zone : tu dois rentrer le second."],
-      "cues": ["Regarder le trou pendant 2 coups d'essai", "La longueur avant la ligne"],
-      "errors": ["Viser la ligne en négligeant la vitesse"],
-      "success": "8/10 dans la zone",
-      "refs": [{"label": "PGA — tee gate lag drill", "url": "https://www.pga.com/story/improve-your-lag-putting-with-this-helpful-tee-gate-drill"}, {"label": "GOLF.com — cut down 3-putts", "url": "https://golf.com/instruction/eliminate-three-putts-drill-xander-schauffeles-putting-coach/"}],
-      "yt": "lag putting drill distance control"
-    },
-    {
-      "id": "bunker-distances",
-      "name": "Bunker : 5, 10 et 20 m",
-      "area": "Bunker",
-      "fault": "Sorties de bunker",
-      "objective": "Contrôler la distance en sortie de bunker en jouant sur la longueur de swing.",
-      "equipment": ["Sand wedge et lob wedge", "Balles"],
-      "setup": ["Trace une ligne dans le sable 5 cm derrière la balle : point d'entrée."],
-      "steps": ["10 balles à 5 m, 10 à 10 m, 10 à 20 m.", "Note combien finissent à moins de 2 m du trou."],
-      "cues": ["Face ouverte avant de prendre le grip", "Accélérer à travers le sable, finish complet"],
-      "errors": ["Ralentir à l'impact", "Prendre la balle en premier"],
-      "success": "6/10 à moins de 2 m à chaque distance",
-      "refs": [],
-      "yt": "bunker distance control drill golf"
-    },
-    {
-      "id": "bilan-long-jeu",
-      "name": "Test : bilan long jeu",
-      "area": "Test",
-      "fault": "Référence de mesure",
-      "objective": "Établir les valeurs de départ pour mesurer les progrès (vitesse, dispersion).",
-      "equipment": ["Launch monitor ou radar si disponible", "Driver, fer 7", "Téléphone + trépied"],
-      "setup": ["Échauffement complet de 15 min avant le test."],
-      "steps": ["10 drivers : note la vitesse de club moyenne et la largeur de dispersion.", "10 fers 7 : dispersion latérale et longueur.", "Protocole vidéo : 3 swings down-the-line et 3 de face."],
-      "cues": ["Swing normal, pas de swing de test « parfait »"],
-      "errors": ["Faire le test à froid"],
-      "success": "Valeurs notées dans le champ « mesure » de la séance",
-      "refs": [],
-      "yt": "golf baseline test driver dispersion practice"
-    },
-    {
-      "id": "bilan-petit-jeu",
-      "name": "Test : bilan petit jeu et putting",
-      "area": "Test",
-      "fault": "Référence de mesure",
-      "objective": "Établir les valeurs de départ du petit jeu et du putting.",
-      "equipment": ["Wedges, putter, balles", "Tees"],
-      "setup": ["Utilise les fiches Up & down 9 positions, Échelle de wedges et Cercle de putting."],
-      "steps": ["Up & down 9 positions : x/9.", "Wedges : 5 balles à 40, 60 et 80 m, écart moyen.", "Putting : 20 à 1 m, 10 à 2 m, 6 lags à 12 m dans la zone."],
-      "cues": ["Une balle par essai, pas de rattrapage"],
-      "errors": [],
-      "success": "Valeurs notées dans le champ « mesure »",
-      "refs": [],
-      "yt": "short game test golf practice scoring"
-    },
-    {
-      "id": "test-oeil-moteur",
-      "name": "Test de l'œil moteur (méthode carte)",
-      "area": "Mental / routine",
-      "fault": "Dissociation en début de partie",
-      "objective": "Identifier l'œil moteur pour voir s'il explique la dissociation corps/bras en début de partie.",
-      "equipment": ["Une carte ou ta main", "Putter et 10 balles"],
-      "setup": ["Putts de 3 m en ligne droite.", "Pas de fermeture d'œil : on cache un œil avec la carte."],
-      "steps": ["5 putts œil droit caché, 5 putts œil gauche caché, en alternant l'ordre.", "Note la qualité du contact, la ligne de départ et la sensation d'équilibre.", "Refais pareil avec 5 demi-swings au fer 9."],
-      "cues": ["Garder la carte à 10 cm du visage", "Juger l'équilibre et la fluidité, pas seulement le résultat"],
-      "errors": ["Conclure sur 2 ou 3 essais"],
-      "success": "Un côté nettement plus fluide et stable identifié",
-      "refs": [],
-      "yt": "oeil moteur golf test"
-    },
-    {
-      "id": "routine-echauffement",
-      "name": "Routine d'échauffement 25 min",
-      "area": "Mental / routine",
-      "fault": "Dissociation en début de partie",
-      "objective": "Arriver au départ du 1 avec le corps calibré, pour supprimer les trous de rodage.",
-      "equipment": ["Practice + green d'entraînement"],
-      "setup": ["Démarre 40 min avant le départ."],
-      "steps": ["5 min : mobilité hanches et thoracique, 10 swings à vide progressifs.", "5 min : wedges, demi-swings puis 3/4, avec la clé hanches.", "5 min : fers 7 et 5, 3 balles sur le chemin de la porte mentale.", "5 min : bois et driver, 5 balles en visualisant les 3 premiers départs.", "5 min : putting, 3 longs putts puis 6 putts à 1 m."],
-      "cues": ["Une seule clé technique", "Finir sur une réussite au putting"],
-      "errors": ["Taper 60 balles au driver", "Arriver au départ en courant"],
-      "success": "Routine tenue en 25 min, score des trous 1–3 suivi dans les parties",
-      "refs": [],
-      "yt": "pre round golf warm up routine 25 minutes"
-    },
-    {
-      "id": "parcours-stats",
-      "name": "Parcours de transfert avec statistiques",
-      "area": "Parcours",
-      "fault": "Transfert practice → jeu",
-      "objective": "Appliquer une seule clé technique en jeu réel et récolter les statistiques trou par trou.",
-      "equipment": ["Carte de score", "L'app ouverte sur Parties → saisie trou par trou"],
-      "setup": ["Routine d'échauffement de 25 min.", "Une clé : rotation des hanches."],
-      "steps": ["Joue 9 trous en saisissant chaque trou : score, putts, fairway et côté du raté, putts manqués < 2 m.", "Après la partie, remplis « où sont partis les coups »."],
-      "cues": ["Routine complète sur chaque coup", "Ne pas changer de clé en cours de partie"],
-      "errors": ["Corriger le swing entre deux coups"],
-      "success": "Carte complète saisie dans l'app",
-      "refs": [],
-      "yt": "on course practice golf transfer"
+     "label": "GOLF.com — Chris Como, chair drill",
+     "url": "https://golf.com/instruction/swing-rotation-chair-drill-chris-como/"
     }
-  ]
+   ],
+   "yt": "chair drill golf hip rotation backswing",
+   "videos": [
+    {
+     "pro": "Renaud Poupard",
+     "title": "2 exercices pour une meilleure rotation",
+     "yt": "zPPx8Dlkzb0"
+    },
+    {
+     "pro": "Charles Marchildon",
+     "title": "Exercice de rotation",
+     "yt": "TcxV6_0pqy8"
+    },
+    {
+     "pro": "Mark Crossfield",
+     "title": "How to turn your hips in the golf swing",
+     "yt": "cZoAO8KBU_8"
+    }
+   ]
+  },
+  {
+   "id": "elastique-hanches",
+   "name": "Élastique : démarrer la descente par les hanches",
+   "area": "Long jeu",
+   "fault": "Rotation des hanches insuffisante",
+   "objective": "Automatiser la séquence de transition : les hanches lancent la descente pendant que les bras restent passifs.",
+   "equipment": [
+    "Élastique de résistance moyen",
+    "Un point d'accroche à hauteur de hanche (poteau, porte)"
+   ],
+   "setup": [
+    "Élastique autour des hanches, ancré derrière toi côté droit (côté cible opposé).",
+    "Posture de swing, bras croisés sur la poitrine."
+   ],
+   "steps": [
+    "Monte en rotation : l'élastique se détend légèrement.",
+    "Transition : tourne la boucle de ceinture vers la cible contre la résistance, épaules encore fermées 1/2 seconde.",
+    "Termine la rotation complète, poids sur le pied gauche.",
+    "3 séries de 10, puis 10 swings avec club sans élastique en reproduisant la sensation."
+   ],
+   "cues": [
+    "Ceinture d'abord, épaules ensuite",
+    "Pied gauche qui pousse le sol au démarrage",
+    "Bras passifs à la transition"
+   ],
+   "errors": [
+    "Tirer avec les épaules en premier : c'est exactement le over-the-top",
+    "Glisser latéralement vers la cible sans tourner"
+   ],
+   "success": "Sensation de séparation hanches/épaules reproduite sur 7 swings sur 10 sans élastique",
+   "refs": [
+    {
+     "label": "Today's Golfer — Create resistance home drill",
+     "url": "https://www.todays-golfer.com/tips-and-tuition/swing-drills/video-tips/2010/november/create-resistance-home-drill/"
+    }
+   ],
+   "yt": "resistance band golf hip rotation downswing drill",
+   "videos": [
+    {
+     "pro": "Alex Elliott",
+     "title": "How to move your hips at the start of the downswing",
+     "yt": "CkiMKCS8peY"
+    },
+    {
+     "pro": "Adrien Dubois · Opp Golf",
+     "title": "Jouer avec votre bassin : 3 actions motrices et 1 drill",
+     "yt": "8FJFJt3bivo"
+    },
+    {
+     "pro": "Danny Maude",
+     "title": "Best rotation drill for backswing and downswing",
+     "yt": "GXX61LiW0Qg"
+    },
+    {
+     "pro": "Scratch Golf Academy",
+     "title": "Golf drills for an effortless golf swing",
+     "yt": "aG3chWJZTbc"
+    }
+   ]
+  },
+  {
+   "id": "porte-chemin",
+   "name": "Porte : chemin de club in-to-out",
+   "area": "Long jeu",
+   "fault": "Chemin over-the-top",
+   "objective": "Feedback direct du chemin de club : la tête de club doit passer dans un couloir orienté légèrement de l'intérieur vers l'extérieur.",
+   "equipment": [
+    "2 alignment sticks ou 2 tees longs",
+    "Fers 7 puis driver"
+   ],
+   "setup": [
+    "Pose un stick 10 cm à l'extérieur de la balle, parallèle à la ligne de jeu.",
+    "Pose le second 10 cm à l'intérieur, 30 cm derrière la balle : la porte est légèrement ouverte vers la droite de la cible.",
+    "Largeur de la porte : 2 têtes de club au début, 1,5 ensuite."
+   ],
+   "steps": [
+    "5 demi-swings au ralenti en passant dans la porte sans balle.",
+    "10 balles en demi-swing.",
+    "10 balles en 3/4, puis plein swing quand 7/10 passent proprement.",
+    "Note le nombre de balles qui passent sans toucher le stick extérieur."
+   ],
+   "cues": [
+    "Arriver par l'intérieur, comme si tu visais le champ droit",
+    "La crosse descend derrière toi à la transition",
+    "Laisser les hanches tirer, ne pas lancer les mains"
+   ],
+   "errors": [
+    "Toucher le stick extérieur : chemin out-to-in",
+    "Bloquer le corps pour passer : tu pousses la balle à droite"
+   ],
+   "success": "8/10 balles dans la porte au fer 7",
+   "refs": [
+    {
+     "label": "The DIY Golfer — Fleetwood's gate drill",
+     "url": "https://www.thediygolfer.com/golf-drills/fleetwood-gate-drill"
+    },
+    {
+     "label": "MyGolfSpy — 3 drills over-the-top",
+     "url": "https://mygolfspy.com/news-opinion/instruction/my-3-go-to-drills-for-fixing-an-over-the-top-golf-swing/"
+    }
+   ],
+   "yt": "gate drill alignment sticks fix over the top club path",
+   "videos": [
+    {
+     "pro": "Chris Ryan",
+     "title": "Fix your in-to-out path",
+     "yt": "FT65cfA4OK0"
+    },
+    {
+     "pro": "Danny Maude",
+     "title": "How to stop swinging over the top",
+     "yt": "RglaBPUarGM"
+    },
+    {
+     "pro": "Clay Ballard · Top Speed Golf",
+     "title": "One drill to fix your entire golf swing",
+     "yt": "5PIAmRlG1nw"
+    }
+   ]
+  },
+  {
+   "id": "headcover-exterieur",
+   "name": "Headcover à l'extérieur de la balle",
+   "area": "Long jeu",
+   "fault": "Chemin over-the-top",
+   "objective": "Punir le chemin extérieur-intérieur : un chemin over-the-top touche le headcover avant la balle.",
+   "equipment": [
+    "Un headcover de bois",
+    "Fer 7"
+   ],
+   "setup": [
+    "Headcover posé 10 à 12 cm au-delà de la balle et 15 cm derrière, côté opposé à toi.",
+    "Commence avec plus de marge, rapproche au fil des séries."
+   ],
+   "steps": [
+    "10 demi-swings sans toucher le headcover.",
+    "10 balles en 3/4.",
+    "Rapproche le headcover de 2 cm et refais 10 balles."
+   ],
+   "cues": [
+    "La descente part vers l'intérieur",
+    "Les mains restent proches du corps au début de la descente"
+   ],
+   "errors": [
+    "Ralentir pour éviter le headcover : garde la vitesse",
+    "Ouvrir la face pour compenser : surveille la direction de départ"
+   ],
+   "success": "10 balles consécutives sans contact au 3/4",
+   "refs": [
+    {
+     "label": "Golf Magic — Headcover drill",
+     "url": "https://www.golfmagic.com/tips-and-instruction/best-golf-tips-how-stop-slicing-your-driver-using-headcover-drill"
+    }
+   ],
+   "yt": "headcover drill golf stop coming over the top",
+   "videos": [
+    {
+     "pro": "Chris Ryan",
+     "title": "How to stop the out-to-in",
+     "yt": "-vYpySRIeFo"
+    },
+    {
+     "pro": "Russell Heritage",
+     "title": "The simple swing thought that will fix your downswing",
+     "yt": "VDzORkIxYYI"
+    }
+   ]
+  },
+  {
+   "id": "crayon-gant",
+   "name": "Crayon dans le gant : anti-flip",
+   "area": "Long jeu",
+   "fault": "Release bloqué / flip",
+   "objective": "Garder le poignet gauche plat ou légèrement fléchi à l'impact, sans casser vers l'arrière.",
+   "equipment": [
+    "Un crayon ou un tee long glissé sous la bande du gant, dos de main gauche",
+    "Wedge ou fer 9"
+   ],
+   "setup": [
+    "Le crayon dépasse vers le poignet, le long de l'avant-bras.",
+    "Balle au centre du stance."
+   ],
+   "steps": [
+    "10 demi-swings : à l'impact et après, le crayon ne doit pas pointer loin de l'avant-bras.",
+    "10 balles en demi-swing, finish à hauteur de hanche.",
+    "10 balles en 3/4."
+   ],
+   "cues": [
+    "Le dos de la main gauche regarde la cible à l'impact",
+    "Le corps continue de tourner, les mains ne prennent pas le relais"
+   ],
+   "errors": [
+    "Le crayon se décolle de l'avant-bras après l'impact : flip",
+    "Arrêter la rotation du corps : cause du blocage"
+   ],
+   "success": "Contact balle-sol propre sur 8/10 avec le crayon qui reste aligné",
+   "refs": [],
+   "yt": "golf drill flat lead wrist impact pencil glove",
+   "videos": [
+    {
+     "pro": "Eric Cogorno",
+     "title": "The secret to a flat left wrist",
+     "yt": "S0nXUsAyJmM"
+    }
+   ]
+  },
+  {
+   "id": "tete-stable",
+   "name": "Tête stable derrière la balle",
+   "area": "Long jeu",
+   "fault": "Tête qui avance/plonge à la transition",
+   "objective": "Garder la tête derrière la balle jusqu'à l'impact, au plein swing comme au chipping.",
+   "equipment": [
+    "Un tee ou une pièce",
+    "Téléphone sur trépied (vue de face)"
+   ],
+   "setup": [
+    "Place un tee au sol à l'aplomb de ton oreille gauche à l'adresse (vue de face).",
+    "Caméra de face, à hauteur de hanche."
+   ],
+   "steps": [
+    "10 demi-swings : à l'impact, l'oreille gauche n'a pas dépassé le tee.",
+    "10 balles en 3/4, film les 3 dernières.",
+    "Compare la position de la tête adresse / impact sur la vidéo."
+   ],
+   "cues": [
+    "La poitrine tourne autour de la colonne, la tête reste le centre",
+    "Regarder l'arrière de la balle jusqu'au contact"
+   ],
+   "errors": [
+    "Bloquer la tête au point d'empêcher la rotation",
+    "Plonger vers le bas en descente"
+   ],
+   "success": "Vidéo : tête derrière la balle à l'impact sur 3/3 swings",
+   "refs": [
+    {
+     "label": "GOLF.com — range fix over the top",
+     "url": "https://golf.com/instruction/range-fix-stop-you-swinging-over-top/"
+    }
+   ],
+   "yt": "golf drill keep head behind ball impact",
+   "videos": [
+    {
+     "pro": "Jean-Marc Espelt",
+     "title": "L'inclinaison du corps pour stabiliser le swing",
+     "yt": "URCJLadXqhU"
+    }
+   ]
+  },
+  {
+   "id": "split-grip",
+   "name": "Split grip : libérer la face",
+   "area": "Long jeu",
+   "fault": "Release bloqué",
+   "objective": "Sentir la rotation naturelle des avant-bras après l'impact.",
+   "equipment": [
+    "Fer 8 ou 9"
+   ],
+   "setup": [
+    "Mains écartées de 10 à 15 cm sur le grip, main droite en bas.",
+    "Stance légèrement réduit."
+   ],
+   "steps": [
+    "10 demi-swings à vide : après l'impact, la main droite passe au-dessus de la gauche.",
+    "15 balles en demi-swing, finish à hauteur de hanche avec le bout de grip qui pointe vers ta hanche gauche.",
+    "5 balles en grip normal en reproduisant la sensation."
+   ],
+   "cues": [
+    "Les avant-bras se croisent après la balle",
+    "La pointe du club vers le ciel à hauteur de hanche après l'impact"
+   ],
+   "errors": [
+    "Rester bloqué avec la face qui regarde le ciel après l'impact",
+    "Couper la rotation du corps pour forcer le croisement"
+   ],
+   "success": "Vol de balle droit ou léger draw sur 7/10",
+   "refs": [
+    {
+     "label": "Keiser University — split grip drill",
+     "url": "https://collegeofgolf.keiseruniversity.edu/the-split-grip-drill-in-golf-improve-swing-path-and-club-control/"
+    }
+   ],
+   "yt": "split grip drill golf release",
+   "videos": [
+    {
+     "pro": "Mark Crossfield",
+     "title": "The mega split hand swing drill",
+     "yt": "wZo8eMdfBEo"
+    },
+    {
+     "pro": "Mark Crossfield",
+     "title": "The best release drill in golf",
+     "yt": "53YCotTHNaY"
+    },
+    {
+     "pro": "Chris Ryan",
+     "title": "Awesome release golf drill",
+     "yt": "T5KLdKZ_9UI"
+    },
+    {
+     "pro": "Édouard Montaz",
+     "title": "Comment lâcher prise du swing : exercice",
+     "yt": "JIrp4gKWd5E"
+    }
+   ]
+  },
+  {
+   "id": "serviette-aisselle",
+   "name": "Serviette sous l'aisselle gauche",
+   "area": "Long jeu",
+   "fault": "Chicken wing / bras déconnecté",
+   "objective": "Garder le bras gauche connecté au torse pendant la traversée pour que le corps pilote le club.",
+   "equipment": [
+    "Une petite serviette",
+    "Fer 8"
+   ],
+   "setup": [
+    "Serviette coincée sous l'aisselle gauche."
+   ],
+   "steps": [
+    "10 demi-swings : la serviette ne tombe pas avant le finish à hauteur de hanche.",
+    "15 balles en 3/4."
+   ],
+   "cues": [
+    "Le coude gauche reste orienté vers le sol après l'impact",
+    "La poitrine tourne avec les bras"
+   ],
+   "errors": [
+    "Serrer fort au point de raidir le swing",
+    "La serviette tombe à l'impact : le coude gauche sort"
+   ],
+   "success": "Serviette en place jusqu'au finish sur 8/10",
+   "refs": [
+    {
+     "label": "GOLF.com — golf drills over the top",
+     "url": "https://golf.com/instruction/golf-drills-over-the-top/"
+    }
+   ],
+   "yt": "towel under arm golf drill connection",
+   "videos": [
+    {
+     "pro": "Joël Bernard",
+     "title": "Aile de poulet : 98 % des golfeurs sont touchés",
+     "yt": "-YW50NxGwq8"
+    },
+    {
+     "pro": "Paul Lambersens",
+     "title": "Garder le bras gauche tendu après l'impact",
+     "yt": "cyzV7FvgN1w"
+    }
+   ]
+  },
+  {
+   "id": "video-dtl",
+   "name": "Protocole vidéo down-the-line et de face",
+   "area": "Contrôle",
+   "fault": "Mesure des progrès",
+   "objective": "Produire des vidéos comparables d'une séance à l'autre pour mesurer chemin, rotation et tête.",
+   "equipment": [
+    "Téléphone + trépied",
+    "Un alignment stick"
+   ],
+   "setup": [
+    "Down-the-line : caméra à hauteur de hanche, alignée sur la ligne mains-cible, 3 m derrière.",
+    "De face : caméra à hauteur de hanche, perpendiculaire, centrée sur le sternum, 3 m devant.",
+    "Toujours le même club (fer 7) et le même cadrage."
+   ],
+   "steps": [
+    "3 swings down-the-line, 3 swings de face.",
+    "Uploade les vidéos dans la séance et demande l'analyse si besoin.",
+    "Compare avec la vidéo du bilan de référence."
+   ],
+   "cues": [
+    "Mode ralenti 120 ou 240 i/s si possible",
+    "Le corps entier et le club en haut du backswing dans le cadre"
+   ],
+   "errors": [
+    "Caméra trop haute ou désaxée : les angles deviennent faux"
+   ],
+   "success": "6 vidéos cadrées et uploadées",
+   "refs": [],
+   "yt": "how to film golf swing down the line face on camera position",
+   "videos": [
+    {
+     "pro": "Jean-Marc Espelt",
+     "title": "Les 6 points clés du swing",
+     "yt": "IyibGttL9v4"
+    }
+   ]
+  },
+  {
+   "id": "medecine-ball",
+   "name": "Lancers de medicine ball en rotation",
+   "area": "Physique",
+   "fault": "Vitesse et séquence",
+   "objective": "Développer la puissance de rotation et la séquence bas du corps → haut du corps.",
+   "equipment": [
+    "Medicine ball 3 à 4 kg",
+    "Un mur solide"
+   ],
+   "setup": [
+    "Debout de profil, à 1 m du mur, en posture de golf légère."
+   ],
+   "steps": [
+    "Rotation vers l'arrière, puis lance le ballon contre le mur en démarrant par les hanches.",
+    "3 séries de 6 lancers par côté, 60 s de récupération.",
+    "Qualité avant quantité : chaque lancer à intention maximale."
+   ],
+   "cues": [
+    "Pied arrière qui pousse, hanches d'abord",
+    "Bras comme des cordes"
+   ],
+   "errors": [
+    "Lancer avec les bras",
+    "Enchaîner sans récupération : la vitesse baisse"
+   ],
+   "success": "Séries complètes à intensité maximale",
+   "refs": [
+    {
+     "label": "GOLF.com — 5 rotational exercises",
+     "url": "https://golf.com/instruction/fitness/rotational-movement-exercises-powerful-swing/"
+    }
+   ],
+   "yt": "medicine ball rotational throw golf"
+  },
+  {
+   "id": "mobilite-90-90",
+   "name": "Mobilité hanches 90/90 et thoracique",
+   "area": "Physique",
+   "fault": "Rotation des hanches insuffisante",
+   "objective": "Gagner l'amplitude de rotation interne/externe des hanches et la rotation du haut du dos.",
+   "equipment": [
+    "Un tapis"
+   ],
+   "setup": [
+    "Assis au sol, jambe avant et jambe arrière pliées à 90°."
+   ],
+   "steps": [
+    "90/90 : bascule les genoux d'un côté à l'autre, 10 transitions lentes.",
+    "Maintiens 30 s penché sur la jambe avant, de chaque côté.",
+    "Open book (allongé sur le côté, genoux pliés) : 10 rotations par côté.",
+    "Total 10 à 15 min."
+   ],
+   "cues": [
+    "Le buste reste droit en 90/90",
+    "Expirer en allant chercher l'amplitude"
+   ],
+   "errors": [
+    "Forcer dans la douleur",
+    "Compenser avec le bas du dos"
+   ],
+   "success": "Transitions fluides des deux côtés sans appui des mains",
+   "refs": [],
+   "yt": "90 90 hip mobility golfers"
+  },
+  {
+   "id": "gainage-anti-rotation",
+   "name": "Gainage anti-rotation (Pallof press)",
+   "area": "Physique",
+   "fault": "Stabilité du tronc",
+   "objective": "Renforcer la capacité du tronc à résister à la rotation, base d'une rotation contrôlée.",
+   "equipment": [
+    "Élastique ou poulie"
+   ],
+   "setup": [
+    "Élastique à hauteur de poitrine, de profil, pieds largeur d'épaules."
+   ],
+   "steps": [
+    "Pousse les mains devant la poitrine, tiens 2 s, ramène.",
+    "3 séries de 10 par côté.",
+    "Finir par 3 × 30 s de gainage latéral par côté."
+   ],
+   "cues": [
+    "Le nombril ne tourne pas",
+    "Bassin neutre"
+   ],
+   "errors": [
+    "Se laisser tourner par l'élastique",
+    "Cambrer"
+   ],
+   "success": "Séries complètes sans rotation du bassin",
+   "refs": [],
+   "yt": "pallof press golf core"
+  },
+  {
+   "id": "overspeed",
+   "name": "Swings d'overspeed",
+   "area": "Physique",
+   "fault": "Vitesse de club",
+   "objective": "Augmenter la vitesse de club en entraînant le système nerveux à swinguer plus vite.",
+   "equipment": [
+    "Driver retourné (swing en tenant la tête) ou bâton léger",
+    "Radar de vitesse si disponible"
+   ],
+   "setup": [
+    "Échauffement complet avant.",
+    "Driver tenu à l'envers, grip au sol pendant le swing."
+   ],
+   "steps": [
+    "3 à 4 séries de 5 swings à intention maximale, côté droit.",
+    "1 série de 5 swings du côté opposé (gaucher) pour l'équilibre.",
+    "2 min de récupération entre séries."
+   ],
+   "cues": [
+    "Le « swoosh » doit se faire entendre après la balle, pas avant",
+    "Finir en équilibre"
+   ],
+   "errors": [
+    "Faire l'exercice fatigué",
+    "Perdre la posture pour aller plus vite"
+   ],
+   "success": "Vitesse mesurée et notée, tendance à la hausse sur 4 semaines",
+   "refs": [],
+   "yt": "golf overspeed training swoosh drill"
+  },
+  {
+   "id": "echelle-wedges",
+   "name": "Échelle de wedges 30–90 m",
+   "area": "Wedges",
+   "fault": "Contrôle de distance",
+   "objective": "Construire une matrice de distances fiable avec 2 ou 3 longueurs de backswing par wedge.",
+   "equipment": [
+    "Wedges",
+    "Repères de distance (drapeaux, télémètre)",
+    "Carnet ou app"
+   ],
+   "setup": [
+    "Cibles à 30, 45, 60, 75 et 90 m.",
+    "Système horloge : backswing à 8 h, 9 h, 10 h 30."
+   ],
+   "steps": [
+    "3 balles par distance, de la plus courte à la plus longue, puis l'inverse.",
+    "Note l'écart en longueur de chaque balle (court/long en mètres).",
+    "Calcule l'écart moyen en fin de séance."
+   ],
+   "cues": [
+    "Même tempo quelle que soit la distance",
+    "La longueur du backswing règle la distance, pas l'accélération"
+   ],
+   "errors": [
+    "Accélérer ou freiner pour corriger la distance",
+    "Changer de cible sans routine"
+   ],
+   "success": "Écart moyen ≤ 6 m, puis ≤ 5 m",
+   "refs": [
+    {
+     "label": "HackMotion — wedge distance control",
+     "url": "https://hackmotion.com/wedge-distance-control/"
+    },
+    {
+     "label": "Coach Life — clock system",
+     "url": "https://www.coachlife.com/videos/the-clock-system-consistent-wedge-iron-distance-control-under-pressure"
+    }
+   ],
+   "yt": "wedge distance control clock system drill",
+   "videos": [
+    {
+     "pro": "Athletic Motion Golf",
+     "title": "The easiest way to control wedge distance",
+     "yt": "3ysjcVRLYWo"
+    },
+    {
+     "pro": "Joël Bernard",
+     "title": "Wedging : les 3 erreurs classiques",
+     "yt": "fn4zOqAio30"
+    }
+   ]
+  },
+  {
+   "id": "up-down-9",
+   "name": "Up & down : 9 positions",
+   "area": "Petit jeu",
+   "fault": "Scrambling",
+   "objective": "Mesurer et améliorer le scrambling dans des conditions proches du jeu.",
+   "equipment": [
+    "1 balle",
+    "Wedges et putter"
+   ],
+   "setup": [
+    "9 positions autour d'un green : 3 chips (lie propre), 3 pitchs (15–25 m), 3 bunkers ou lies difficiles."
+   ],
+   "steps": [
+    "Une seule balle par position, routine complète, on termine au trou.",
+    "Compte les up & down réussis sur 9.",
+    "2 tours, note le meilleur et la moyenne."
+   ],
+   "cues": [
+    "Choisir le point de chute avant le club",
+    "Routine identique au parcours"
+   ],
+   "errors": [
+    "Rejouer un coup raté : le test perd sa valeur"
+   ],
+   "success": "5/9 puis 6/9",
+   "refs": [
+    {
+     "label": "Golfer Geeks — short game drills",
+     "url": "https://golfergeeks.com/best-short-game-drills/"
+    }
+   ],
+   "yt": "up and down short game drill golf practice game",
+   "videos": [
+    {
+     "pro": "Dan Grieve · Golf Monthly",
+     "title": "My best drills for pitching, chipping and bunker play",
+     "yt": "mm6KuKDuMKw"
+    }
+   ]
+  },
+  {
+   "id": "cercle-putting",
+   "name": "Cercle de putting 1–2 m",
+   "area": "Putting",
+   "fault": "Putts manqués < 2 m",
+   "objective": "Fiabiliser les putts courts sous pression avec toutes les pentes.",
+   "equipment": [
+    "6 balles",
+    "Tees pour marquer le cercle"
+   ],
+   "setup": [
+    "6 tees en cercle autour du trou à 1 m, puis 1,5 m, puis 2 m."
+   ],
+   "steps": [
+    "Rentre les 6 putts d'un cercle avant de passer au suivant.",
+    "Un raté = recommencer le cercle.",
+    "Note le nombre de réussis sur 20 à 1 m."
+   ],
+   "cues": [
+    "Lire la pente à chaque position",
+    "Tenir le finish, écouter la balle tomber"
+   ],
+   "errors": [
+    "Enchaîner sans routine",
+    "Accélérer la tête pour voir le résultat"
+   ],
+   "success": "18/20 à 1 m, 8/10 à 2 m",
+   "refs": [
+    {
+     "label": "The DIY Golfer — circle putting drill",
+     "url": "https://www.thediygolfer.com/golf-drills/circle-putting-drill"
+    }
+   ],
+   "yt": "circle putting drill 3 feet",
+   "videos": [
+    {
+     "pro": "Chris Ryan",
+     "title": "1 drill to hole more short putts",
+     "yt": "GXNWD7Kp2Is"
+    },
+    {
+     "pro": "Todd Sones",
+     "title": "Putting tips : putter, posture, stroke",
+     "yt": "ZBALEfjc5H4"
+    }
+   ]
+  },
+  {
+   "id": "lag-zone",
+   "name": "Lag putting : zone d'1 m",
+   "area": "Putting",
+   "fault": "3-putts",
+   "objective": "Laisser les longs putts dans une zone où le 2-putt est quasi garanti.",
+   "equipment": [
+    "Balles",
+    "Un alignment stick ou des tees"
+   ],
+   "setup": [
+    "Marque une zone d'1 m autour du trou (ou un stick 50 cm derrière le trou)."
+   ],
+   "steps": [
+    "10 putts entre 10 et 15 m, distances variées.",
+    "Compte ceux qui finissent dans la zone.",
+    "Termine chaque putt hors zone : tu dois rentrer le second."
+   ],
+   "cues": [
+    "Regarder le trou pendant 2 coups d'essai",
+    "La longueur avant la ligne"
+   ],
+   "errors": [
+    "Viser la ligne en négligeant la vitesse"
+   ],
+   "success": "8/10 dans la zone",
+   "refs": [
+    {
+     "label": "PGA — tee gate lag drill",
+     "url": "https://www.pga.com/story/improve-your-lag-putting-with-this-helpful-tee-gate-drill"
+    },
+    {
+     "label": "GOLF.com — cut down 3-putts",
+     "url": "https://golf.com/instruction/eliminate-three-putts-drill-xander-schauffeles-putting-coach/"
+    }
+   ],
+   "yt": "lag putting drill distance control",
+   "videos": [
+    {
+     "pro": "Pádraig Harrington · DP World Tour",
+     "title": "Putting drills he does before every round",
+     "yt": "XYQlk1155qI"
+    }
+   ]
+  },
+  {
+   "id": "bunker-distances",
+   "name": "Bunker : 5, 10 et 20 m",
+   "area": "Bunker",
+   "fault": "Sorties de bunker",
+   "objective": "Contrôler la distance en sortie de bunker en jouant sur la longueur de swing.",
+   "equipment": [
+    "Sand wedge et lob wedge",
+    "Balles"
+   ],
+   "setup": [
+    "Trace une ligne dans le sable 5 cm derrière la balle : point d'entrée."
+   ],
+   "steps": [
+    "10 balles à 5 m, 10 à 10 m, 10 à 20 m.",
+    "Note combien finissent à moins de 2 m du trou."
+   ],
+   "cues": [
+    "Face ouverte avant de prendre le grip",
+    "Accélérer à travers le sable, finish complet"
+   ],
+   "errors": [
+    "Ralentir à l'impact",
+    "Prendre la balle en premier"
+   ],
+   "success": "6/10 à moins de 2 m à chaque distance",
+   "refs": [],
+   "yt": "bunker distance control drill golf",
+   "videos": [
+    {
+     "pro": "Dan Grieve · Golf Monthly",
+     "title": "How to hit bunker shots close from every distance",
+     "yt": "UotuYHzWPEs"
+    }
+   ]
+  },
+  {
+   "id": "bilan-long-jeu",
+   "name": "Test : bilan long jeu",
+   "area": "Test",
+   "fault": "Référence de mesure",
+   "objective": "Établir les valeurs de départ pour mesurer les progrès (vitesse, dispersion).",
+   "equipment": [
+    "Launch monitor ou radar si disponible",
+    "Driver, fer 7",
+    "Téléphone + trépied"
+   ],
+   "setup": [
+    "Échauffement complet de 15 min avant le test."
+   ],
+   "steps": [
+    "10 drivers : note la vitesse de club moyenne et la largeur de dispersion.",
+    "10 fers 7 : dispersion latérale et longueur.",
+    "Protocole vidéo : 3 swings down-the-line et 3 de face."
+   ],
+   "cues": [
+    "Swing normal, pas de swing de test « parfait »"
+   ],
+   "errors": [
+    "Faire le test à froid"
+   ],
+   "success": "Valeurs notées dans le champ « mesure » de la séance",
+   "refs": [],
+   "yt": "golf baseline test driver dispersion practice"
+  },
+  {
+   "id": "bilan-petit-jeu",
+   "name": "Test : bilan petit jeu et putting",
+   "area": "Test",
+   "fault": "Référence de mesure",
+   "objective": "Établir les valeurs de départ du petit jeu et du putting.",
+   "equipment": [
+    "Wedges, putter, balles",
+    "Tees"
+   ],
+   "setup": [
+    "Utilise les fiches Up & down 9 positions, Échelle de wedges et Cercle de putting."
+   ],
+   "steps": [
+    "Up & down 9 positions : x/9.",
+    "Wedges : 5 balles à 40, 60 et 80 m, écart moyen.",
+    "Putting : 20 à 1 m, 10 à 2 m, 6 lags à 12 m dans la zone."
+   ],
+   "cues": [
+    "Une balle par essai, pas de rattrapage"
+   ],
+   "errors": [],
+   "success": "Valeurs notées dans le champ « mesure »",
+   "refs": [],
+   "yt": "short game test golf practice scoring"
+  },
+  {
+   "id": "test-oeil-moteur",
+   "name": "Test de l'œil moteur (méthode carte)",
+   "area": "Mental / routine",
+   "fault": "Dissociation en début de partie",
+   "objective": "Identifier l'œil moteur pour voir s'il explique la dissociation corps/bras en début de partie.",
+   "equipment": [
+    "Une carte ou ta main",
+    "Putter et 10 balles"
+   ],
+   "setup": [
+    "Putts de 3 m en ligne droite.",
+    "Pas de fermeture d'œil : on cache un œil avec la carte."
+   ],
+   "steps": [
+    "5 putts œil droit caché, 5 putts œil gauche caché, en alternant l'ordre.",
+    "Note la qualité du contact, la ligne de départ et la sensation d'équilibre.",
+    "Refais pareil avec 5 demi-swings au fer 9."
+   ],
+   "cues": [
+    "Garder la carte à 10 cm du visage",
+    "Juger l'équilibre et la fluidité, pas seulement le résultat"
+   ],
+   "errors": [
+    "Conclure sur 2 ou 3 essais"
+   ],
+   "success": "Un côté nettement plus fluide et stable identifié",
+   "refs": [],
+   "yt": "oeil moteur golf test"
+  },
+  {
+   "id": "routine-echauffement",
+   "name": "Routine d'échauffement 25 min",
+   "area": "Mental / routine",
+   "fault": "Dissociation en début de partie",
+   "objective": "Arriver au départ du 1 avec le corps calibré, pour supprimer les trous de rodage.",
+   "equipment": [
+    "Practice + green d'entraînement"
+   ],
+   "setup": [
+    "Démarre 40 min avant le départ."
+   ],
+   "steps": [
+    "5 min : mobilité hanches et thoracique, 10 swings à vide progressifs.",
+    "5 min : wedges, demi-swings puis 3/4, avec la clé hanches.",
+    "5 min : fers 7 et 5, 3 balles sur le chemin de la porte mentale.",
+    "5 min : bois et driver, 5 balles en visualisant les 3 premiers départs.",
+    "5 min : putting, 3 longs putts puis 6 putts à 1 m."
+   ],
+   "cues": [
+    "Une seule clé technique",
+    "Finir sur une réussite au putting"
+   ],
+   "errors": [
+    "Taper 60 balles au driver",
+    "Arriver au départ en courant"
+   ],
+   "success": "Routine tenue en 25 min, score des trous 1–3 suivi dans les parties",
+   "refs": [],
+   "yt": "pre round golf warm up routine 25 minutes",
+   "videos": [
+    {
+     "pro": "Pádraig Harrington",
+     "title": "A simple and effective warm-up drill",
+     "yt": "NU4N3RERyuk"
+    }
+   ]
+  },
+  {
+   "id": "parcours-stats",
+   "name": "Parcours de transfert avec statistiques",
+   "area": "Parcours",
+   "fault": "Transfert practice → jeu",
+   "objective": "Appliquer une seule clé technique en jeu réel et récolter les statistiques trou par trou.",
+   "equipment": [
+    "Carte de score",
+    "L'app ouverte sur Parties → saisie trou par trou"
+   ],
+   "setup": [
+    "Routine d'échauffement de 25 min.",
+    "Une clé : rotation des hanches."
+   ],
+   "steps": [
+    "Joue 9 trous en saisissant chaque trou : score, putts, fairway et côté du raté, putts manqués < 2 m.",
+    "Après la partie, remplis « où sont partis les coups »."
+   ],
+   "cues": [
+    "Routine complète sur chaque coup",
+    "Ne pas changer de clé en cours de partie"
+   ],
+   "errors": [
+    "Corriger le swing entre deux coups"
+   ],
+   "success": "Carte complète saisie dans l'app",
+   "refs": [],
+   "yt": "on course practice golf transfer"
+  }
+ ]
 }

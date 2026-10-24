@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.2.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -353,11 +353,12 @@ function vSeance(p) {
       <button class="play" data-act="run-toggle" aria-label="${r.running ? "Pause" : "Démarrer"}">${icon(r.running ? "pause" : "play", "width:26px;height:26px")}</button>
       <button data-act="run-next" aria-label="${i === s.blocks.length - 1 ? "Terminer" : "Exercice suivant"}">${icon("next")}</button></div>
   </div>
-  <a class="demo" href="#/exercice/${b.drill}">${icon("play", "color:#2c5aa0;flex:none")}<span><b>Voir la fiche et la démo</b><br><span class="muted">${esc((d.cues || [])[0] || d.objective || "")}</span></span></a>
+  ${(d.videos || []).length ? `<details class="card vids"><summary><b>Démo vidéo · ${esc(d.videos[0].pro)}</b>${d.videos.length > 1 ? ` <span class="muted">+ ${d.videos.length - 1} autre${d.videos.length > 2 ? "s" : ""}</span>` : ""}</summary><div class="stack" style="margin-top:10px">${d.videos.map(proVideo).join("")}</div></details>` : ""}
+  <a class="demo" href="#/exercice/${b.drill}">${icon("play", "color:#2c5aa0;flex:none")}<span><b>Voir la fiche de l'exercice</b><br><span class="muted">${esc((d.cues || [])[0] || d.objective || "")}</span></span></a>
   <div class="counter"><button data-act="run-cnt" data-d="-1" aria-label="Retirer une réussite">−</button><div><div class="v">${r.blocks[i].ok} / ${r.blocks[i].tot}</div><div class="l">réussites / essais</div></div><button data-act="run-cnt" data-d="1" aria-label="Ajouter une réussite">+</button></div>
   <div class="row" style="justify-content:center"><button class="btn ghost sm" data-act="run-miss">+ 1 essai raté</button><button class="btn ghost sm" data-act="run-reset">Remettre à zéro</button></div>
   <div><h2>Programme</h2><div class="queue">${s.blocks.map((x, k) => { const dd = S.drills[x.drill] || { name: x.drill }; const bk = r.blocks[k];
-    return `<button class="q ${k === i ? "now" : ""} ${r.done[k] ? "ok" : ""}" data-act="run-go" data-i="${k}" style="font:inherit;text-align:left;cursor:pointer"><span class="d" style="background:${r.done[k] ? "#2f6b45" : k === i ? "#c8372d" : areaColor(dd.area)}"></span><span>${esc(dd.name)} · ${x.min} min</span><span class="st ${r.done[k] ? "ok" : ""}">${r.done[k] ? `✓${bk.tot ? " " + bk.ok + "/" + bk.tot : ""}` : k === i ? (r.running ? "en cours" : "prêt") : "à venir"}</span></button>`; }).join("")}</div></div>
+    return `<button class="q ${k === i ? "now" : ""} ${r.done[k] ? "ok" : ""}" data-act="run-go" data-i="${k}" style="font:inherit;text-align:left;cursor:pointer"><span class="d" style="background:${r.done[k] ? "#2f6b45" : k === i ? "#c8372d" : areaColor(dd.area)}"></span><span>${esc(dd.name)} · ${x.min} min${(dd.videos || []).length ? " · ▶" : ""}</span><span class="st ${r.done[k] ? "ok" : ""}">${r.done[k] ? `✓${bk.tot ? " " + bk.ok + "/" + bk.tot : ""}` : k === i ? (r.running ? "en cours" : "prêt") : "à venir"}</span></button>`; }).join("")}</div></div>
   ${canEdit() ? `<div class="card"><h2>${st.v ? "Validation" : `Valider la séance${nDone ? ` · ${nDone}/${s.blocks.length} exercices faits` : ""}`}</h2><form class="stack" data-form="validate" data-id="${s.id}">
     <div class="f"><span class="lbl">Résultat</span><div class="seg" data-seg="status">${["Faite", "Partielle", "Non faite"].map(o => `<button type="button" data-v="${o}" aria-pressed="${(v.status || (nDone && nDone < s.blocks.length ? "Partielle" : "Faite")) === o}">${o}</button>`).join("")}</div></div>
     <div class="f"><span class="lbl">Qualité ressentie</span><div class="seg" data-seg="rating">${[1, 2, 3, 4, 5].map(o => `<button type="button" data-v="${o}" aria-pressed="${v.rating === o}">${o}</button>`).join("")}</div></div>
@@ -384,6 +385,10 @@ function runAct(a, b) {
   saveRun(s, r); render();
 }
 
+/* ---------- Vidéos des pros ---------- */
+const ytFrame = (id, title) => `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="${esc(title)}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>`;
+function proVideo(v) { return `<div class="stack" style="gap:6px">${ytFrame(v.yt, v.title)}<div class="small"><b>${esc(v.pro)}</b> · ${esc(v.title)} <a href="https://www.youtube.com/watch?v=${v.yt}" target="_blank" rel="noopener">↗</a></div></div>`; }
+
 /* ---------- Exercice ---------- */
 function vExercice(p) {
   const d = S.drills[p[1]]; if (!d) return emptyBox("Exercice introuvable", "", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
@@ -398,6 +403,7 @@ function vExercice(p) {
   <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
   <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
   <div class="card"><h2>Vidéos et démonstrations</h2><div class="stack">
+    ${(d.videos || []).map(proVideo).join("")}
     ${links.map(l => { const y = ytId(l.url); return `<div class="stack">${y ? `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${y}" title="${esc(l.label || d.name)}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" loading="lazy"></iframe></div>` : ""}<div class="row between small"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>${canEdit() ? `<button class="btn ghost sm" data-act="del-link" data-id="${l._id}">Retirer</button>` : ""}</div></div>`; }).join("")}
     ${(d.refs || []).map(r => `<a class="small" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}
     <a class="demo" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt || d.name)}" target="_blank" rel="noopener">${icon("play", "color:#c8372d;flex:none")}<span>Voir les démonstrations sur YouTube ↗</span></a>

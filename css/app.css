@@ -256,3 +256,7 @@ input[type=file]{padding:7px;font-size:14px}
 .holestrip th.l{color:var(--sand)}
 .auto{display:flex;gap:6px;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){a.card,.btn{transition:border-color .15s,background-color .15s}}
+details.vids summary{cursor:pointer;list-style:none;font-size:14px;display:flex;gap:8px;align-items:center}
+details.vids summary::before{content:"▶";color:#fff;background:var(--red);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+details.vids[open] summary::before{content:"▼"}
+details.vids summary::-webkit-details-marker{display:none}
