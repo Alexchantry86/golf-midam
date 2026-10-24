@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.1.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -11,6 +11,7 @@ const iso = (d = new Date()) => { const z = d.getTimezoneOffset() * 60000; retur
 const D = s => new Date(s + "T12:00:00");
 const fmtD = s => s ? D(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "—";
 const fmtDs = s => s ? D(s).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }) : "—";
+const fmtDl = s => s ? D(s).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) : "—";
 const n1 = v => v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const n0 = v => v == null || !isFinite(v) ? "—" : Math.round(v).toLocaleString("fr-FR");
 const pc = v => v == null || !isFinite(v) ? "—" : Math.round(v) + "%";
@@ -24,25 +25,45 @@ const sizeTxt = b => b > 1048576 ? n1(b / 1048576) + " Mo" : n0(b / 1024) + " Ko
 const ytId = u => { const m = String(u || "").match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([\w-]{11})/); return m ? m[1] : null; };
 const clean = o => JSON.parse(JSON.stringify(o, (k, v) => v === undefined ? null : v));
 const safeName = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w.-]+/g, "_").slice(-80);
+const mmss = s => { const a = Math.abs(Math.round(s)); return (s < 0 ? "+" : "") + String(Math.floor(a / 60)).padStart(2, "0") + ":" + String(a % 60).padStart(2, "0"); };
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 let tt; function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2200); }
 async function fetchJSON(p) { const r = await fetch(p + "?v=" + Date.now()); if (!r.ok) throw new Error(p); return r.json(); }
 
 const DOMAINS = ["Long jeu", "Fers", "Wedges", "Petit jeu", "Bunker", "Putting", "Parcours", "Physique / vitesse", "Mental / routine"];
+const AREA_COLOR = { "Long jeu": "#0f2340", "Fers": "#2c5aa0", "Wedges": "#a0612f", "Petit jeu": "#c8372d", "Bunker": "#c9b48c", "Putting": "#2f6b45", "Parcours": "#2c5aa0", "Physique": "#c8372d", "Physique / vitesse": "#c8372d", "Mental / routine": "#a0612f", "Test": "#7d7462", "Contrôle": "#7d7462" };
+const areaColor = a => AREA_COLOR[a] || "#7d7462";
 const METRICS = {
-  fw: { label: "Fairways touchés", unit: "%", t: 60, dir: "high" },
-  gir: { label: "Greens en régulation /18", t: 12, dir: "high" },
-  scr: { label: "Scrambling", unit: "%", t: 60, dir: "high" },
-  putts: { label: "Putts /18", t: 29.5, dir: "low" },
-  three: { label: "3-putts /18", t: 0.5, dir: "low" },
-  short: { label: "Putts < 2 m manqués /18", t: 0.5, dir: "low" },
-  pen: { label: "Pénalités /18", t: 0.3, dir: "low" }
+  fw: { label: "Fairways touchés", unit: "%", t: 60, dir: "high", short: "Fairways" },
+  gir: { label: "Greens en régulation /18", t: 12, dir: "high", short: "GIR /18" },
+  scr: { label: "Scrambling", unit: "%", t: 60, dir: "high", short: "Scrambling" },
+  putts: { label: "Putts /18", t: 29.5, dir: "low", short: "Putts /18" },
+  three: { label: "3-putts /18", t: 0.5, dir: "low", short: "3-putts /18" },
+  short: { label: "Putts < 2 m manqués /18", t: 0.5, dir: "low", short: "Putts < 2 m ratés" },
+  pen: { label: "Pénalités /18", t: 0.3, dir: "low", short: "Pénalités /18" }
 };
+const IC = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  flag: '<path d="M6 21V4l11 4-11 4"/>',
+  more: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  play: '<polygon points="8,5 19,12 8,19" fill="currentColor" stroke="none"/>',
+  pause: '<rect x="6" y="5" width="4" height="14" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" fill="currentColor" stroke="none"/>',
+  prev: '<path d="M19 20L9 12l10-8zM5 19V5"/>', next: '<path d="M5 4l10 8-10 8zM19 5v14"/>',
+  video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
+  pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  dumb: '<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>', target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', out: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>'
+};
+const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}"` : ""}>${IC[k]}</svg>`;
 
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
   data: { rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
-  loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: []
+  loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
 const valOf = id => S.data.validations.find(v => v._id === id) || null;
@@ -79,21 +100,18 @@ function demoStore() {
     async upload(path, file, onProg) { onProg && onProg(1); return { path, url: URL.createObjectURL(file) }; },
     async removeFile() {}
   };
-  const pars = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4, 4, 3, 4, 5];
+  const pars = [4, 4, 3, 5, 4, 4, 4, 3, 5, 4, 3, 4, 4, 5, 4, 3, 4, 5];
   mem.courses.push({ _id: "c1", name: "Parcours de démonstration", pars });
   const mk = (date, seed) => ({ date, courseId: "c1", course: "Parcours de démonstration", type: "Compétition", holesCount: 18, startHole: 1,
     holesData: pars.map((p, i) => { const r = (seed * 7 + i * 13) % 10; const score = p + (r < 2 ? -1 : r < 7 ? 0 : r < 9 ? 1 : 2); const putts = r === 8 ? 3 : r < 2 ? 1 : 2;
       return { n: i + 1, par: p, score, putts, fw: p === 3 ? null : (r % 3 === 0 ? "L" : r % 5 === 0 ? "R" : "Y"), short: r === 7 ? 1 : 0, pen: r === 9 ? 1 : 0 }; }), cost: "Exemple de données de démonstration." });
-  mem.rounds.push({ ...mk("2026-10-10", 1), _id: "r1" }, { ...mk("2026-10-18", 2), _id: "r2" });
+  mem.rounds.push({ ...mk("2026-10-10", 1), _id: "r1" }, { ...mk("2026-10-18", 2), _id: "r2" }, { ...mk("2026-10-21", 3), _id: "r3" });
   mem.profile.push({ _id: "main", indexHistory: [{ date: "2026-09-01", value: 1.4 }, { date: "2026-10-24", value: 1.0 }] });
   return api;
 }
-
 function startData() {
   if (S.subs.length) return;
-  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks"]) {
-    S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
-  }
+  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
   S.subs.push(Store.listenDoc("profile/main", d => { S.profile = d; render(); }));
 }
 
@@ -103,10 +121,10 @@ async function boot() {
     const [plan, drills] = await Promise.all([fetchJSON("data/plan.json"), fetchJSON("data/drills.json")]);
     S.plan = plan; S.drillList = drills.drills; drills.drills.forEach(d => S.drills[d.id] = d);
   } catch (e) { $("#app").innerHTML = `<p class="muted" style="padding-top:40px">Impossible de charger le plan. Recharge la page.</p>`; return; }
-  try { const d = JSON.parse(localStorage.getItem("golf-draft") || "null"); if (d) S.draft = d; } catch (e) {}
+  S.draft = lsGet("golf-draft", null);
   window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
   if (DEMO) { Store = demoStore(); S.user = { email: "démo" }; S.role = "admin"; startData(); render(); return; }
-  if (!window.FIREBASE_CONFIG) { $("#app").innerHTML = shellTop() + `<div class="empty"><b>Configuration Firebase en attente</b>Le fichier js/config.js n'est pas encore renseigné. Aperçu possible avec <a href="?demo=1">le mode démonstration</a>.</div>`; return; }
+  if (!window.FIREBASE_CONFIG) { $("#app").innerHTML = loginHead() + `<div class="empty"><b>Configuration Firebase en attente</b>Le fichier js/config.js n'est pas encore renseigné. Aperçu possible avec <a href="?demo=1">le mode démonstration</a>.</div>`; return; }
   firebase.initializeApp(window.FIREBASE_CONFIG);
   Store = firebaseStore();
   firebase.auth().onAuthStateChanged(async u => {
@@ -116,9 +134,9 @@ async function boot() {
     S.user = u; S.role = ud.role || "lecture"; startData(); render();
   });
 }
-function shellTop() { return `<header class="top"><div><h1>Objectif Mid-Am 2028</h1><div class="sub">Championnat d'Europe Mid-Amateur · cible index −2,0</div></div></header>`; }
+function loginHead() { return `<header class="top"><div><div class="hello">Championnat d'Europe Mid-Amateur</div><h1>Objectif Mid-Am 2028</h1></div></header>`; }
 function renderLogin() {
-  $("#app").innerHTML = `<div class="login">${shellTop()}<form id="login" class="stack">
+  $("#app").innerHTML = `<div class="login">${loginHead()}<form id="login" class="stack card">
   <div class="f"><label for="l-email">E-mail</label><input id="l-email" type="email" autocomplete="username" required></div>
   <div class="f"><label for="l-pw">Mot de passe</label><input id="l-pw" type="password" autocomplete="current-password" required></div>
   <button class="btn" type="submit">Se connecter</button>
@@ -137,30 +155,30 @@ function renderLogin() {
   });
 }
 function renderDenied(u) {
-  $("#app").innerHTML = `<div class="login">${shellTop()}<div class="empty"><b>Compte non autorisé</b>Le compte ${esc(u.email)} n'est pas activé. Crée dans Firestore le document users/${esc(u.uid)} avec role = "admin" et active = true.</div><button class="btn ghost sm" data-act="logout">Se déconnecter</button></div>`;
+  $("#app").innerHTML = `<div class="login">${loginHead()}<div class="empty"><b>Compte non autorisé</b>Le compte ${esc(u.email)} n'est pas activé. Crée dans Firestore le document users/${esc(u.uid)} avec role = "admin" et active = true.</div><button class="btn ghost sm" data-act="logout">Se déconnecter</button></div>`;
 }
 
 /* ---------- Rendu ---------- */
-const TABS = [["tableau", "Tableau de bord"], ["plan", "Plan & séances"], ["entrainements", "Entraînements"], ["cours", "Cours pro"], ["parties", "Parties"], ["videos", "Vidéos"]];
-const TAB_OF = { seance: "plan", exercice: "plan", entrainement: "entrainements", partie: "parties" };
+const TAB_OF = { tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", cours: "plus", videos: "plus" };
 function parts() { return (location.hash.replace(/^#\/?/, "") || "tableau").split("/").map(decodeURIComponent); }
 function render() {
   if (!S.user) return;
-  const p = parts(); const tab = TAB_OF[p[0]] || p[0];
+  const p = parts(); const tab = TAB_OF[p[0]] || "tableau";
   const keep = {}; document.querySelectorAll("#view [data-keep]").forEach(el => { if (el.value) keep[el.id] = el.value; });
   const focusId = document.activeElement && document.activeElement.id;
-  const views = { tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos };
+  const views = { tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
   const v = views[p[0]] || vTableau;
-  let body; try { body = v(p); } catch (e) { console.error(e); body = `<div class="empty"><b>Erreur d'affichage</b>${esc(e.message)}</div>`; }
-  $("#app").innerHTML = `<header class="top"><div><h1>Objectif Mid-Am 2028</h1><div class="sub">Championnat d'Europe Mid-Amateur · cible index −2,0</div></div>
-    <div class="row xs muted"><span>${esc(S.user.email || "")}${DEMO ? " · mode démonstration" : ""}</span>${DEMO ? "" : `<button class="btn ghost sm" data-act="logout">Déconnexion</button>`}</div></header>
-    <nav class="tabs">${TABS.map(([k, l]) => `<a href="#/${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</a>`).join("")}</nav>
-    <main id="view">${body}</main><p class="xs muted" style="margin-top:40px">v${APP_VERSION}</p>`;
+  let out; try { out = v(p); } catch (e) { console.error(e); out = { body: `<div class="empty"><b>Erreur d'affichage</b>${esc(e.message)}</div>` }; }
+  if (typeof out === "string") out = { body: out };
+  const head = out.title === false ? "" : `<header class="top"><div style="min-width:0">${out.back ? `<a class="back" href="${out.back[0]}" ${out.back[0] === "#" ? 'data-act="back"' : ""}>← ${esc(out.back[1])}</a>` : `<div class="hello">${esc(out.kicker || fmtDl(iso()))}</div>`}<h1>${out.title || "Objectif Mid-Am 2028"}</h1></div>${out.right || ""}</header>`;
+  const tb = (k, l, ic) => `<a href="#/${k}" ${k === tab ? 'aria-current="page"' : ""}>${icon(ic)}${l}</a>`;
+  $("#app").innerHTML = `${head}<main id="view">${out.body}</main><p class="xs muted" style="margin-top:36px">v${APP_VERSION}${DEMO ? " · mode démonstration" : ""}</p>
+    <nav class="tabbar">${tb("tableau", "Accueil", "home")}${tb("plan", "Séances", "cal")}${canEdit() ? `<button class="plus" data-act="add-menu" aria-label="Ajouter">${icon("plus")}</button>` : ""}${tb("parties", "Parties", "flag")}${tb("plus", "Plus", "more")}</nav>`;
   for (const id in keep) { const el = document.getElementById(id); if (el && !el.value) el.value = keep[id]; }
   if (focusId) { const el = document.getElementById(focusId); if (el && el.matches("input,textarea,select")) el.focus({ preventScroll: true }); }
+  tickRun();
 }
 function emptyBox(t, s, btn) { return `<div class="empty"><b>${t}</b>${s}${btn ? `<div style="margin-top:12px">${btn}</div>` : ""}</div>`; }
-const backLink = (href, label) => `<a class="back" href="${href}">← ${label}</a>`;
 
 /* ---------- Calculs ---------- */
 function holeGir(h) { return h.score != null && h.putts != null && (h.score - h.putts) <= (h.par || 4) - 2; }
@@ -196,6 +214,8 @@ function gaps(st) {
     if (v == null) return { k, ...m, t, v: null, g: null };
     return { k, ...m, t, v, g: m.dir === "high" ? (t - v) / t : (v - t) / Math.max(t, 1) }; }).sort((a, b) => (b.g ?? -9) - (a.g ?? -9));
 }
+const gapCls = g => g == null ? "" : g <= 0 ? "ok" : g < 0.15 ? "warn" : "bad";
+const gapCol = g => g == null ? "#c9b48c" : g <= 0 ? "#2f6b45" : g < 0.15 ? "#c9a227" : "#c8372d";
 function practiceLog() {
   const a = S.data.sessions.map(s => ({ date: s.date, min: s.duration || 0, domain: s.domain }));
   for (const s of S.plan.sessions) { const v = valOf(s.id); if (v && (v.status === "Faite" || v.status === "Partielle")) a.push({ date: s.date, min: v.actualMin ?? s.duration ?? 0, domain: s.domain }); }
@@ -203,66 +223,69 @@ function practiceLog() {
 }
 const currentIndex = () => { const h = (S.profile && S.profile.indexHistory) || []; return h.length ? h[h.length - 1] : null; };
 const currentPhase = () => { const t = iso(); return (S.plan.phases || []).find(p => p.from <= t && t <= p.to) || null; };
+const fmtVal = (m, v) => v == null ? "—" : m.unit === "%" ? pct(v) : n1(v);
 
-/* ---------- Tableau de bord ---------- */
+/* ---------- Accueil ---------- */
+function ring(pIdx, pPlan, label) {
+  const C1 = 2 * Math.PI * 36, C2 = 2 * Math.PI * 25;
+  return `<svg width="88" height="88" viewBox="0 0 88 88" style="flex:none" role="img" aria-label="Progression de l'index et du plan">
+  <circle cx="44" cy="44" r="36" stroke="#f1e8d6" stroke-width="9" fill="none"/><circle cx="44" cy="44" r="36" stroke="#c8372d" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${C1}" stroke-dashoffset="${C1 * (1 - Math.max(0.02, Math.min(1, pIdx)))}" transform="rotate(-90 44 44)"/>
+  <circle cx="44" cy="44" r="25" stroke="#f1e8d6" stroke-width="7" fill="none"/><circle cx="44" cy="44" r="25" stroke="#0f2340" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="${C2}" stroke-dashoffset="${C2 * (1 - Math.max(0.02, Math.min(1, pPlan)))}" transform="rotate(-90 44 44)"/>
+  <text x="44" y="49" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="700" font-size="16" fill="#0f2340">${label}</text></svg>`;
+}
 function vTableau() {
   const plan = S.plan, target = plan.targetIndex ?? -2, ci = currentIndex();
+  const h = ((S.profile && S.profile.indexHistory) || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const startIdx = h.length ? h[0].value : null;
+  const pIdx = ci && startIdx != null && startIdx !== target ? (startIdx - ci.value) / (startIdx - target) : 0;
   const left = daysBetween(iso(), plan.entryDeadline);
-  const since = iso(new Date(Date.now() - 30 * 864e5));
-  const mins = practiceLog().filter(p => p.date >= since && p.date <= iso()).reduce((s, p) => s + (p.min || 0), 0);
-  const due = plan.sessions.filter(s => s.date >= since && s.date <= iso()); const done = due.filter(s => (valOf(s.id) || {}).status === "Faite").length;
-  const st = statsOf(S.data.rounds);
-  const next = plan.sessions.filter(s => !valOf(s.id) && s.date >= iso()).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
-  const toVal = plan.sessions.filter(s => !valOf(s.id) && s.date < iso()).length;
-  const lastL = [...S.data.lessons].sort(byDateDesc)[0]; const ph = currentPhase();
-  const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
-  return `<section class="view">
-  <div class="kpis">
-    <div class="kpi"><div class="l">Index actuel</div><div class="v">${ci ? n1(ci.value) : "—"}</div><div class="s">${ci ? "au " + fmtD(ci.date) : "à renseigner"}</div></div>
-    <div class="kpi"><div class="l">Écart à la cible ${n1(target)}</div><div class="v">${ci ? n1(ci.value - target) : "—"}</div><div class="s">coups d'index à gagner</div></div>
-    <div class="kpi"><div class="l">Clôture des inscriptions</div><div class="v">${n0(left)} j</div><div class="s">estimée ${fmtD(plan.entryDeadline)}</div></div>
-    <div class="kpi"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s">${done}/${due.length} séances du plan faites</div></div>
-  </div>
-  ${canEdit() ? `<div class="row between"><div class="row"><a class="btn sm" href="#/partie/new">+ Carte</a><button class="btn ghost sm" data-act="form" data-kind="session">+ Entraînement</button><button class="btn ghost sm" data-act="form" data-kind="lesson">+ Cours</button></div><button class="btn ghost sm" data-act="form" data-kind="index">Mettre à jour l'index</button></div>` : ""}
-  ${ph ? `<p class="note">Phase en cours : <span style="color:var(--ink)">${esc(ph.name)}</span> · ${esc(ph.focus || "")}</p>` : ""}
-  ${toVal || pend ? `<p class="note">${toVal ? `<a href="#/plan">${toVal} séance${toVal > 1 ? "s" : ""} à valider</a>` : ""}${toVal && pend ? " · " : ""}${pend ? `<a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a>` : ""}</p>` : ""}
-  <div><h2>Trajectoire d'index</h2><div class="panel chart">${indexChart(target, plan.targetDate)}</div></div>
-  <div><h2>Ce qu'il faut améliorer · ${st ? `${st.n} dernière${st.n > 1 ? "s" : ""} carte${st.n > 1 ? "s" : ""}` : "aucune carte"}</h2>
-    ${st ? gapTable(gaps(st), st) : emptyBox("Pas encore de carte saisie", "Saisis tes parties trou par trou : score, putts, fairway et côté du raté, putts manqués à moins de 2 m. Le classement des écarts par rapport à un niveau +2 apparaîtra ici.", canEdit() ? `<a class="btn ghost sm" href="#/partie/new">Saisir une carte</a>` : "")}</div>
-  <div class="two">
-    <div><h2>Prochaines séances</h2>${next.length ? `<div class="list">${next.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><h3>${esc(s.title)}</h3><span class="small muted">${fmtDs(s.date)}</span></div><span class="small muted">${esc(s.domain)} · ${n0(s.duration)} min</span></a>`).join("")}</div>` : `<p class="small muted">Aucune séance planifiée à venir.</p>`}</div>
-    <div><h2>Dernier cours</h2>${lastL ? `<div class="list"><div class="item"><div class="head"><h3>${esc(lastL.theme)}</h3><span class="small muted">${fmtD(lastL.date)}</span></div>${lastL.toWork ? `<p class="small pre"><span class="muted">À travailler : </span>${esc(lastL.toWork)}</p>` : ""}</div></div>` : `<p class="small muted">Aucun cours saisi.</p>`}</div>
-  </div></section>`;
-}
-function gapTable(G, st) {
-  const f = (m, v) => v == null ? "—" : m.unit === "%" ? pct(v) : n1(v);
-  const totMiss = st.missL + st.missR;
-  return `<div class="tbl-wrap"><table class="t"><thead><tr><th>Statistique</th><th class="n">Toi</th><th class="n">Repère +2</th><th>Statut</th></tr></thead><tbody>
-  ${G.map(m => { const c = m.g == null ? "" : m.g <= 0 ? "ok" : m.g < 0.15 ? "warn" : "bad"; const l = m.g == null ? "non mesuré" : m.g <= 0 ? "au niveau" : m.g < 0.15 ? "proche" : "priorité";
-    return `<tr><td>${esc(m.label)}</td><td class="n">${f(m, m.v)}</td><td class="n">${f(m, m.t)}</td><td><span class="pill ${c}">${l}</span></td></tr>`; }).join("")}
-  </tbody></table></div>
-  <p class="small muted" style="margin-top:8px">Score moyen ${sgn(st.toPar)} par 18 trous${st.score18 ? ` (${n1(st.score18)} brut sur les cartes 18 trous)` : ""}. Fairways manqués : ${totMiss ? `${pct(st.missL / totMiss * 100)} à gauche, ${pct(st.missR / totMiss * 100)} à droite` : "aucun relevé"}. Repères = ordres de grandeur d'un joueur +2.</p>`;
+  const past = plan.sessions.filter(s => s.date <= iso()); const doneAll = plan.sessions.filter(s => (valOf(s.id) || {}).status === "Faite").length;
+  const pPlan = plan.sessions.length ? doneAll / plan.sessions.length : 0;
+  const today = plan.sessions.filter(s => !valOf(s.id)).sort((a, b) => a.date.localeCompare(b.date)).find(s => s.date >= iso()) || plan.sessions.filter(s => !valOf(s.id) && s.date < iso()).pop();
+  const late = plan.sessions.filter(s => !valOf(s.id) && s.date < iso()).length;
+  const since = iso(new Date(Date.now() - 30 * 864e5)); const mins = practiceLog().filter(p => p.date >= since && p.date <= iso()).reduce((s, p) => s + (p.min || 0), 0);
+  const st = statsOf(S.data.rounds); const G = st ? gaps(st).filter(g => g.v != null).slice(0, 3) : [];
+  const ph = currentPhase(); const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
+  const run = today ? lsGet("golf-run-" + today.id, null) : null; const doneBlocks = run ? run.done.filter(Boolean).length : 0;
+  const body = `<section class="view">
+  <div class="ringcard">${ring(pIdx, pPlan, ci ? n1(ci.value) : "—")}
+    <div><div class="sm">Index actuel → cible</div><div class="big">${ci ? n1(ci.value) : "—"} → <span class="red">${n1(target)}</span></div>
+    <div class="sm">${ci ? `${n1(ci.value - target)} coups à gagner · ` : ""}<b style="color:var(--red)">${n0(left)} jours</b> avant la clôture des inscriptions · plan ${pc(pPlan * 100)} réalisé</div>
+    ${canEdit() ? `<button class="btn ghost sm" style="margin-top:6px" data-act="form" data-kind="index">Mettre à jour l'index</button>` : ""}</div></div>
+  ${today ? `<a class="hero" href="#/seance/${today.id}"><span class="lb">${today.date === iso() ? "Séance du jour" : today.date < iso() ? "Séance en retard" : "Prochaine séance · " + fmtDs(today.date)} · ${n0(today.duration)} min</span>
+    <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span><span>${esc(today.domain)}</span>${late > 1 ? `<span>${late} séances à valider</span>` : ""}</span>
+    ${doneBlocks ? `<span class="pg"><i style="width:${doneBlocks / today.blocks.length * 100}%"></i></span>` : ""}
+    <span class="cta">${icon("play", "width:14px;height:14px;vertical-align:-2px")} ${doneBlocks ? "Reprendre" : "Démarrer"} la séance</span></a>` : `<div class="empty"><b>Toutes les séances du plan sont validées</b>Demande-moi les 4 semaines suivantes dans le projet Coach de Golf.</div>`}
+  <div class="sec"><span>Ce qu'il faut travailler</span><a href="#/parties/perf">Détail</a></div>
+  <div class="tiles">${G.map(g => `<a class="tile" href="#/parties/perf"><div class="l">${esc(g.short)}</div><div class="v">${fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`).join("")}
+    <a class="tile" href="#/plus"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${mins >= 600 ? "ok" : "warn"}">${past.filter(s => s.date >= since && (valOf(s.id) || {}).status === "Faite").length}/${past.filter(s => s.date >= since).length} séances faites</div><div class="tb"><i style="width:${Math.min(100, mins / 900 * 100)}%;background:#0f2340"></i></div></a></div>
+  ${!st ? emptyBox("Pas encore de carte saisie", "Saisis ta prochaine partie trou par trou : les tuiles ci-dessus se rempliront avec tes écarts au niveau +2.", canEdit() ? `<a class="btn sm" href="#/partie/new">Saisir une carte</a>` : "") : ""}
+  ${pend ? `<p class="note"><a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a></p>` : ""}
+  <div class="card"><h2>Le parcours jusqu'au Mid-Am</h2><div class="path">${(plan.phases || []).map(x => { const c = x.to < iso() ? "past" : (x.from <= iso() && iso() <= x.to ? "now" : "");
+    return `<div class="ms ${c}"><b>${esc(x.name)}</b>${x.indexTarget != null ? ` · index ${n1(x.indexTarget)}` : ""}${x === plan.phases[plan.phases.length - 2] ? '<span class="flag"></span>' : ""}<div class="s">${c === "now" ? "maintenant · " : ""}${fmtD(x.from)} → ${fmtD(x.to)}</div></div>`; }).join("")}</div></div>
+  <div class="card"><h2>Trajectoire d'index</h2><div class="chart">${indexChart(target, plan.targetDate)}</div></div>
+  </section>`;
+  return { kicker: fmtDl(iso()), title: "Bonjour Alexandre", body };
 }
 function indexChart(target, tDate) {
   const h = ((S.profile && S.profile.indexHistory) || []).slice().sort((a, b) => a.date.localeCompare(b.date));
-  if (!h.length) return emptyBox("Aucun index enregistré", "Ajoute ton index actuel puis chaque révision pour suivre l'écart à la trajectoire.", canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="index">Ajouter mon index</button>` : "");
-  const W = 640, H = 230, L = 44, R = 16, T = 14, B = 30;
+  if (!h.length) return `<p class="small muted">Ajoute ton index pour suivre la trajectoire.</p>`;
+  const W = 640, H = 220, L = 44, R = 16, T = 14, B = 30;
   const x0 = Math.min(+D(h[0].date), +D(iso()) - 60 * 864e5), x1 = +D(tDate);
   const vals = h.map(p => p.value).concat([target]); const ymin = Math.floor(Math.min(...vals) - 0.5), ymax = Math.ceil(Math.max(...vals) + 0.5);
   const X = d => L + (D(d) - x0) / (x1 - x0) * (W - L - R); const Y = v => T + (v - ymin) / (ymax - ymin) * (H - T - B);
   let g = "";
-  for (let v = ymin; v <= ymax; v++) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${v < 0 ? "−" : ""}${Math.abs(v)}</text>`;
-  for (let y = new Date(x0).getFullYear(); y <= new Date(x1).getFullYear(); y++) for (const m of [0, 6]) { const d = iso(new Date(y, m, 1)); if (+D(d) >= x0 && +D(d) <= x1) g += `<text x="${X(d)}" y="${H - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${D(d).toLocaleDateString("fr-FR", { month: "short", year: "2-digit" })}</text>`; }
-  g += `<line x1="${X(h[0].date)}" y1="${Y(h[0].value)}" x2="${X(tDate)}" y2="${Y(target)}" stroke="var(--muted)" stroke-dasharray="4 4"/>`;
-  g += `<line x1="${X(iso())}" x2="${X(iso())}" y1="${T}" y2="${H - B}" stroke="var(--line)"/><text x="${X(iso()) + 4}" y="${T + 10}" font-size="11" fill="var(--muted)">aujourd'hui</text>`;
-  g += `<circle cx="${X(tDate)}" cy="${Y(target)}" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.5"/><text x="${X(tDate) - 8}" y="${Y(target) - 8}" text-anchor="end" font-size="11" fill="var(--ink)">cible ${n1(target)}</text>`;
-  if (h.length > 1) g += `<polyline fill="none" stroke="var(--accent)" stroke-width="2" points="${h.map(p => X(p.date) + "," + Y(p.value)).join(" ")}"/>`;
-  g += h.map((p, i) => `<circle cx="${X(p.date)}" cy="${Y(p.value)}" r="${i === h.length - 1 ? 4.5 : 3}" fill="var(--accent)"/>`).join("");
-  const l = h[h.length - 1]; g += `<text x="${X(l.date) + 8}" y="${Y(l.value) + 4}" font-size="12" fill="var(--accent)" font-family="IBM Plex Mono,monospace">${n1(l.value)}</text>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution de l'index vers la cible">${g}</svg><p class="xs muted" style="margin-top:6px">Haut du graphique = meilleur index. Pointillés : trajectoire linéaire vers la cible.</p>`;
+  for (let v = ymin; v <= ymax; v++) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="#7d7462">${v < 0 ? "−" : ""}${Math.abs(v)}</text>`;
+  for (let y = new Date(x0).getFullYear(); y <= new Date(x1).getFullYear(); y++) for (const m of [0, 6]) { const d = iso(new Date(y, m, 1)); if (+D(d) >= x0 && +D(d) <= x1) g += `<text x="${X(d)}" y="${H - 10}" text-anchor="middle" font-size="11" fill="#7d7462">${D(d).toLocaleDateString("fr-FR", { month: "short", year: "2-digit" })}</text>`; }
+  g += `<line x1="${X(h[0].date)}" y1="${Y(h[0].value)}" x2="${X(tDate)}" y2="${Y(target)}" stroke="#c9b48c" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  g += `<line x1="${X(iso())}" x2="${X(iso())}" y1="${T}" y2="${H - B}" stroke="#eadfc8"/>`;
+  g += `<path d="M${X(tDate) - 2} ${Y(target) + 2} v-22 l12 5 -12 5" fill="#c8372d" stroke="#c8372d" stroke-width="1.5"/><text x="${X(tDate) - 8}" y="${Y(target) - 6}" text-anchor="end" font-size="11" fill="#c8372d">cible ${n1(target)}</text>`;
+  if (h.length > 1) g += `<polyline fill="none" stroke="#0f2340" stroke-width="2.5" points="${h.map(p => X(p.date) + "," + Y(p.value)).join(" ")}"/>`;
+  g += h.map((p, i) => `<circle cx="${X(p.date)}" cy="${Y(p.value)}" r="${i === h.length - 1 ? 5 : 3.5}" fill="#0f2340"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution de l'index vers la cible">${g}</svg><p class="xs muted" style="margin-top:4px">Haut du graphique = meilleur index. Pointillés : trajectoire vers la cible.</p>`;
 }
 
-/* ---------- Plan ---------- */
+/* ---------- Plan & séances ---------- */
 function statusOf(s) {
   const v = valOf(s.id), t = iso();
   if (v) return { cls: v.status === "Faite" ? "ok" : v.status === "Partielle" ? "warn" : "bad", lab: v.status, v };
@@ -276,95 +299,132 @@ function vPlan() {
   const toVal = p.sessions.filter(s => !valOf(s.id) && s.date <= t).length;
   const weeks = {}; for (const s of list) (weeks[mondayOf(s.date)] = weeks[mondayOf(s.date)] || []).push(s);
   const wk = Object.keys(weeks).sort((a, b) => f === "done" ? b.localeCompare(a) : a.localeCompare(b));
-  return `<section class="view">
-  <div><h2>Objectif</h2><p>${esc(p.objective)}</p><p class="small muted" style="margin-top:6px">Plan du ${fmtD(p.version)} · ${esc(p.note || "")}</p></div>
-  <div><h2>Séances${toVal ? ` · <span style="color:var(--warn)">${toVal} à valider</span>` : ""}</h2>
-    <div class="chips" role="group" aria-label="Filtre">${[["todo", "À faire"], ["done", "Validées"], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
-    ${wk.length ? wk.map(w => `<div class="week"><div class="wl">Semaine du ${D(w).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div>${weeks[w].map(cardSession).join("")}</div>`).join("") : `<p class="small muted" style="margin-top:12px">Aucune séance dans ce filtre.</p>`}
-  </div>
-  <div><h2>Préconisations</h2><div style="border-top:1px solid var(--line)">${(p.recos || []).map((r, i) => `<div class="reco"><div class="p">${String(i + 1).padStart(2, "0")}</div><div><div class="row between"><h3>${esc(r.title)}</h3>${r.area ? `<span class="pill">${esc(r.area)}</span>` : ""}</div>
+  const body = `<section class="view">
+  <div class="chips" role="group" aria-label="Filtre">${[["todo", "À faire"], ["done", "Validées"], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
+  ${toVal ? `<p class="note">${toVal} séance${toVal > 1 ? "s" : ""} à valider</p>` : ""}
+  <div>${wk.length ? wk.map(w => `<div class="week"><div class="wl">Semaine du ${D(w).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div>${weeks[w].map(cardSession).join("")}</div>`).join("") : `<p class="small muted">Aucune séance dans ce filtre.</p>`}</div>
+  <div class="card"><h2>Objectif</h2><p class="small">${esc(p.objective)}</p><p class="xs muted" style="margin-top:6px">Plan du ${fmtD(p.version)} · ${esc(p.note || "")}</p></div>
+  <div class="card"><h2>Préconisations</h2>${(p.recos || []).map((r, i) => `<div class="reco"><div class="p">${i + 1}</div><div><div class="row between"><h3>${esc(r.title)}</h3>${r.area ? `<span class="pill">${esc(r.area)}</span>` : ""}</div>
     ${r.why ? `<p class="small muted" style="margin-top:4px">${esc(r.why)}</p>` : ""}${r.how ? `<p class="small" style="margin-top:6px">${esc(r.how)}</p>` : ""}
     ${r.kpi ? `<p class="small" style="margin-top:6px"><span class="muted">Indicateur : </span>${esc(r.kpi)}</p>` : ""}
-    ${(r.drills || []).length ? `<p class="small" style="margin-top:6px">${r.drills.map(d => S.drills[d] ? `<a href="#/exercice/${d}">${esc(S.drills[d].name)}</a>` : "").filter(Boolean).join(" · ")}</p>` : ""}</div></div>`).join("")}</div></div>
-  <div><h2>Phases</h2><div class="phases">${(p.phases || []).map(ph => { const c = ph.to < t ? "past" : (ph.from <= t && t <= ph.to ? "now" : "");
-    return `<div class="phase ${c}"><div class="row between"><h3>${esc(ph.name)}</h3><span class="small muted mono">${fmtD(ph.from)} → ${fmtD(ph.to)}</span></div>
-    <p class="small muted">${esc(ph.focus || "")}${ph.indexTarget != null ? ` · index visé ${n1(ph.indexTarget)}` : ""}</p>
-    ${(ph.goals || []).length ? `<ul class="small">${ph.goals.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}</div>`; }).join("")}</div></div>
+    ${(r.drills || []).length ? `<p class="small" style="margin-top:6px">${r.drills.map(d => S.drills[d] ? `<a href="#/exercice/${d}">${esc(S.drills[d].name)}</a>` : "").filter(Boolean).join(" · ")}</p>` : ""}</div></div>`).join("")}</div>
   </section>`;
+  return { kicker: "Plan d'entraînement", title: "Séances", body };
 }
 function cardSession(s) {
-  const st = statusOf(s); const nNotes = S.data.notes.filter(n => n.ref === "plan:" + s.id).length; const nVid = S.data.videos.filter(v => v.ref === "plan:" + s.id).length;
+  const st = statusOf(s); const run = lsGet("golf-run-" + s.id, null); const db = run ? run.done.filter(Boolean).length : 0;
   return `<a class="card ${st.v ? "done" : ""}" href="#/seance/${s.id}"><div class="row between"><h3>${esc(s.title)}</h3><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${esc(s.domain)}</span><span>·</span><span class="mono">${n0(s.duration)} min</span>${nNotes ? `<span>· ${nNotes} note${nNotes > 1 ? "s" : ""}</span>` : ""}${nVid ? `<span>· ${nVid} vidéo${nVid > 1 ? "s" : ""}</span>` : ""}</div>
-  <p class="small">${(s.blocks || []).map(b => esc((S.drills[b.drill] || {}).name || b.drill)).join(" · ")}</p>
+  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${esc(s.domain)}</span><span>·</span><span>${n0(s.duration)} min</span>${!st.v && db ? `<span>· ${db}/${s.blocks.length} exercices faits</span>` : ""}</div>
+  <div class="row" style="gap:6px">${(s.blocks || []).map(b => { const d = S.drills[b.drill] || {}; return `<span class="pill" style="background:${areaColor(d.area)}1a;color:${areaColor(d.area)}">${esc(d.name || b.drill)}</span>`; }).join("")}</div>
   ${st.v && st.v.feedback ? `<p class="small muted">${esc(st.v.feedback)}</p>` : ""}</a>`;
 }
+
+/* Séance guidée : chronomètre par exercice, file, compteur de réussite (UX Night session) */
+function getRun(s) {
+  let r = lsGet("golf-run-" + s.id, null);
+  if (!r || !r.blocks || r.blocks.length !== s.blocks.length) r = { i: 0, blocks: s.blocks.map(() => ({ el: 0, ok: 0, tot: 0 })), done: s.blocks.map(() => false), running: false, t0: null };
+  return r;
+}
+function saveRun(s, r) { lsSet("golf-run-" + s.id, r); }
+function elapsed(r, i) { const b = r.blocks[i]; return b.el + (r.running && r.i === i && r.t0 ? (Date.now() - r.t0) / 1000 : 0); }
+let tickH = null;
+function tickRun() {
+  clearInterval(tickH);
+  const el = document.getElementById("clock"); if (!el) return;
+  const s = S.plan.sessions.find(x => x.id === el.dataset.sid); if (!s) return;
+  const upd = () => { const r = getRun(s); const rem = s.blocks[r.i].min * 60 - elapsed(r, r.i); el.textContent = mmss(rem); el.classList.toggle("over", rem < 0);
+    if (rem < 0 && r.running && !r.buzzed) { r.buzzed = true; saveRun(s, r); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {} } };
+  upd(); tickH = setInterval(upd, 500);
+}
 function vSeance(p) {
-  const s = S.plan.sessions.find(x => x.id === p[1]); if (!s) return emptyBox("Séance introuvable", "Elle a peut-être été retirée du plan.", `<a class="btn ghost sm" href="#/plan">Retour au plan</a>`);
-  const st = statusOf(s), v = st.v || {};
-  return `<section class="view">
-  ${backLink("#/plan", "Plan & séances")}
-  <div class="stack"><div class="row between"><h1 class="page">${esc(s.title)}</h1><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="meta"><span>${fmtD(s.date)}</span><span>·</span><span>${esc(s.domain)}</span><span>·</span><span class="mono">${n0(s.duration)} min</span></div>
-  <p class="kpi-line"><span class="muted">Critère de réussite : </span>${esc(s.kpi)}</p></div>
-  <div><h2>Déroulé · cliquer un exercice pour le détail</h2><div style="border-top:1px solid var(--line)">
-  ${(s.blocks || []).map(b => { const d = S.drills[b.drill] || { name: b.drill, objective: "" }; return `<a class="block" href="#/exercice/${b.drill}"><span class="m">${n0(b.min)} min</span><div><h3>${esc(d.name)}</h3><p class="small muted">${esc(d.objective)}</p></div><span class="go">Fiche →</span></a>`; }).join("")}</div></div>
-  ${canEdit() ? `<div><h2>Validation</h2><form class="panel stack" data-form="validate" data-id="${s.id}">
-    <div class="f"><span class="lbl">Résultat</span><div class="seg" data-seg="status">${["Faite", "Partielle", "Non faite"].map(o => `<button type="button" data-v="${o}" aria-pressed="${(v.status || "Faite") === o}">${o}</button>`).join("")}</div></div>
+  const s = S.plan.sessions.find(x => x.id === p[1]); if (!s) return emptyBox("Séance introuvable", "Elle a peut-être été retirée du plan.", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
+  const st = statusOf(s), v = st.v || {}, r = getRun(s);
+  const nDone = r.done.filter(Boolean).length; const i = Math.min(r.i, s.blocks.length - 1); const b = s.blocks[i]; const d = S.drills[b.drill] || { name: b.drill };
+  const totMin = Math.round(r.blocks.reduce((a, x, k) => a + elapsed(r, k), 0) / 60);
+  const measure = s.blocks.map((x, k) => r.blocks[k].tot ? `${(S.drills[x.drill] || {}).name || x.drill} : ${r.blocks[k].ok}/${r.blocks[k].tot}` : "").filter(Boolean).join(" · ");
+  const body = `<section class="view">
+  <div class="row between"><span class="pill" style="background:${areaColor(s.domain)}1a;color:${areaColor(s.domain)}">${esc(s.domain)} · exercice ${i + 1}/${s.blocks.length}</span><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
+  <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(s.kpi)}</p></div>
+  <div class="timer">
+    <div class="ex">${esc(d.name)}</div>
+    <div class="clock" id="clock" data-sid="${s.id}">${mmss(b.min * 60 - elapsed(r, i))}</div>
+    <div class="sub">sur ${b.min}:00 · objectif : ${esc(d.success || "")}</div>
+    <div class="ctrl"><button data-act="run-prev" ${i === 0 ? "disabled" : ""} aria-label="Exercice précédent">${icon("prev")}</button>
+      <button class="play" data-act="run-toggle" aria-label="${r.running ? "Pause" : "Démarrer"}">${icon(r.running ? "pause" : "play", "width:26px;height:26px")}</button>
+      <button data-act="run-next" aria-label="${i === s.blocks.length - 1 ? "Terminer" : "Exercice suivant"}">${icon("next")}</button></div>
+  </div>
+  <a class="demo" href="#/exercice/${b.drill}">${icon("play", "color:#2c5aa0;flex:none")}<span><b>Voir la fiche et la démo</b><br><span class="muted">${esc((d.cues || [])[0] || d.objective || "")}</span></span></a>
+  <div class="counter"><button data-act="run-cnt" data-d="-1" aria-label="Retirer une réussite">−</button><div><div class="v">${r.blocks[i].ok} / ${r.blocks[i].tot}</div><div class="l">réussites / essais</div></div><button data-act="run-cnt" data-d="1" aria-label="Ajouter une réussite">+</button></div>
+  <div class="row" style="justify-content:center"><button class="btn ghost sm" data-act="run-miss">+ 1 essai raté</button><button class="btn ghost sm" data-act="run-reset">Remettre à zéro</button></div>
+  <div><h2>Programme</h2><div class="queue">${s.blocks.map((x, k) => { const dd = S.drills[x.drill] || { name: x.drill }; const bk = r.blocks[k];
+    return `<button class="q ${k === i ? "now" : ""} ${r.done[k] ? "ok" : ""}" data-act="run-go" data-i="${k}" style="font:inherit;text-align:left;cursor:pointer"><span class="d" style="background:${r.done[k] ? "#2f6b45" : k === i ? "#c8372d" : areaColor(dd.area)}"></span><span>${esc(dd.name)} · ${x.min} min</span><span class="st ${r.done[k] ? "ok" : ""}">${r.done[k] ? `✓${bk.tot ? " " + bk.ok + "/" + bk.tot : ""}` : k === i ? (r.running ? "en cours" : "prêt") : "à venir"}</span></button>`; }).join("")}</div></div>
+  ${canEdit() ? `<div class="card"><h2>${st.v ? "Validation" : `Valider la séance${nDone ? ` · ${nDone}/${s.blocks.length} exercices faits` : ""}`}</h2><form class="stack" data-form="validate" data-id="${s.id}">
+    <div class="f"><span class="lbl">Résultat</span><div class="seg" data-seg="status">${["Faite", "Partielle", "Non faite"].map(o => `<button type="button" data-v="${o}" aria-pressed="${(v.status || (nDone && nDone < s.blocks.length ? "Partielle" : "Faite")) === o}">${o}</button>`).join("")}</div></div>
     <div class="f"><span class="lbl">Qualité ressentie</span><div class="seg" data-seg="rating">${[1, 2, 3, 4, 5].map(o => `<button type="button" data-v="${o}" aria-pressed="${v.rating === o}">${o}</button>`).join("")}</div></div>
-    <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-      <div class="f"><label for="v-min">Durée réelle (min)</label><input id="v-min" name="actualMin" inputmode="numeric" value="${esc(v.actualMin ?? s.duration)}"></div>
-      <div class="f"><label for="v-measure">Mesure obtenue</label><input id="v-measure" name="measure" value="${esc(v.measure || "")}" placeholder="Ex. 8/10 dans la porte"></div>
-      <div class="f full"><label for="v-fb">Retour : ce qui a marché, ce qui coince</label><textarea id="v-fb" name="feedback">${esc(v.feedback || "")}</textarea></div>
-    </div>
-    <div class="row"><button class="btn" type="submit">${st.v ? "Mettre à jour la validation" : "Valider la séance"}</button>${st.v ? `<button class="btn ghost sm" type="button" data-act="unvalidate" data-id="${s.id}">Annuler la validation</button>` : ""}</div>
+    <div class="grid"><div class="f"><label for="v-min">Durée réelle (min)</label><input id="v-min" name="actualMin" inputmode="numeric" value="${esc(v.actualMin ?? (totMin || s.duration))}"></div>
+      <div class="f"><label for="v-measure">Mesure obtenue</label><input id="v-measure" name="measure" value="${esc(v.measure || measure)}" placeholder="Ex. 8/10 dans la porte"></div>
+      <div class="f full"><label for="v-fb">Retour : ce qui a marché, ce qui coince</label><textarea id="v-fb" name="feedback" data-keep>${esc(v.feedback || "")}</textarea></div></div>
+    <div class="row"><button class="btn" type="submit">${st.v ? "Mettre à jour" : "Valider la séance"}</button>${st.v ? `<button class="btn ghost sm" type="button" data-act="unvalidate" data-id="${s.id}">Annuler la validation</button>` : ""}</div>
   </form></div>` : ""}
   ${notesBlock("plan:" + s.id)}
   ${videosBlock("plan:" + s.id)}
   </section>`;
+  return { back: ["#/plan", "Séances"], title: esc(s.title), body, right: `<span class="xs muted" style="white-space:nowrap">${fmtDs(s.date)}<br>${n0(s.duration)} min</span>` };
+}
+function runAct(a, b) {
+  const s = S.plan.sessions.find(x => x.id === parts()[1]); if (!s) return; const r = getRun(s);
+  const stop = () => { if (r.running && r.t0) { r.blocks[r.i].el += (Date.now() - r.t0) / 1000; } r.t0 = r.running ? Date.now() : null; };
+  if (a === "run-toggle") { if (r.running) { stop(); r.running = false; r.t0 = null; } else { r.running = true; r.t0 = Date.now(); } }
+  else if (a === "run-next") { stop(); r.done[r.i] = true; r.buzzed = false; if (r.i < s.blocks.length - 1) { r.i++; r.t0 = r.running ? Date.now() : null; } else { r.running = false; r.t0 = null; toast("Séance terminée : valide-la ci-dessous"); } }
+  else if (a === "run-prev") { stop(); if (r.i > 0) r.i--; r.buzzed = false; r.t0 = r.running ? Date.now() : null; }
+  else if (a === "run-go") { stop(); r.i = Number(b.dataset.i); r.buzzed = false; r.t0 = r.running ? Date.now() : null; }
+  else if (a === "run-cnt") { const x = r.blocks[r.i]; if (Number(b.dataset.d) > 0) { x.ok++; x.tot++; } else if (x.ok > 0) { x.ok--; x.tot--; } }
+  else if (a === "run-miss") { r.blocks[r.i].tot++; }
+  else if (a === "run-reset") { const x = r.blocks[r.i]; x.ok = 0; x.tot = 0; x.el = 0; if (r.running) r.t0 = Date.now(); r.done[r.i] = false; }
+  saveRun(s, r); render();
 }
 
 /* ---------- Exercice ---------- */
 function vExercice(p) {
-  const d = S.drills[p[1]]; if (!d) return emptyBox("Exercice introuvable", "", `<a class="btn ghost sm" href="#/plan">Retour au plan</a>`);
+  const d = S.drills[p[1]]; if (!d) return emptyBox("Exercice introuvable", "", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
   const used = S.plan.sessions.filter(s => (s.blocks || []).some(b => b.drill === d.id));
   const links = S.data.drillLinks.filter(l => l.drill === d.id);
   const li = a => a && a.length ? `<ul class="plain small">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="small muted">—</p>`;
-  return `<section class="view">
-  <a class="back" href="#" data-act="back">← Retour</a>
-  <div class="stack"><div class="row between"><h1 class="page">${esc(d.name)}</h1><span class="pill">${esc(d.area)}</span></div>
-  <p class="small muted">Défaut ciblé : ${esc(d.fault)}</p><p>${esc(d.objective)}</p></div>
-  <div class="two"><div><h2>Matériel</h2>${li(d.equipment)}</div><div><h2>Mise en place</h2>${li(d.setup)}</div></div>
-  <div><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
-  <div class="two"><div><h2>Consignes clés</h2>${li(d.cues)}</div><div><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
-  <p class="kpi-line"><span class="muted">Critère de réussite : </span>${esc(d.success)}</p>
-  <div><h2>Vidéos et démonstrations</h2><div class="stack">
+  const body = `<section class="view">
+  <div class="row"><span class="pill" style="background:${areaColor(d.area)}1a;color:${areaColor(d.area)}">${esc(d.area)}</span><span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
+  <p>${esc(d.objective)}</p>
+  <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
+  <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+  <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
+  <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
+  <div class="card"><h2>Vidéos et démonstrations</h2><div class="stack">
     ${links.map(l => { const y = ytId(l.url); return `<div class="stack">${y ? `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${y}" title="${esc(l.label || d.name)}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" loading="lazy"></iframe></div>` : ""}<div class="row between small"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>${canEdit() ? `<button class="btn ghost sm" data-act="del-link" data-id="${l._id}">Retirer</button>` : ""}</div></div>`; }).join("")}
     ${(d.refs || []).map(r => `<a class="small" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}
-    <a class="small" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt || d.name)}" target="_blank" rel="noopener">Voir les démonstrations sur YouTube ↗</a>
-    ${canEdit() ? `<form class="row" data-form="link" data-drill="${d.id}" style="align-items:flex-end"><div class="f" style="flex:2 1 220px"><label for="lk-url">Ajouter une vidéo (lien YouTube ou autre)</label><input id="lk-url" name="url" data-keep placeholder="https://youtu.be/…"></div><div class="f" style="flex:1 1 140px"><label for="lk-label">Titre</label><input id="lk-label" name="label" data-keep placeholder="Ex. démo du pro"></div><button class="btn ghost sm" type="submit">Ajouter</button></form>` : ""}
+    <a class="demo" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt || d.name)}" target="_blank" rel="noopener">${icon("play", "color:#c8372d;flex:none")}<span>Voir les démonstrations sur YouTube ↗</span></a>
+    ${canEdit() ? `<form class="stack" data-form="link" data-drill="${d.id}"><div class="grid"><div class="f full"><label for="lk-url">Ajouter une vidéo (lien YouTube ou autre)</label><input id="lk-url" name="url" data-keep placeholder="https://youtu.be/…"></div><div class="f full"><label for="lk-label">Titre</label><input id="lk-label" name="label" data-keep placeholder="Ex. démo du pro"></div></div><div><button class="btn ghost sm" type="submit">Ajouter la vidéo</button></div></form>` : ""}
   </div></div>
-  ${used.length ? `<div><h2>Séances qui l'utilisent</h2><div class="list">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">${fmtDs(s.date)}</span></div></a>`).join("")}</div></div>` : ""}
+  ${used.length ? `<div class="card"><h2>Séances qui l'utilisent</h2><div class="list">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">${fmtDs(s.date)}</span></div></a>`).join("")}</div></div>` : ""}
   </section>`;
+  return { back: ["#", "Retour"], title: esc(d.name), body };
 }
 
 /* ---------- Notes & vidéos ---------- */
 function notesBlock(ref) {
   const notes = S.data.notes.filter(n => n.ref === ref).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   const k = ref.replace(/[^\w]/g, "_");
-  return `<div><h2>Notes</h2>
+  return `<div class="card"><h2>Notes</h2>
   ${notes.length ? `<div class="list">${notes.map(n => `<div class="item"><div class="head"><span class="small muted">${fmtD(n.date)}</span>${canEdit() ? `<button class="btn ghost sm" data-act="del-note" data-id="${n._id}">Supprimer</button>` : ""}</div>
     ${n.text ? `<p class="pre small">${esc(n.text)}</p>` : ""}
-    ${(n.files || []).map(f => /^image\//.test(f.type) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" style="max-height:220px;border:1px solid var(--line)"></a>` : `<a class="small" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)} (${sizeTxt(f.size || 0)}) ↗</a>`).join("")}</div>`).join("")}</div>` : `<p class="small muted">Aucune note.</p>`}
-  ${canEdit() ? `<form class="panel stack" data-form="note" data-ref="${esc(ref)}" style="margin-top:10px">
+    ${(n.files || []).map(f => /^image\//.test(f.type) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" style="max-height:220px;border-radius:10px"></a>` : `<a class="small" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)} (${sizeTxt(f.size || 0)}) ↗</a>`).join("")}</div>`).join("")}</div>` : ""}
+  ${canEdit() ? `<form class="stack" data-form="note" data-ref="${esc(ref)}" style="margin-top:6px">
     <div class="f"><label for="nt-${k}">Écrire une note</label><textarea id="nt-${k}" name="text" data-keep placeholder="Sensations, chiffres, consignes à retenir…"></textarea></div>
-    <div class="f"><label for="nf-${k}">Joindre des fichiers (photo de carnet, PDF…)</label><input id="nf-${k}" name="files" type="file" multiple accept="image/*,application/pdf,.txt,.md,.doc,.docx"></div>
+    <div class="f"><label for="nf-${k}">Joindre une photo ou un fichier</label><input id="nf-${k}" name="files" type="file" multiple accept="image/*,application/pdf,.txt,.md,.doc,.docx"></div>
     <div class="progress" hidden><span></span></div>
-    <div><button class="btn sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
+    <div><button class="btn navy sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
 }
 function videoItem(v, showRef) {
   const a = v.analysis || {}; let refLink = "";
-  if (showRef && v.ref) { const [t, id] = v.ref.split(":"); if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); refLink = s ? `<a class="small" href="#/seance/${id}">${esc(s.title)}</a>` : ""; } else if (t === "free") { refLink = `<a class="small" href="#/entrainement/${id}">Entraînement</a>`; } }
+  if (showRef && v.ref) { const [t, id] = v.ref.split(":"); if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); refLink = s ? `<a class="small" href="#/seance/${id}">${esc(s.title)}</a>` : ""; } else if (t === "free" && id !== "none") { refLink = `<a class="small" href="#/entrainement/${id}">Entraînement</a>`; } }
   return `<div class="item"><div class="head"><span class="small">${fmtD(v.date)} · ${esc(v.angle || "")}${v.club ? " · " + esc(v.club) : ""}</span>
     ${a.status === "done" ? `<span class="pill ok">analysée</span>` : a.status === "requested" ? `<span class="pill warn">analyse demandée</span>` : ""}</div>
   ${refLink}
@@ -375,99 +435,120 @@ function videoItem(v, showRef) {
 }
 function videosBlock(ref) {
   const vids = S.data.videos.filter(v => v.ref === ref).sort(byDateDesc); const k = ref.replace(/[^\w]/g, "_");
-  return `<div><h2>Vidéos</h2>
-  ${vids.length ? `<div class="list">${vids.map(v => videoItem(v)).join("")}</div>` : `<p class="small muted">Aucune vidéo.</p>`}
+  return `<div class="card"><h2>Vidéos</h2>
+  ${vids.length ? `<div class="list">${vids.map(v => videoItem(v)).join("")}</div>` : ""}
   ${canEdit() ? videoForm(ref, k) : ""}</div>`;
 }
 function videoForm(ref, k) {
-  return `<form class="panel stack" data-form="video" data-ref="${esc(ref)}" style="margin-top:10px">
-    <div class="f"><label for="vf-${k}">Uploader une vidéo</label><input id="vf-${k}" name="file" type="file" accept="video/*" required></div>
-    <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+  return `<form class="stack" data-form="video" data-ref="${esc(ref)}" style="margin-top:6px">
+    <div class="f"><label for="vf-${k}">Filmer ou choisir une vidéo</label><input id="vf-${k}" name="file" type="file" accept="video/*" capture="environment" required></div>
+    <div class="grid">
       <div class="f"><label for="va-${k}">Angle</label><select id="va-${k}" name="angle"><option>Down-the-line</option><option>De face</option><option>Autre</option></select></div>
       <div class="f"><label for="vc-${k}">Club</label><input id="vc-${k}" name="club" data-keep placeholder="Ex. fer 7"></div>
-      <div class="f full"><label for="vm-${k}">Ce que tu veux qu'on regarde</label><textarea id="vm-${k}" name="comment" data-keep placeholder="Ex. chemin de club à la transition, position de la tête à l'impact"></textarea></div>
+      <div class="f full"><label for="vm-${k}">Ce que tu veux qu'on regarde</label><textarea id="vm-${k}" name="comment" data-keep placeholder="Ex. chemin de club à la transition"></textarea></div>
     </div>
     <label class="row small" style="color:var(--ink)"><input type="checkbox" name="ask" checked style="width:auto"> Demander l'analyse à Claude</label>
     <div class="progress" hidden><span></span></div>
-    <div><button class="btn sm" type="submit">Uploader</button></div></form>`;
+    <div><button class="btn navy sm" type="submit">Envoyer la vidéo</button></div></form>`;
 }
 function vVideos() {
   const f = S.vidFilter; let l = [...S.data.videos].sort(byDateDesc);
   if (f === "req") l = l.filter(v => v.analysis && v.analysis.status === "requested"); if (f === "done") l = l.filter(v => v.analysis && v.analysis.status === "done");
-  return `<section class="view"><p class="small muted">Les vidéos se rattachent à une séance du plan ou à un entraînement. Pour une analyse, demande-la ici puis écris-moi « analyse mes vidéos » dans le projet Coach de Golf : je récupère les vidéos en attente, j'analyse et la réponse s'affiche sous la vidéo.</p>
+  const body = `<section class="view"><p class="small muted">Pour une analyse : demande-la ici, puis écris « analyse mes vidéos » dans le projet Coach de Golf. La réponse s'affiche sous la vidéo.</p>
   <div class="chips">${[["all", "Toutes"], ["req", "Analyse demandée"], ["done", "Analysées"]].map(([k, lab]) => `<button data-act="vf" data-f="${k}" aria-pressed="${f === k}">${lab}</button>`).join("")}</div>
-  ${l.length ? `<div class="list">${l.map(v => videoItem(v, true)).join("")}</div>` : emptyBox("Aucune vidéo", "Uploade une vidéo depuis une séance du plan ou un entraînement.")}
-  ${canEdit() ? `<div><h2>Vidéo hors séance</h2>${videoForm("free:none", "free")}</div>` : ""}</section>`;
+  ${l.length ? `<div class="card"><div class="list">${l.map(v => videoItem(v, true)).join("")}</div></div>` : emptyBox("Aucune vidéo", "Filme-toi depuis une séance : la vidéo y reste rattachée.")}
+  ${canEdit() ? `<div class="card"><h2>Vidéo hors séance</h2>${videoForm("free:none", "free")}</div>` : ""}</section>`;
+  return { back: ["#/plus", "Plus"], title: "Vidéos", body };
 }
 
-/* ---------- Entraînements libres ---------- */
+/* ---------- Plus : entraînements libres, cours, vidéos ---------- */
+function vPlus() {
+  const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
+  const it = (href, ic, col, t, s) => `<a href="${href}"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></a>`;
+  const body = `<section class="view"><div class="card menu">
+    ${it("#/entrainements", "dumb", "#2c5aa0", "Entraînements libres", `${S.data.sessions.length} séance${S.data.sessions.length > 1 ? "s" : ""} hors plan`)}
+    ${it("#/cours", "user", "#a0612f", "Cours avec le pro", `${S.data.lessons.length} cours saisi${S.data.lessons.length > 1 ? "s" : ""}`)}
+    ${it("#/videos", "video", "#c8372d", "Vidéos et analyses", pend ? `${pend} en attente d'analyse` : `${S.data.videos.length} vidéo${S.data.videos.length > 1 ? "s" : ""}`)}
+    ${it("#/parties/perf", "chart", "#0f2340", "Performance détaillée", "Carte par parcours")}
+    ${DEMO ? "" : `<button data-act="logout"><span class="ic" style="background:#7d7462">${icon("out")}</span><span>Se déconnecter<small>${esc(S.user.email || "")}</small></span></button>`}
+  </div>${domainBars()}</section>`;
+  return { kicker: "Suivi", title: "Plus", body };
+}
 function domainBars() {
   const since = iso(new Date(Date.now() - 60 * 864e5)); const pr = practiceLog().filter(p => p.date >= since && p.date <= iso()); if (!pr.length) return "";
   const m = {}; for (const p of pr) { const k = p.domain || "Autre"; m[k] = (m[k] || 0) + (p.min || 0); }
   const tot = Object.values(m).reduce((a, b) => a + b, 0) || 1;
-  return `<div><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
+  return `<div class="card"><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%;background:${areaColor(k)}"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
 }
 function vEntrainements() {
   const l = [...S.data.sessions].sort(byDateDesc);
-  return `<section class="view"><div class="row between"><p class="small muted">Séances libres hors plan. Les séances du plan validées comptent aussi dans la répartition.</p>${canEdit() ? `<button class="btn sm" data-act="form" data-kind="session">+ Entraînement</button>` : ""}</div>
-  ${domainBars()}
-  <div><h2>Journal</h2>${l.length ? `<div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><h3>${esc(s.domain || "")}</h3><span class="small muted">${fmtD(s.date)} · <span class="mono">${n0(s.duration)} min</span>${s.rating ? ` · ${s.rating}/5` : ""}</span></div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div>`
-    : emptyBox("Journal vide", "Note chaque séance : domaine, durée, contenu et une mesure chiffrée quand c'est possible.", canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="session">Ajouter une séance</button>` : "")}</div></section>`;
+  const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="session">+ Entraînement libre</button>` : ""}
+  ${l.length ? `<div class="card"><div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><h3>${esc(s.domain || "")}</h3><span class="small muted">${fmtD(s.date)} · ${n0(s.duration)} min${s.rating ? ` · ${s.rating}/5` : ""}</span></div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div></div>`
+    : emptyBox("Aucun entraînement libre", "Les séances hors plan (practice improvisé, parcours d'entraînement) se notent ici.")}</section>`;
+  return { back: ["#/plus", "Plus"], title: "Entraînements libres", body };
 }
 function vEntrainement(p) {
   const s = S.data.sessions.find(x => x._id === p[1]); if (!s) return S.loaded ? emptyBox("Entraînement introuvable", "", `<a class="btn ghost sm" href="#/entrainements">Retour</a>`) : `<p class="muted">Chargement…</p>`;
-  return `<section class="view">${backLink("#/entrainements", "Entraînements")}
-  <div class="stack"><div class="row between"><h1 class="page">${esc(s.domain || "Entraînement")}</h1>${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="session" data-id="${s._id}">Modifier</button>` : ""}</div>
-  <div class="meta"><span>${fmtD(s.date)}</span><span>·</span><span class="mono">${n0(s.duration)} min</span>${s.rating ? `<span>· qualité ${s.rating}/5</span>` : ""}</div>
-  <p class="pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}${s.notes ? `<p class="small muted pre">${esc(s.notes)}</p>` : ""}</div>
+  const body = `<section class="view">
+  <div class="meta"><span>${fmtD(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span>${s.rating ? `<span>· qualité ${s.rating}/5</span>` : ""}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="session" data-id="${s._id}">Modifier</button>` : ""}</div>
+  <div class="card"><p class="pre">${esc(s.content)}</p>${s.result ? `<p class="small" style="margin-top:6px"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}${s.notes ? `<p class="small muted pre" style="margin-top:6px">${esc(s.notes)}</p>` : ""}</div>
   ${notesBlock("free:" + s._id)}${videosBlock("free:" + s._id)}</section>`;
+  return { back: ["#/entrainements", "Entraînements libres"], title: esc(s.domain || "Entraînement"), body };
 }
-
-/* ---------- Cours ---------- */
 function vCours() {
   const l = [...S.data.lessons].sort(byDateDesc);
-  return `<section class="view"><div class="row between"><p class="small muted">Constats du pro, consignes, et ce qui doit être travaillé avant le cours suivant.</p>${canEdit() ? `<button class="btn sm" data-act="form" data-kind="lesson">+ Cours</button>` : ""}</div>
-  ${l.length ? `<div class="list">${l.map(s => `<div class="item"><div class="head"><h3>${esc(s.theme)}</h3><span class="small muted">${fmtD(s.date)}${s.pro ? " · " + esc(s.pro) : ""}${s.rating ? ` · ${s.rating}/5` : ""}</span></div>
-  ${s.findings ? `<p class="small pre"><span class="muted">Constats : </span>${esc(s.findings)}</p>` : ""}${s.drills ? `<p class="small pre"><span class="muted">Consignes : </span>${esc(s.drills)}</p>` : ""}${s.toWork ? `<p class="small pre"><span class="muted">À travailler : </span>${esc(s.toWork)}</p>` : ""}
-  <div class="row">${s.video ? `<a class="small" href="${esc(s.video)}" target="_blank" rel="noopener">Vidéo ↗</a>` : ""}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="lesson" data-id="${s._id}">Modifier</button>` : ""}</div></div>`).join("")}</div>`
-    : emptyBox("Aucun cours saisi", "Après chaque cours, saisis le thème, les constats du pro et les consignes.", canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="lesson">Saisir un cours</button>` : "")}</section>`;
+  const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="lesson">+ Cours avec le pro</button>` : ""}
+  ${l.length ? l.map(s => `<div class="card stack"><div class="row between"><h3>${esc(s.theme)}</h3><span class="small muted">${fmtD(s.date)}${s.pro ? " · " + esc(s.pro) : ""}</span></div>
+  ${s.findings ? `<p class="small pre"><span class="lbl">Constats</span><br>${esc(s.findings)}</p>` : ""}${s.drills ? `<p class="small pre"><span class="lbl">Consignes</span><br>${esc(s.drills)}</p>` : ""}${s.toWork ? `<p class="small pre"><span class="lbl">À travailler</span><br>${esc(s.toWork)}</p>` : ""}
+  <div class="row">${s.video ? `<a class="small" href="${esc(s.video)}" target="_blank" rel="noopener">Vidéo ↗</a>` : ""}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="lesson" data-id="${s._id}">Modifier</button>` : ""}</div></div>`).join("")
+    : emptyBox("Aucun cours saisi", "Après chaque cours : thème, constats du pro, consignes et ce qui doit être travaillé.")}</section>`;
+  return { back: ["#/plus", "Plus"], title: "Cours avec le pro", body };
 }
 
-/* ---------- Parties ---------- */
+/* ---------- Parties (UX Club-house) ---------- */
 function partiesNav(sub) { return `<div class="chips"><a href="#/parties" ${sub !== "perf" ? 'aria-current="page"' : ""}>Cartes</a><a href="#/parties/perf" ${sub === "perf" ? 'aria-current="page"' : ""}>Performance détaillée</a></div>`; }
 function vParties(p) {
   if (p[1] === "perf") return vPerf();
   const l = [...S.data.rounds].sort(byDateDesc);
-  return `<section class="view">${partiesNav()}
-  <div class="row between"><p class="small muted">Saisie trou par trou : 7, 9, 12, 15 ou 18 trous. GIR et scrambling sont calculés automatiquement.</p>${canEdit() ? `<a class="btn sm" href="#/partie/new">+ Nouvelle carte</a>` : ""}</div>
-  ${S.draft && canEdit() ? `<p class="note">Une saisie est en cours (${esc(S.draft.course || "")}, ${fmtD(S.draft.date)}). <a href="#/partie/new">Reprendre</a></p>` : ""}
-  ${l.length ? `<div class="tbl-wrap"><table class="t"><thead><tr><th>Date</th><th>Parcours</th><th class="n">Trous</th><th class="n">Score</th><th class="n">Putts</th><th class="n">FW</th><th class="n">GIR</th><th class="n">Scr.</th><th class="n">&lt; 2 m</th></tr></thead><tbody>
-  ${l.map(r => { const c = roundCalc(r); return `<tr><td style="white-space:nowrap"><a href="#/partie/${r._id}">${fmtD(r.date)}</a></td><td>${esc(r.course)}<div class="xs muted">${esc(r.type || "")}</div></td><td class="n">${c.n}</td><td class="n">${c.n ? c.score : "—"} <span class="muted">${c.n ? sgn(c.score - c.par) : ""}</span></td><td class="n">${c.puttsN ? c.putts : "—"}</td><td class="n">${c.fwPoss ? `${c.fwHit}/${c.fwPoss}` : "—"}</td><td class="n">${c.gir}/${c.n}</td><td class="n">${c.scrOpp ? `${c.scr}/${c.scrOpp}` : "—"}</td><td class="n">${c.short}</td></tr>`; }).join("")}
-  </tbody></table></div>` : emptyBox("Aucune carte saisie", "Saisis ta prochaine partie trou par trou, sur le parcours ou après.", canEdit() ? `<a class="btn ghost sm" href="#/partie/new">Saisir une carte</a>` : "")}
+  const body = `<section class="view">${partiesNav()}
+  ${canEdit() ? `<a class="btn wide" href="#/partie/new">${S.draft && !S.draft.id ? "Reprendre la carte en cours" : "+ Nouvelle carte"}</a>` : ""}
+  ${l.length ? l.map(r => { const c = roundCalc(r); return `<a class="card" href="#/partie/${r._id}"><div class="row between"><h3 class="serif" style="font-size:17px">${esc(r.course)}</h3><span class="serif" style="font-size:20px;font-weight:700">${c.score} <span class="small muted">${sgn(c.score - c.par)}</span></span></div>
+    <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span></div>
+    ${miniCard(r)}
+    <div class="meta"><span>${c.puttsN ? c.putts + " putts" : ""}</span><span>FW ${c.fwPoss ? c.fwHit + "/" + c.fwPoss : "—"}</span><span>GIR ${c.gir}/${c.n}</span><span>Scr. ${c.scrOpp ? c.scr + "/" + c.scrOpp : "—"}</span>${c.short ? `<span>${c.short} putt${c.short > 1 ? "s" : ""} &lt; 2 m ratés</span>` : ""}</div></a>`; }).join("")
+    : emptyBox("Aucune carte saisie", "Saisis ta prochaine partie trou par trou, sur le parcours ou après.")}
   </section>`;
+  return { kicker: "Cartes de score", title: "Parties", body };
 }
-function scoreCell(score, par) {
-  if (score == null) return "—"; const d = score - par; const c = d <= -2 ? "b2" : d === -1 ? "b1" : d === 1 ? "p1" : d >= 2 ? "p2" : "";
-  return `<span class="sc ${c}">${score}</span>`;
+function miniCard(r) {
+  const hs = (r.holesData || []).slice().sort((a, b) => a.n - b.n);
+  return `<div class="holestrip"><table><tr><th class="l">Trou</th>${hs.map(h => `<th>${h.n}</th>`).join("")}</tr><tr><td class="l">Score</td>${hs.map(h => `<td>${scoreCell(h.score, h.par || 4, true)}</td>`).join("")}</tr></table></div>`;
+}
+function scoreCell(score, par, small) {
+  if (score == null) return `<span class="muted">·</span>`; const d = score - par; const c = d <= -2 ? "b2" : d === -1 ? "b1" : d === 1 ? "p1" : d >= 2 ? "p2" : "";
+  return `<span class="sc ${c}" ${small ? 'style="width:22px;height:22px;font-size:12px"' : ""}>${score}</span>`;
+}
+function avgCell(avg, par) {
+  if (avg == null) return "—"; const d = avg - par; const c = d < -0.05 ? "b1" : d >= 1 ? "p2" : d >= 0.5 ? "p1" : "";
+  return `<span class="sc ${c}" style="width:auto;min-width:30px;height:26px;padding:0 3px;font-size:12px">${n1(avg)}</span>`;
 }
 function scorecardTable(rows, mode) {
-  // rows: [{n, par, score|avg, putts, fw, gir, scr, short}] ; mode "one" | "avg"
   const halves = [rows.filter(r => r.n <= 9), rows.filter(r => r.n > 9)].filter(h => h.length);
-  const fwCell = r => mode === "one" ? (r.par < 4 ? `<span class="muted">·</span>` : r.fw === "Y" ? "✓" : r.fw === "L" ? `<span class="miss-l">← G</span>` : r.fw === "R" ? `<span class="miss-r">D →</span>` : "—")
-    : (r.fwPoss ? `${pc(r.fwHit / r.fwPoss * 100)}<div class="xs muted">${r.missL ? r.missL + "G " : ""}${r.missR ? r.missR + "D" : ""}</div>` : `<span class="muted">·</span>`);
-  const girCell = r => mode === "one" ? (r.score == null ? "—" : `<span class="dot ${r.gir ? "on" : ""}" title="${r.gir ? "GIR" : "Green manqué"}"></span>`) : (r.cnt ? pc(r.gir / r.cnt * 100) : "—");
-  const scrCell = r => mode === "one" ? (r.score == null || r.gir ? `<span class="muted">·</span>` : r.scr ? "✓" : "✗") : (r.scrOpp ? `${r.scr}/${r.scrOpp}` : `<span class="muted">·</span>`);
-  return halves.map((h, i) => {
+  const fwCell = r => mode === "one" ? (r.par < 4 ? `<span class="muted">·</span>` : r.fw === "Y" ? `<span class="dot on"></span>` : r.fw === "L" ? `<span class="miss">G</span>` : r.fw === "R" ? `<span class="miss">D</span>` : "—")
+    : (r.fwPoss ? `${pc(r.fwHit / r.fwPoss * 100)}<div class="xs miss">${r.missL ? r.missL + "G " : ""}${r.missR ? r.missR + "D" : ""}</div>` : `<span class="muted">·</span>`);
+  const girCell = r => mode === "one" ? (r.score == null ? "—" : `<span class="dot ${r.gir ? "on" : ""}"></span>`) : (r.cnt ? `<span style="display:block;margin:-6px -3px;padding:6px 3px;background:rgba(15,35,64,${(r.gir / r.cnt) * .35})">${pc(r.gir / r.cnt * 100)}</span>` : "—");
+  const scrCell = r => mode === "one" ? (r.score == null || r.gir ? `<span class="muted">·</span>` : r.scr ? "✓" : `<span class="miss">✗</span>`) : (r.scrOpp ? `${r.scr}/${r.scrOpp}` : `<span class="muted">·</span>`);
+  return halves.map(h => {
     const sum = k => h.reduce((s, r) => s + (r[k] || 0), 0);
     const totScore = mode === "one" ? (h.every(r => r.score != null) ? sum("score") : "—") : n1(sum("avg"));
-    return `<div class="tbl-wrap" style="margin-bottom:10px"><table class="scorecard"><thead><tr><th class="rl">${i === 0 && h[0].n <= 9 ? "Aller" : "Retour"}</th>${h.map(r => `<th>${r.n}</th>`).join("")}<th>Tot.</th></tr></thead><tbody>
+    return `<div class="tbl-wrap" style="margin-bottom:10px"><table class="scorecard"><thead><tr><th class="rl">${h[0].n <= 9 ? "Aller" : "Retour"}</th>${h.map(r => `<th>${r.n}</th>`).join("")}<th>Tot.</th></tr></thead><tbody>
     <tr><td class="rl">Par</td>${h.map(r => `<td>${r.par}</td>`).join("")}<td class="tot">${sum("par")}</td></tr>
-    <tr><td class="rl">${mode === "one" ? "Score" : "Score moyen"}</td>${h.map(r => `<td>${mode === "one" ? scoreCell(r.score, r.par) : (r.cnt ? `${n1(r.avg)}<div class="xs muted">${sgn(r.avg - r.par)}</div>` : "—")}</td>`).join("")}<td class="tot">${totScore}</td></tr>
+    <tr><td class="rl">${mode === "one" ? "Score" : "Moyenne"}</td>${h.map(r => `<td>${mode === "one" ? scoreCell(r.score, r.par) : avgCell(r.cnt ? r.avg : null, r.par)}</td>`).join("")}<td class="tot">${totScore}</td></tr>
     <tr><td class="rl">Putts</td>${h.map(r => `<td>${mode === "one" ? (r.putts ?? "—") : (r.cnt ? n1(r.puttsAvg) : "—")}</td>`).join("")}<td class="tot">${mode === "one" ? sum("putts") : n1(sum("puttsAvg"))}</td></tr>
     <tr><td class="rl">Fairway</td>${h.map(r => `<td>${fwCell(r)}</td>`).join("")}<td class="tot"></td></tr>
     <tr><td class="rl">GIR</td>${h.map(r => `<td>${girCell(r)}</td>`).join("")}<td class="tot">${mode === "one" ? h.filter(r => r.gir).length : ""}</td></tr>
     <tr><td class="rl">Scrambling</td>${h.map(r => `<td>${scrCell(r)}</td>`).join("")}<td class="tot"></td></tr>
-    <tr><td class="rl">Putts &lt; 2 m manqués</td>${h.map(r => `<td>${mode === "one" ? (r.score == null ? "—" : r.short || "·") : (r.short || "·")}</td>`).join("")}<td class="tot">${sum("short")}</td></tr>
+    <tr><td class="rl">&lt; 2 m ratés</td>${h.map(r => `<td>${r.score == null && mode === "one" ? "—" : (r.short ? `<span class="miss">${r.short}</span>` : `<span class="muted">·</span>`)}</td>`).join("")}<td class="tot">${sum("short")}</td></tr>
     </tbody></table></div>`;
   }).join("");
 }
@@ -482,54 +563,70 @@ function holeRowsAvg(rounds, pars) {
     if (holeGir(h)) o.gir++; else if (h.putts != null) { o.scrOpp++; if (h.score <= o.par) o.scr++; } o.short += h.short || 0; }
   return Object.values(by).sort((a, b) => a.n - b.n).map(o => ({ ...o, avg: o.sc / o.cnt, puttsAvg: o.ptN ? o.pt / o.ptN : 0 }));
 }
-function perfSummary(rounds) {
+function perfKpis(rounds) {
   const st = statsOf(rounds); if (!st) return "";
   const tm = st.missL + st.missR;
-  return `<div class="kpis"><div class="kpi"><div class="l">Score / par (18 trous)</div><div class="v">${sgn(st.toPar)}</div><div class="s">${st.n} carte${st.n > 1 ? "s" : ""}</div></div>
-  <div class="kpi"><div class="l">Fairways</div><div class="v">${pct(st.fw)}</div><div class="s">${tm ? `ratés ${pct(st.missL / tm * 100)} G · ${pct(st.missR / tm * 100)} D` : "aucun raté"}</div></div>
-  <div class="kpi"><div class="l">GIR /18 · Scrambling</div><div class="v">${n1(st.gir)}</div><div class="s">scrambling ${pct(st.scr)}</div></div>
-  <div class="kpi"><div class="l">Putts /18</div><div class="v">${n1(st.putts)}</div><div class="s">${n1(st.short)} manqués &lt; 2 m · ${n1(st.three)} 3-putts</div></div></div>`;
+  return `<div class="kpis"><div class="kpi"><div class="l">Score / par</div><div class="v">${sgn(st.toPar)}</div><div class="s">ramené à 18 trous</div></div>
+  <div class="kpi"><div class="l">Fairways</div><div class="v">${pct(st.fw)}</div><div class="s">${tm ? `ratés ${pc(st.missL / tm * 100)} G · ${pc(st.missR / tm * 100)} D` : "aucun raté"}</div></div>
+  <div class="kpi"><div class="l">GIR /18</div><div class="v">${n1(st.gir)}</div><div class="s">scrambling ${pct(st.scr)}</div></div>
+  <div class="kpi"><div class="l">Putts /18</div><div class="v">${n1(st.putts)}</div><div class="s">${n1(st.short)} ratés &lt; 2 m · ${n1(st.three)} 3-putts</div></div></div>`;
+}
+function synthesis(rows, rounds) {
+  const st = statsOf(rounds); if (!st) return "";
+  const byPar = {}; for (const r of rows) if (r.cnt) { const b = byPar[r.par] = byPar[r.par] || { d: 0, n: 0 }; b.d += (r.avg - r.par) * r.cnt; b.n += r.cnt; }
+  const pars = Object.entries(byPar).map(([p, b]) => ({ p, d: b.d / b.n })).sort((a, b) => b.d - a.d);
+  const out = [];
+  if (pars.length) { const w = pars[0], bst = pars[pars.length - 1]; out.push(`Les <b>par ${w.p}</b> te coûtent <b>${sgn(w.d)}</b> en moyenne${pars.length > 1 ? `, les <b>par ${bst.p}</b> ${sgn(bst.d)}` : ""}.`); }
+  const tm = st.missL + st.missR; if (tm >= 3) { const side = st.missL >= st.missR ? "gauche" : "droite"; out.push(`Quand tu manques le fairway, c'est à <b>${side}</b> ${pc(Math.max(st.missL, st.missR) / tm * 100)} du temps.`); }
+  const G = gaps(st).filter(g => g.g != null && g.g > 0);
+  if (G.length) out.push(`Plus gros écart avec un joueur +2 : <b>${esc(G[0].label.toLowerCase())}</b> (${fmtVal(G[0], G[0].v)} pour ${fmtVal(G[0], G[0].t)}).`);
+  else out.push("Tes statistiques sont au niveau des repères d'un joueur +2.");
+  return `<div class="card hl"><span class="lbl">Ce que dit ta carte</span><p class="small" style="margin-top:4px;line-height:1.55">${out.join(" ")}</p></div>`;
 }
 function vPerf() {
   const rounds = S.data.rounds; const courses = [...new Set(rounds.map(r => r.courseId).filter(Boolean))].map(id => S.data.courses.find(c => c._id === id) || { _id: id, name: (rounds.find(r => r.courseId === id) || {}).course || "Parcours" });
-  if (!courses.length) return `<section class="view">${partiesNav("perf")}${emptyBox("Pas encore de carte", "La carte détaillée apparaît dès la première partie saisie trou par trou.", canEdit() ? `<a class="btn ghost sm" href="#/partie/new">Saisir une carte</a>` : "")}</section>`;
+  if (!courses.length) return { kicker: "Cartes de score", title: "Performance détaillée", body: `<section class="view">${partiesNav("perf")}${emptyBox("Pas encore de carte", "La carte détaillée apparaît dès la première partie saisie trou par trou.", canEdit() ? `<a class="btn sm" href="#/partie/new">Saisir une carte</a>` : "")}</section>` };
   if (!S.perf.course || !courses.some(c => c._id === S.perf.course)) S.perf.course = courses[0]._id;
   const course = courses.find(c => c._id === S.perf.course); const cr = rounds.filter(r => r.courseId === course._id).sort(byDateDesc);
   if (S.perf.round !== "all" && !cr.some(r => r._id === S.perf.round)) S.perf.round = "all";
   const one = S.perf.round !== "all" ? cr.find(r => r._id === S.perf.round) : null;
   const rows = one ? holeRowsOne(one) : holeRowsAvg(cr, course.pars || []);
   const costly = !one ? rows.filter(r => r.cnt).map(r => ({ n: r.n, d: r.avg - r.par, r })).sort((a, b) => b.d - a.d).slice(0, 3) : [];
-  return `<section class="view">${partiesNav("perf")}
-  <div class="row" style="align-items:flex-end">
-    <div class="f" style="flex:1 1 200px"><label for="pf-course">Parcours</label><select id="pf-course" data-act-change="perf-course">${courses.map(c => `<option value="${c._id}" ${c._id === course._id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
-    <div class="f" style="flex:1 1 200px"><label for="pf-round">Partie</label><select id="pf-round" data-act-change="perf-round"><option value="all">Toutes (${cr.length}) · moyennes</option>${cr.map(r => `<option value="${r._id}" ${r._id === S.perf.round ? "selected" : ""}>${fmtD(r.date)} · ${roundCalc(r).score} (${roundCalc(r).n} t.)</option>`).join("")}</select></div>
+  const body = `<section class="view">${partiesNav("perf")}
+  <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+    <div class="f"><label for="pf-course">Parcours</label><select id="pf-course" data-act-change="perf-course">${courses.map(c => `<option value="${c._id}" ${c._id === course._id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+    <div class="f"><label for="pf-round">Partie</label><select id="pf-round" data-act-change="perf-round"><option value="all">Moyenne · ${cr.length} partie${cr.length > 1 ? "s" : ""}</option>${cr.map(r => `<option value="${r._id}" ${r._id === S.perf.round ? "selected" : ""}>${fmtD(r.date)} · ${roundCalc(r).score}</option>`).join("")}</select></div>
   </div>
-  ${perfSummary(one ? [one] : cr)}
-  <div><h2>${one ? `Carte du ${fmtD(one.date)}` : "Carte moyenne par trou"}</h2>${scorecardTable(rows, one ? "one" : "avg")}
-  <p class="xs muted">${one ? "Cercle : birdie (double cercle : eagle) · carré : bogey (double carré : double bogey ou plus). Point plein : green en régulation." : "Score moyen et écart au par par trou ; fairways : % touchés et ratés gauche (G) / droite (D) ; scrambling : réussis / occasions."}</p></div>
-  ${costly.length ? `<div><h2>Trous les plus coûteux</h2><div class="list">${costly.map(c => `<div class="item"><div class="head"><span>Trou ${c.n} · par ${c.r.par}</span><span class="mono">${sgn(c.d)} en moyenne</span></div><p class="small muted">${c.r.fwPoss ? `Fairway ${pct(c.r.fwHit / c.r.fwPoss * 100)} (${c.r.missL} G, ${c.r.missR} D) · ` : ""}GIR ${pct(c.r.gir / c.r.cnt * 100)} · ${n1(c.r.puttsAvg)} putts</p></div>`).join("")}</div></div>` : ""}
-  ${one ? `<div class="row"><a class="btn ghost sm" href="#/partie/${one._id}">Ouvrir la carte</a></div>` : ""}
+  ${perfKpis(one ? [one] : cr)}
+  ${scorecardTable(rows, one ? "one" : "avg")}
+  <p class="xs muted" style="margin-top:-6px">Cercle rouge : sous le par · carré bleu : au-dessus (double : +1 et plus en moyenne, double bogey sur une partie). Fairway : ● touché, G / D raté. GIR : ● green en régulation.</p>
+  ${synthesis(rows, one ? [one] : cr)}
+  ${costly.length ? `<div class="card"><h2>Trous les plus coûteux</h2><div class="list">${costly.map(c => `<div class="item"><div class="head"><span><b class="serif">Trou ${c.n}</b> · par ${c.r.par}</span><span class="serif" style="color:var(--red);font-weight:700">${sgn(c.d)}</span></div><p class="small muted">${c.r.fwPoss ? `Fairway ${pc(c.r.fwHit / c.r.fwPoss * 100)} (${c.r.missL} G, ${c.r.missR} D) · ` : ""}GIR ${pc(c.r.gir / c.r.cnt * 100)} · ${n1(c.r.puttsAvg)} putts</p></div>`).join("")}</div></div>` : ""}
+  ${one ? `<a class="btn ghost sm" href="#/partie/${one._id}">Ouvrir la carte</a>` : ""}
   </section>`;
+  return { kicker: "Cartes de score", title: "Performance détaillée", body };
 }
 function vPartie(p) {
   if (p[1] === "new" || p[2] === "edit") return vEditor(p);
   const r = S.data.rounds.find(x => x._id === p[1]); if (!r) return S.loaded ? emptyBox("Carte introuvable", "", `<a class="btn ghost sm" href="#/parties">Retour</a>`) : `<p class="muted">Chargement…</p>`;
   const c = roundCalc(r);
-  return `<section class="view">${backLink("#/parties", "Parties")}
-  <div class="stack"><div class="row between"><h1 class="page">${esc(r.course)}</h1><span class="mono">${c.score} <span class="muted">(${sgn(c.score - c.par)})</span></span></div>
-  <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span></div></div>
-  ${perfSummary([r])}
-  <div><h2>Carte</h2>${scorecardTable(holeRowsOne(r), "one")}</div>
-  ${r.cost ? `<div><h2>Où sont partis les coups</h2><p class="pre">${esc(r.cost)}</p></div>` : ""}
-  ${r.notes ? `<div><h2>Notes</h2><p class="pre">${esc(r.notes)}</p></div>` : ""}
+  const body = `<section class="view">
+  <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span></div>
+  ${perfKpis([r])}
+  ${scorecardTable(holeRowsOne(r), "one")}
+  ${synthesis(holeRowsAvg([r], []), [r])}
+  ${r.cost ? `<div class="card"><h2>Où sont partis les coups</h2><p class="pre small">${esc(r.cost)}</p></div>` : ""}
+  ${r.notes ? `<div class="card"><h2>Notes</h2><p class="pre small">${esc(r.notes)}</p></div>` : ""}
   ${canEdit() ? `<div class="row"><a class="btn ghost sm" href="#/partie/${r._id}/edit">Modifier</a><button class="btn danger sm" data-act="del-round" data-id="${r._id}">Supprimer</button></div>` : ""}
   </section>`;
+  return { back: ["#/parties", "Parties"], title: esc(r.course), body, right: `<span class="serif" style="font-size:26px;font-weight:700;white-space:nowrap">${c.score}<span class="small muted"> ${sgn(c.score - c.par)}</span></span>` };
 }
 
-/* ---------- Saisie de carte ---------- */
-function saveDraft() { try { if (S.draft) localStorage.setItem("golf-draft", JSON.stringify(S.draft)); else localStorage.removeItem("golf-draft"); } catch (e) {} }
+/* ---------- Saisie de carte (UX Club-house) ---------- */
+function saveDraft() { lsSet("golf-draft", S.draft); }
 function draftFromRound(r) { return { id: r._id, date: r.date, type: r.type, courseId: r.courseId, course: r.course, holesCount: r.holesCount || (r.holesData || []).length, startHole: r.startHole || 1, holes: (r.holesData || []).map(h => ({ ...h })), cost: r.cost || "", notes: r.notes || "", stage: "holes" }; }
 function holeNumbers(start, count) { const a = []; for (let i = 0; i < count; i++) a.push(((start - 1 + i) % 18) + 1); return a; }
+const SCORE_NAMES = { "-3": "albatros", "-2": "eagle", "-1": "birdie", "0": "par", "1": "bogey", "2": "double", "3": "triple" };
 function vEditor(p) {
   if (!canEdit()) return emptyBox("Lecture seule", "Ton compte ne permet pas de saisir de carte.");
   if (p[2] === "edit") { const r = S.data.rounds.find(x => x._id === p[1]); if (!r) return `<p class="muted">Chargement…</p>`; if (!S.draft || S.draft.id !== r._id) { S.draft = draftFromRound(r); S.hole = 0; saveDraft(); } }
@@ -537,50 +634,54 @@ function vEditor(p) {
   const d = S.draft;
   if (!d || d.stage === "setup" || !d.stage) {
     const x = d || { date: iso(), type: "Compétition", holesCount: 18, startHole: 1 };
-    return `<section class="view">${backLink("#/parties", "Parties")}<h1 class="page">Nouvelle carte</h1>
-    <form class="stack" data-form="setup">
-      <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+    const body = `<section class="view"><form class="stack card" data-form="setup">
+      <div class="grid">
         <div class="f"><label for="ed-date">Date</label><input id="ed-date" name="date" type="date" value="${esc(x.date)}" required></div>
         <div class="f"><label for="ed-type">Type</label><select id="ed-type" name="type">${["Compétition", "Partie qualificative", "Partie amicale", "Entraînement sur le parcours"].map(o => `<option ${x.type === o ? "selected" : ""}>${o}</option>`).join("")}</select></div>
         <div class="f full"><label for="ed-course">Parcours</label><select id="ed-course" name="courseId"><option value="">Nouveau parcours…</option>${S.data.courses.slice().sort((a, b) => a.name.localeCompare(b.name)).map(c => `<option value="${c._id}" ${x.courseId === c._id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
-        <div class="f full"><label for="ed-cname">Nom du nouveau parcours</label><input id="ed-cname" name="courseName" placeholder="Ex. Golf du Sart" value=""></div>
+        <div class="f full"><label for="ed-cname">Nom du nouveau parcours</label><input id="ed-cname" name="courseName" placeholder="Ex. Golf du Sart"></div>
       </div>
       <div class="f"><span class="lbl">Nombre de trous</span><div class="seg" data-seg="holesCount">${[7, 9, 12, 15, 18].map(n => `<button type="button" data-v="${n}" aria-pressed="${x.holesCount === n}">${n}</button>`).join("")}</div></div>
       <div class="f" style="max-width:200px"><label for="ed-start">Trou de départ</label><select id="ed-start" name="startHole">${Array.from({ length: 18 }, (_, i) => `<option value="${i + 1}" ${x.startHole === i + 1 ? "selected" : ""}>${i + 1}</option>`).join("")}</select></div>
-      <div class="row"><button class="btn" type="submit">Commencer la saisie</button>${d ? `<button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner la saisie</button>` : ""}</div>
+      <button class="btn" type="submit">Commencer la saisie</button>${d ? `<button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner la saisie</button>` : ""}
     </form></section>`;
+    return { back: ["#/parties", "Parties"], title: "Nouvelle carte", body };
   }
   if (d.stage === "finish") {
-    const c = roundCalc({ holesData: d.holes });
-    return `<section class="view"><a class="back" href="#" data-act="ed-stage" data-v="holes">← Retour aux trous</a><h1 class="page">Terminer la carte</h1>
-    ${perfSummary([{ holesData: d.holes, date: d.date }])}
+    const body = `<section class="view">
+    ${perfKpis([{ holesData: d.holes, date: d.date }])}
     ${scorecardTable(holeRowsOne({ holesData: d.holes }), "one")}
-    <form class="stack" data-form="finish">
+    <form class="stack card" data-form="finish">
       <div class="f"><label for="ed-cost">Où sont partis les coups</label><textarea id="ed-cost" name="cost" placeholder="Ex. 2 coups perdus au départ du 7 et du 12, chip trop long au 15…">${esc(d.cost || "")}</textarea></div>
       <div class="f"><label for="ed-notes">Notes / mental</label><textarea id="ed-notes" name="notes">${esc(d.notes || "")}</textarea></div>
-      <p class="small muted">${c.n}/${d.holes.length} trous renseignés.</p>
-      <div class="row"><button class="btn" type="submit">Enregistrer la carte</button><button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner</button></div>
+      <button class="btn" type="submit">Enregistrer la carte</button><button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner</button>
     </form></section>`;
+    return { back: ["#", "Retour aux trous"], title: "Terminer la carte", body, backAct: "ed-holes" };
   }
   const i = Math.min(S.hole, d.holes.length - 1); const h = d.holes[i]; const par = h.par || 4;
-  const g = h.score != null && h.putts != null ? holeGir(h) : null;
-  const scr = g === false ? (h.score <= par) : null;
-  const stepper = (k, val, ph) => `<div class="stepper"><button type="button" data-act="h-step" data-k="${k}" data-d="-1" aria-label="Moins">−</button><output class="${val == null ? "muted" : ""}">${val ?? ph}</output><button type="button" data-act="h-step" data-k="${k}" data-d="1" aria-label="Plus">+</button></div>`;
-  return `<section class="view">
-  <div class="row between"><a class="back" href="#/parties">← Parties</a><span class="small muted">${esc(d.course)} · ${fmtD(d.date)}</span></div>
-  <div class="holestrip">${d.holes.map((x, j) => `<button type="button" data-act="h-go" data-i="${j}" class="${x.score != null ? "filled" : ""}" aria-current="${j === i}">${x.n}</button>`).join("")}</div>
-  <div class="hole-card">
-    <div class="hole-title"><span class="h">Trou ${h.n}</span><span class="small muted">${i + 1}/${d.holes.length}</span></div>
-    <div class="f"><span class="lbl">Par</span><div class="seg">${[3, 4, 5].map(v => `<button type="button" data-act="h-set" data-k="par" data-v="${v}" aria-pressed="${par === v}">Par ${v}</button>`).join("")}</div></div>
-    <div class="two" style="gap:14px"><div class="f"><span class="lbl">Score</span>${stepper("score", h.score, par)}</div><div class="f"><span class="lbl">Putts</span>${stepper("putts", h.putts, 2)}</div></div>
-    ${par >= 4 ? `<div class="f"><span class="lbl">Fairway</span><div class="seg">${[["L", "← Gauche"], ["Y", "Touché"], ["R", "Droite →"]].map(([v, l]) => `<button type="button" data-act="h-set" data-k="fw" data-v="${v}" aria-pressed="${h.fw === v}">${l}</button>`).join("")}</div></div>` : `<p class="small muted">Par 3 : pas de fairway.</p>`}
-    <div class="two" style="gap:14px"><div class="f"><span class="lbl">Putts &lt; 2 m manqués</span>${stepper("short", h.short, 0)}</div><div class="f"><span class="lbl">Pénalités</span>${stepper("pen", h.pen, 0)}</div></div>
-    <div class="auto">${g == null ? `<span class="pill">GIR : à calculer</span>` : `<span class="pill ${g ? "ok" : ""}">GIR ${g ? "oui" : "non"}</span>`}${scr == null ? "" : `<span class="pill ${scr ? "ok" : "bad"}">Scrambling ${scr ? "réussi" : "raté"}</span>`}${h.score != null ? `<span class="pill">${sgn(h.score - par) === "—" ? "" : (h.score - par === 0 ? "Par" : sgn(h.score - par))}</span>` : ""}</div>
-    <div class="row between"><button class="btn ghost" type="button" data-act="h-go" data-i="${i - 1}" ${i === 0 ? "disabled" : ""}>← Précédent</button>
-    ${i < d.holes.length - 1 ? `<button class="btn" type="button" data-act="h-next">Trou suivant →</button>` : `<button class="btn" type="button" data-act="h-finish">Terminer</button>`}</div>
-  </div>
-  <p class="xs muted">« Trou suivant » enregistre le score au par et 2 putts s'ils n'ont pas été modifiés. La saisie est conservée sur ce téléphone jusqu'à l'enregistrement.</p>
+  const g = h.score != null && h.putts != null ? holeGir(h) : null; const scr = g === false ? (h.score <= par) : null;
+  const tot = d.holes.filter(x => x.score != null); const toPar = tot.reduce((s, x) => s + x.score - (x.par || 4), 0);
+  const opts = [par - 2, par - 1, par, par + 1, par + 2]; const custom = h.score != null && !opts.includes(h.score);
+  const mini = (k, l) => `<div class="mini"><button type="button" data-act="h-step" data-k="${k}" data-d="-1" aria-label="Moins">−</button><div class="v">${h[k] ?? 0}</div><button type="button" data-act="h-step" data-k="${k}" data-d="1" aria-label="Plus">+</button><div class="l">${l}</div></div>`;
+  const body = `<section class="view">
+  <div class="holestrip"><table>
+    <tr><th class="l">Trou</th>${d.holes.map((x, j) => `<th class="${j === i ? "cur" : ""}" data-act="h-go" data-i="${j}">${x.n}</th>`).join("")}</tr>
+    <tr><td class="l">Par</td>${d.holes.map((x, j) => `<td class="${j === i ? "cur" : ""}">${x.par || 4}</td>`).join("")}</tr>
+    <tr><td class="l">Score</td>${d.holes.map((x, j) => `<td class="${j === i ? "cur" : ""}">${scoreCell(x.score, x.par || 4, true)}</td>`).join("")}</tr>
+  </table></div>
+  <div class="row between"><span class="serif" style="font-size:22px;font-weight:700">Trou ${h.n}</span><span class="small muted">${tot.length ? `${tot.length} trou${tot.length > 1 ? "s" : ""} · ${sgn(toPar) === "—" ? "par" : (toPar === 0 ? "au par" : sgn(toPar))}` : `${i + 1}/${d.holes.length}`}</span></div>
+  <div class="f"><span class="lbl">Par</span><div class="seg">${[3, 4, 5].map(v => `<button type="button" data-act="h-set" data-k="par" data-v="${v}" aria-pressed="${par === v}">Par ${v}</button>`).join("")}</div></div>
+  <div class="f"><span class="lbl">Score</span><div class="pick">${opts.map(v => `<button type="button" data-act="h-score" data-v="${v}" aria-pressed="${h.score === v}"><b>${v}</b><small>${SCORE_NAMES[v - par] || ""}</small></button>`).join("")}</div>
+    <div class="row" style="margin-top:6px"><span class="xs muted">Autre score :</span><button type="button" class="btn ghost sm" data-act="h-step" data-k="score" data-d="1">${custom ? h.score + " · +1" : "+3 et plus"}</button>${custom ? `<button type="button" class="btn ghost sm" data-act="h-step" data-k="score" data-d="-1">−1</button>` : ""}</div></div>
+  <div class="f"><span class="lbl">Putts</span><div class="pick">${[0, 1, 2, 3, 4].map(v => `<button type="button" data-act="h-set" data-k="putts" data-v="${v}" aria-pressed="${h.putts === v}"><b>${v}</b></button>`).join("")}</div></div>
+  ${par >= 4 ? `<div class="f"><span class="lbl">Fairway</span><div class="seg red">${[["L", "← Gauche"], ["Y", "Touché"], ["R", "Droite →"]].map(([v, l]) => `<button type="button" data-act="h-set" data-k="fw" data-v="${v}" aria-pressed="${h.fw === v}">${l}</button>`).join("")}</div></div>` : `<p class="xs muted">Par 3 : pas de fairway.</p>`}
+  <div class="two" style="grid-template-columns:1fr 1fr;gap:8px">${mini("short", "Putts < 2 m ratés")}${mini("pen", "Pénalités")}</div>
+  <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}${scr == null ? "" : `<span class="pill ${scr ? "ok" : "bad"}">Scrambling ${scr ? "réussi" : "raté"}</span>`}</div>
+  <div class="row between"><button class="btn ghost" type="button" data-act="h-go" data-i="${i - 1}" ${i === 0 ? "disabled" : ""}>← Trou ${i ? d.holes[i - 1].n : ""}</button>
+    ${i < d.holes.length - 1 ? `<button class="btn navy" type="button" data-act="h-next">Trou ${d.holes[i + 1].n} →</button>` : `<button class="btn" type="button" data-act="h-finish">Terminer la carte</button>`}</div>
+  <p class="xs muted">Sans saisie, « Trou suivant » enregistre le par et 2 putts. La carte est conservée sur ce téléphone jusqu'à l'enregistrement.</p>
   </section>`;
+  return { back: ["#/parties", "Parties"], title: esc(d.course), body, kicker: fmtD(d.date) };
 }
 function startDraft(form) {
   const fd = new FormData(form); const hc = Number(form.querySelector('[data-seg="holesCount"] [aria-pressed="true"]')?.dataset.v || 18);
@@ -594,7 +695,7 @@ function startDraft(form) {
 }
 async function saveRound() {
   const d = S.draft; if (!d) return;
-  const filled = d.holes.filter(h => h.score != null); if (!filled.length) { toast("Aucun trou renseigné."); return; }
+  if (!d.holes.some(h => h.score != null)) { toast("Aucun trou renseigné."); return; }
   try {
     let courseId = d.courseId;
     if (!courseId) { const ex = S.data.courses.find(c => c.name.toLowerCase() === d.course.toLowerCase()); courseId = ex ? ex._id : null; }
@@ -610,9 +711,9 @@ async function saveRound() {
   } catch (e) { console.error(e); toast("Enregistrement impossible. La saisie est conservée, réessaie."); }
 }
 
-/* ---------- Formulaires en feuille ---------- */
+/* ---------- Feuilles : formulaires et menu « + » ---------- */
 const FORMS = {
-  session: { title: "Entraînement", col: "sessions", fields: [
+  session: { title: "Entraînement libre", col: "sessions", fields: [
     { k: "date", label: "Date", type: "date", req: 1 }, { k: "duration", label: "Durée (min)", type: "number", req: 1 },
     { k: "domain", label: "Domaine", type: "select", opts: DOMAINS, full: 1 },
     { k: "content", label: "Contenu", type: "textarea", full: 1, req: 1 },
@@ -630,19 +731,28 @@ const FORMS = {
 };
 const NUMERIC = new Set(["duration", "rating", "value"]);
 let editing = null;
+function openSheet(title, html) { $("#sheet-title").textContent = title; $("#sheet-body").innerHTML = html; $("#sheet").hidden = false; }
+function openAddMenu() {
+  const it = (act, kind, href, ic, col, t, s) => href ? `<a href="${href}" data-act="close-go"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></a>` : `<button data-act="${act}" data-kind="${kind}"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></button>`;
+  editing = null;
+  openSheet("Ajouter", `<div class="menu">
+    ${it(null, null, "#/partie/new", "flag", "#0f2340", S.draft && !S.draft.id ? "Reprendre la carte en cours" : "Nouvelle carte", "Saisie trou par trou")}
+    ${it("form", "session", null, "dumb", "#2c5aa0", "Entraînement libre", "Séance hors plan")}
+    ${it("form", "lesson", null, "user", "#a0612f", "Cours avec le pro", "Constats, consignes, à travailler")}
+    ${it(null, null, "#/videos", "video", "#c8372d", "Vidéo", "Filmer ou envoyer un swing")}
+    ${it("form", "index", null, "target", "#2f6b45", "Index", "Nouvelle révision")}</div>`);
+}
 function openForm(kind, id) {
   const F = FORMS[kind]; editing = { kind, id };
   let cur = id ? (S.data[F.col] || []).find(x => x._id === id) || {} : {};
   if (!cur.date) cur = { ...cur, date: iso() };
-  $("#sheet-title").textContent = (id ? "Modifier · " : "") + F.title;
-  $("#sheet-body").innerHTML = `<form id="sheet-form"><div class="grid">${F.fields.map(f => { const v = cur[f.k] ?? ""; const fid = "sf-" + f.k; let inp;
+  openSheet((id ? "Modifier · " : "") + F.title, `<form id="sheet-form"><div class="grid">${F.fields.map(f => { const v = cur[f.k] ?? ""; const fid = "sf-" + f.k; let inp;
     if (f.type === "textarea") inp = `<textarea id="${fid}" name="${f.k}" placeholder="${esc(f.ph || "")}">${esc(v)}</textarea>`;
     else if (f.type === "select") inp = `<select id="${fid}" name="${f.k}">${f.opts.map(o => `<option ${String(v) === o ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
     else inp = `<input id="${fid}" name="${f.k}" type="${f.type === "number" ? "text" : f.type}" ${f.type === "number" ? 'inputmode="decimal"' : ""} value="${esc(v)}" placeholder="${esc(f.ph || "")}">`;
     return `<div class="f ${f.full ? "full" : ""}"><label for="${fid}">${esc(f.label)}${f.req ? " *" : ""}</label>${inp}</div>`; }).join("")}</div>
     <div class="actions"><div>${id ? `<button type="button" class="btn danger sm" data-act="sheet-del">Supprimer</button>` : ""}</div><button type="submit" class="btn">Enregistrer</button></div>
-    <p class="small muted" id="sheet-err" style="margin-top:10px" hidden></p></form>`;
-  $("#sheet").hidden = false;
+    <p class="small muted" id="sheet-err" style="margin-top:10px" hidden></p></form>`);
   $("#sheet-form").addEventListener("submit", submitSheet);
 }
 function closeSheet() { $("#sheet").hidden = true; editing = null; }
@@ -689,12 +799,15 @@ document.addEventListener("click", async e => {
   if (seg) { seg.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === seg))); return; }
   const b = e.target.closest("[data-act]"); if (!b) return;
   const a = b.dataset.act, id = b.dataset.id;
-  if (b.tagName === "A") e.preventDefault();
+  if (b.tagName === "A" && a !== "close-go") e.preventDefault();
   const d = S.draft;
+  if (a.startsWith("run-")) return runAct(a, b);
   switch (a) {
     case "logout": if (!DEMO) firebase.auth().signOut(); break;
-    case "back": if (history.length > 1) history.back(); else location.hash = "#/plan"; break;
+    case "back": if (S.draft && S.draft.stage === "finish" && parts()[0] === "partie") { S.draft.stage = "holes"; saveDraft(); render(); break; } if (history.length > 1) history.back(); else location.hash = "#/plan"; break;
     case "close": closeSheet(); break;
+    case "close-go": closeSheet(); break;
+    case "add-menu": openAddMenu(); break;
     case "form": openForm(b.dataset.kind, id); break;
     case "sheet-del": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer la suppression"; break; }
       try { await Store.del(FORMS[editing.kind].col, editing.id); const k = editing.kind; closeSheet(); toast("Supprimé"); if (k === "session" && location.hash.startsWith("#/entrainement/")) location.hash = "#/entrainements"; } catch (x) { sheetErr("Suppression impossible."); } break;
@@ -709,10 +822,12 @@ document.addEventListener("click", async e => {
       break; }
     case "ask-analysis": await Store.set("videos", id, { analysis: { status: "requested", requestedAt: iso() } }, true); toast("Analyse demandée"); break;
     case "draft-discard": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer l'abandon"; break; } S.draft = null; saveDraft(); location.hash = "#/parties"; render(); break;
-    case "ed-stage": d.stage = b.dataset.v; saveDraft(); render(); break;
     case "h-go": S.hole = Math.max(0, Math.min(d.holes.length - 1, Number(b.dataset.i))); render(); break;
-    case "h-set": { const h = d.holes[S.hole]; const k = b.dataset.k; let v = b.dataset.v; if (k === "par") { v = Number(v); h.par = v; if (v === 3) h.fw = null; } else h[k] = h[k] === v ? null : v; saveDraft(); render(); break; }
-    case "h-step": { const h = d.holes[S.hole]; const k = b.dataset.k; const base = h[k] ?? (k === "score" ? (h.par || 4) : k === "putts" ? 2 : 0); h[k] = Math.max(k === "score" ? 1 : 0, base + Number(b.dataset.d)); saveDraft(); render(); break; }
+    case "h-score": { const h = d.holes[S.hole]; const v = Number(b.dataset.v); h.score = h.score === v ? null : v; saveDraft(); render(); break; }
+    case "h-set": { const h = d.holes[S.hole]; const k = b.dataset.k; let v = b.dataset.v;
+      if (k === "par") { v = Number(v); h.par = v; if (v === 3) h.fw = null; } else if (k === "putts") { v = Number(v); h.putts = h.putts === v ? null : v; } else h[k] = h[k] === v ? null : v;
+      saveDraft(); render(); break; }
+    case "h-step": { const h = d.holes[S.hole]; const k = b.dataset.k; const base = h[k] ?? (k === "score" ? (h.par || 4) + 2 : 0); h[k] = Math.max(k === "score" ? 1 : 0, base + Number(b.dataset.d)); saveDraft(); render(); break; }
     case "h-next": case "h-finish": { const h = d.holes[S.hole]; if (h.score == null) h.score = h.par || 4; if (h.putts == null) h.putts = 2; if (a === "h-next") S.hole++; else d.stage = "finish"; saveDraft(); render(); window.scrollTo(0, 0); break; }
   }
 });
@@ -733,7 +848,7 @@ document.addEventListener("submit", async e => {
   if (t === "validate") {
     const st = form.querySelector('[data-seg="status"] [aria-pressed="true"]')?.dataset.v || "Faite";
     const rt = form.querySelector('[data-seg="rating"] [aria-pressed="true"]')?.dataset.v;
-    try { await Store.set("validations", form.dataset.id, { status: st, rating: rt ? Number(rt) : null, actualMin: num(form.actualMin.value), measure: form.measure.value.trim(), feedback: form.feedback.value.trim(), validatedAt: iso() }); toast("Séance validée"); }
+    try { await Store.set("validations", form.dataset.id, { status: st, rating: rt ? Number(rt) : null, actualMin: num(form.actualMin.value), measure: form.measure.value.trim(), feedback: form.feedback.value.trim(), validatedAt: iso() }); lsSet("golf-run-" + form.dataset.id, null); toast("Séance validée"); }
     catch (x) { console.error(x); toast("Enregistrement impossible."); }
   }
 });
