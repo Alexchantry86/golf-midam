@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181a19">
+<meta name="robots" content="noindex">
+<title>Objectif Mid-Am 2028</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/app.css?v=1">
+</head>
+<body>
+<div class="wrap" id="app">
+  <p class="muted small" style="padding-top:40px">Chargement…</p>
+</div>
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-back" data-act="close"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-head"><h2 id="sheet-title"></h2><button class="btn ghost sm" type="button" data-act="close">Fermer</button></div>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+<script src="js/config.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+</body>
+</html>

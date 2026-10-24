@@ -1,0 +1,20 @@
+rules_version = '2';
+// Fichiers : vidéos de swing (≤ 500 Mo) et pièces jointes des notes (≤ 20 Mo).
+service firebase.storage {
+  match /b/{bucket}/o {
+    function user() { return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data; }
+    function active() { return request.auth != null && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) && user().active == true; }
+    function isAdmin() { return active() && user().role == 'admin'; }
+
+    match /videos/{month}/{file} {
+      allow read: if active();
+      allow create: if isAdmin() && request.resource.size < 500 * 1024 * 1024 && request.resource.contentType.matches('video/.*');
+      allow delete: if isAdmin();
+    }
+    match /notes/{ref}/{file} {
+      allow read: if active();
+      allow create: if isAdmin() && request.resource.size < 20 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+  }
+}

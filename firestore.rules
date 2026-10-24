@@ -1,0 +1,23 @@
+rules_version = '2';
+// Objectif Mid-Am 2028 — site statique : toute la sécurité est ici.
+// Déployé automatiquement par la GitHub Action « Déployer les règles Firebase ».
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function active() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && me().active == true; }
+    function isAdmin() { return active() && me().role == 'admin'; }
+
+    // Comptes : créés dans la console Firebase, jamais depuis le site.
+    match /users/{uid} {
+      allow read: if signedIn() && uid == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Données de jeu et d'entraînement : lecture pour tout compte actif (ex. le pro en lecture seule), écriture admin.
+    match /{col}/{id} {
+      allow read: if active() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile'];
+      allow write: if isAdmin() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile'];
+    }
+  }
+}
