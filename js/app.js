@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.4.2";
+const APP_VERSION = "1.4.3";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -793,7 +793,7 @@ function startDraft(form) {
   const f = st.course && findCourse(st.course);
   if (f) { const t = f.course.tees.find(x => x.name === st.tee);
     if (!t) { toast("Choisis ton repère de départ."); return; }
-    catalogId = courseId = f.course.id; course = `${f.club.name} · ${f.course.name}`; pars = f.course.par; si = f.course.si || []; len = t.len || []; tee = t.name; cr = t.cr; slope = t.slope; lsSet("golf-tee-" + f.course.id, t.name); }
+    catalogId = courseId = f.course.id; course = `${f.club.name} · ${f.course.name}`; pars = f.course.par; si = t.si || f.course.si || []; len = t.len || []; tee = t.name; cr = t.cr; slope = t.slope; lsSet("golf-tee-" + f.course.id, t.name); }
   else if (st.course) { const c = S.data.courses.find(x => x._id === st.course); courseId = st.course; course = c ? c.name : st.q; pars = (c && c.pars) || []; }
   else if (st.newName) { course = st.newName; }
   else { toast("Choisis un golf dans la liste."); return; }
