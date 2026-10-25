@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.8.1";
+const APP_VERSION = "1.8.2";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -28,7 +28,7 @@ const safeName = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace
 const mmss = s => { const a = Math.abs(Math.round(s)); return (s < 0 ? "+" : "") + String(Math.floor(a / 60)).padStart(2, "0") + ":" + String(a % 60).padStart(2, "0"); };
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-let tt; function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2200); }
+let tt; function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, m.length > 45 ? 7000 : 2200); }
 async function fetchJSON(p) { const r = await fetch(p + "?v=" + Date.now()); if (!r.ok) throw new Error(p); return r.json(); }
 
 const DOMAINS = ["Long jeu", "Fers", "Wedges", "Petit jeu", "Bunker", "Putting", "Parcours", "Physique / vitesse", "Mental / routine"];
@@ -87,7 +87,8 @@ function firebaseStore() {
     async set(col, id, data, merge) { await db.collection(col).doc(id).set({ ...clean(data), updatedAt: TS() }, { merge: !!merge }); },
     async del(col, id) { await db.collection(col).doc(id).delete(); },
     upload(path, file, onProg) {
-      const ref = st.ref(path); const task = ref.put(file, { contentType: file.type || "application/octet-stream" });
+      const ext = (file.name.split(".").pop() || "").toLowerCase(), guess = { mp4: "video/mp4", mov: "video/quicktime", m4v: "video/x-m4v", "3gp": "video/3gpp", webm: "video/webm", avi: "video/x-msvideo" }[ext];
+      const ref = st.ref(path); const task = ref.put(file, { contentType: file.type || guess || "application/octet-stream" });
       return new Promise((res, rej) => task.on("state_changed", s => onProg && onProg(s.bytesTransferred / s.totalBytes), rej, async () => res({ path, url: await ref.getDownloadURL() })));
     },
     async removeFile(path) { try { await st.ref(path).delete(); } catch (e) { console.warn(e); } },
@@ -890,9 +891,14 @@ async function submitNote(form) {
     const out = []; let i = 0;
     for (const f of files) { const r = await Store.upload(`notes/${ref.replace(":", "_")}/${Date.now()}-${safeName(f.name)}`, f, x => pg.firstElementChild.style.width = ((i + x) / files.length * 100) + "%"); out.push({ name: f.name, type: f.type, size: f.size, path: r.path, url: r.url }); i++; }
     await Store.add("notes", { ref, date: iso(), text, files: out }); form.reset(); form.querySelectorAll("[data-keep]").forEach(el => el.value = ""); toast("Note ajoutée");
-  } catch (e) { console.error(e); toast("Envoi impossible. Vérifie la connexion."); }
+  } catch (e) { console.error(e); toast(upErr(e)); }
   btn.disabled = false; pg.hidden = true;
 }
+function upErr(e) { const c = (e && e.code) || "";
+  if (c === "storage/unauthorized" || c === "permission-denied") return "Envoi refusé par Firebase (droits). Code : " + c;
+  if (c === "storage/canceled") return "Envoi annulé.";
+  if (c === "storage/retry-limit-exceeded" || c === "storage/unknown") return "Connexion interrompue pendant l'envoi. Réessaie en Wi-Fi. Code : " + c;
+  return "Envoi impossible" + (c ? " · " + c : "") + (e && e.message ? " · " + String(e.message).slice(0, 120) : ""); }
 async function submitVideo(form) {
   const f = form.file.files[0] || form.fileCam.files[0]; if (!f) { toast("Choisis une vidéo."); return; }
   if (f.size > 500 * 1048576) { toast("La vidéo dépasse 500 Mo : coupe-la ou exporte-la en 1080p."); return; }
@@ -902,7 +908,7 @@ async function submitVideo(form) {
     await Store.add("videos", { ref: form.dataset.ref, date: d, name: f.name, type: f.type, size: f.size, path: r.path, url: r.url, angle: form.angle.value, club: form.club.value.trim(), comment: form.comment.value.trim(),
       analysis: form.ask.checked ? { status: "requested", requestedAt: d } : null });
     form.reset(); form.querySelectorAll("[data-keep]").forEach(el => el.value = ""); toast("Vidéo envoyée");
-  } catch (e) { console.error(e); toast("Envoi impossible. Vérifie la connexion."); }
+  } catch (e) { console.error(e); toast(upErr(e)); }
   btn.disabled = false; pg.hidden = true;
 }
 

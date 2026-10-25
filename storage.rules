@@ -5,16 +5,20 @@ service firebase.storage {
     function user() { return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data; }
     function active() { return request.auth != null && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) && user().active == true; }
     function isAdmin() { return active() && user().role == 'admin'; }
+    // Propriétaire identifié par son e-mail vérifié : ne dépend pas de l'accès croisé Storage → Firestore.
+    function owner() { return request.auth != null && request.auth.token.email == 'chantry.alexandre@gmail.com'; }
+    function canRead() { return owner() || active(); }
+    function canWrite() { return owner() || isAdmin(); }
 
     match /videos/{month}/{file} {
-      allow read: if active();
-      allow create: if isAdmin() && request.resource.size < 500 * 1024 * 1024 && request.resource.contentType.matches('video/.*');
-      allow delete: if isAdmin();
+      allow read: if canRead();
+      allow create: if canWrite() && request.resource.size < 500 * 1024 * 1024 && (request.resource.contentType.matches('video/.*') || request.resource.contentType == 'application/octet-stream');
+      allow delete: if canWrite();
     }
     match /notes/{ref}/{file} {
-      allow read: if active();
-      allow create: if isAdmin() && request.resource.size < 20 * 1024 * 1024;
-      allow delete: if isAdmin();
+      allow read: if canRead();
+      allow create: if canWrite() && request.resource.size < 20 * 1024 * 1024;
+      allow delete: if canWrite();
     }
   }
 }
