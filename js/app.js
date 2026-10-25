@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.4.1";
+const APP_VERSION = "1.4.2";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -568,7 +568,8 @@ function vParties(p) {
   if (p[1] === "perf") return vPerf();
   const l = [...S.data.rounds].sort(byDateDesc);
   const body = `<section class="view">${partiesNav()}
-  ${canEdit() ? `<a class="btn wide" href="#/partie/new">${S.draft && !S.draft.id ? "Reprendre la carte en cours" : "+ Nouvelle carte"}</a>` : ""}
+  ${canEdit() ? draftCard() : ""}
+  ${canEdit() ? (S.draft && !S.draft.id ? `<button class="btn ghost wide" data-act="draft-new">+ Nouvelle carte (abandonne la carte en cours)</button>` : `<a class="btn wide" href="#/partie/new">+ Nouvelle carte</a>`) : ""}
   ${l.length ? l.map(r => { const c = roundCalc(r); return `<a class="card" href="#/partie/${r._id}"><div class="row between"><h3 class="serif" style="font-size:17px">${esc(r.course)}</h3><span class="serif" style="font-size:20px;font-weight:700">${c.score} <span class="small muted">${sgn(c.score - c.par)}</span></span></div>
     <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span></div>
     ${miniCard(r)}
@@ -717,6 +718,13 @@ function suggList(q) {
   return h;
 }
 
+function draftCard() {
+  const d = S.draft; if (!d || d.id) return "";
+  const played = d.holes.filter(h => h.score != null); const tp = played.reduce((a, h) => a + h.score - (h.par || 4), 0);
+  return `<div class="card hl stack" style="gap:8px"><div class="row between"><div><span class="lbl">Carte en cours</span><div class="serif" style="font-size:17px;font-weight:700">${esc(d.course)}</div><span class="xs muted">${fmtD(d.date)} · ${played.length}/${d.holes.length} trous saisis${played.length ? " · " + (tp === 0 ? "au par" : sgn(tp)) : ""}</span></div></div>
+    <div class="row"><a class="btn navy sm" href="#/partie/new">Reprendre</a>${played.length ? `<button class="btn sm" data-act="draft-finish">Terminer et enregistrer</button>` : ""}<button class="btn ghost sm" data-act="draft-discard">Abandonner</button></div></div>`;
+}
+
 /* ---------- Saisie de carte (UX Club-house) ---------- */
 function saveDraft() { lsSet("golf-draft", S.draft); }
 function draftFromRound(r) { return { id: r._id, date: r.date, type: r.type, courseId: r.courseId, catalogId: r.catalogId || null, tee: r.tee || null, cr: r.cr ?? null, slope: r.slope ?? null, course: r.course, holesCount: r.holesCount || (r.holesData || []).length, startHole: r.startHole || 1, holes: (r.holesData || []).map(h => ({ ...h })), cost: r.cost || "", notes: r.notes || "", stage: "holes" }; }
@@ -748,6 +756,7 @@ function vEditor(p) {
     <form class="stack card" data-form="finish">
       <div class="f"><label for="ed-cost">Où sont partis les coups</label><textarea id="ed-cost" name="cost" placeholder="Ex. 2 coups perdus au départ du 7 et du 12, chip trop long au 15…">${esc(d.cost || "")}</textarea></div>
       <div class="f"><label for="ed-notes">Notes / mental</label><textarea id="ed-notes" name="notes">${esc(d.notes || "")}</textarea></div>
+      ${d.holes.some(h => h.score == null) ? `<p class="small muted">${d.holes.filter(h => h.score != null).length} trous saisis sur ${d.holes.length} : seuls les trous saisis sont enregistrés.</p>` : ""}
       <button class="btn" type="submit">Enregistrer la carte</button><button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner</button>
     </form></section>`;
     return { back: ["#", "Retour aux trous"], title: "Terminer la carte", body, backAct: "ed-holes" };
@@ -773,7 +782,8 @@ function vEditor(p) {
   <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}${scr == null ? "" : `<span class="pill ${scr ? "ok" : "bad"}">Scrambling ${scr ? "réussi" : "raté"}</span>`}</div>
   <div class="row between"><button class="btn ghost" type="button" data-act="h-go" data-i="${i - 1}" ${i === 0 ? "disabled" : ""}>← Trou ${i ? d.holes[i - 1].n : ""}</button>
     ${i < d.holes.length - 1 ? `<button class="btn navy" type="button" data-act="h-next">Trou ${d.holes[i + 1].n} →</button>` : `<button class="btn" type="button" data-act="h-finish">Terminer la carte</button>`}</div>
-  <p class="xs muted">Sans saisie, « Trou suivant » enregistre le par et 2 putts. La carte est conservée sur ce téléphone jusqu'à l'enregistrement.</p>
+  <div class="row" style="justify-content:center">${tot.length ? `<button class="btn ghost sm" type="button" data-act="draft-finish">Terminer ici (${tot.length} trou${tot.length > 1 ? "s" : ""})</button>` : ""}<button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner la carte</button></div>
+  <p class="xs muted">Sans saisie, « Trou suivant » enregistre le par et 2 putts. « Terminer ici » n'enregistre que les trous saisis. La carte est conservée sur ce téléphone jusqu'à l'enregistrement.</p>
   </section>`;
   return { back: ["#/parties", "Parties"], title: esc(d.course), body, kicker: fmtD(d.date) };
 }
@@ -796,6 +806,7 @@ function startDraft(form) {
 async function saveRound() {
   const d = S.draft; if (!d) return;
   if (!d.holes.some(h => h.score != null)) { toast("Aucun trou renseigné."); return; }
+  d.holes = d.holes.filter(h => h.score != null);
   try {
     let courseId = d.courseId;
     if (!courseId) { const ex = S.data.courses.find(c => c.name.toLowerCase() === d.course.toLowerCase()); courseId = ex ? ex._id : null; }
@@ -811,7 +822,7 @@ async function saveRound() {
       score: calc.score, par: calc.par, putts: calc.putts, fwHit: calc.fwHit, fwPoss: calc.fwPoss, missL: calc.missL, missR: calc.missR, gir: calc.gir, scr: calc.scr, scrOpp: calc.scrOpp, three: calc.three, short: calc.short, pen: calc.pen };
     let id = d.id; if (id) await Store.set("rounds", id, doc); else id = await Store.add("rounds", doc);
     S.draft = null; saveDraft(); toast("Carte enregistrée"); location.hash = "#/partie/" + id;
-  } catch (e) { console.error(e); toast("Enregistrement impossible. La saisie est conservée, réessaie."); }
+  } catch (e) { console.error(e); toast(e && e.code === "permission-denied" ? "Enregistrement refusé par Firebase (règles de sécurité). La saisie est conservée : préviens Claude." : "Enregistrement impossible (" + ((e && e.code) || "réseau") + "). La saisie est conservée, réessaie."); }
 }
 
 /* ---------- Feuilles : formulaires et menu « + » ---------- */
@@ -839,7 +850,7 @@ function openAddMenu() {
   const it = (act, kind, href, ic, col, t, s) => href ? `<a href="${href}" data-act="close-go"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></a>` : `<button data-act="${act}" data-kind="${kind}"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></button>`;
   editing = null;
   openSheet("Ajouter", `<div class="menu">
-    ${it(null, null, "#/partie/new", "flag", "#0f2340", S.draft && !S.draft.id ? "Reprendre la carte en cours" : "Nouvelle carte", "Saisie trou par trou")}
+    ${it(null, null, "#/partie/new", "flag", "#0f2340", S.draft && !S.draft.id ? "Reprendre la carte en cours" : "Nouvelle carte", S.draft && !S.draft.id ? "Terminer ou abandonner depuis Parties" : "Saisie trou par trou")}
     ${it("form", "session", null, "dumb", "#2c5aa0", "Entraînement libre", "Séance hors plan")}
     ${it("form", "lesson", null, "user", "#a0612f", "Cours avec le pro", "Constats, consignes, à travailler")}
     ${it(null, null, "#/videos", "video", "#c8372d", "Vidéo", "Filmer ou envoyer un swing")}
@@ -931,7 +942,9 @@ document.addEventListener("click", async e => {
       try { if (doc && doc.path) await Store.removeFile(doc.path); if (doc && doc.files) for (const f of doc.files) await Store.removeFile(f.path); await Store.del(col, id); toast("Supprimé"); if (a === "del-round") location.hash = "#/parties"; } catch (x) { toast("Suppression impossible."); }
       break; }
     case "ask-analysis": await Store.set("videos", id, { analysis: { status: "requested", requestedAt: iso() } }, true); toast("Analyse demandée"); break;
-    case "draft-discard": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer l'abandon"; break; } S.draft = null; saveDraft(); location.hash = "#/parties"; render(); break;
+    case "draft-finish": if (!d) break; if (!d.holes.some(h => h.score != null)) { toast("Aucun trou saisi."); break; } d.stage = "finish"; saveDraft(); if (location.hash !== "#/partie/new") location.hash = "#/partie/new"; else render(); window.scrollTo(0, 0); break;
+    case "draft-new": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer : abandonner la carte en cours"; break; } S.draft = null; saveDraft(); S.setup = { q: "", club: null, course: null, tee: null }; location.hash = "#/partie/new"; render(); break;
+    case "draft-discard": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer l'abandon"; break; } S.draft = null; saveDraft(); toast("Carte abandonnée"); if (location.hash !== "#/parties") location.hash = "#/parties"; else render(); break;
     case "h-go": S.hole = Math.max(0, Math.min(d.holes.length - 1, Number(b.dataset.i))); render(); break;
     case "h-score": { const h = d.holes[S.hole]; const v = Number(b.dataset.v); h.score = h.score === v ? null : v; saveDraft(); render(); break; }
     case "h-set": { const h = d.holes[S.hole]; const k = b.dataset.k; let v = b.dataset.v;
