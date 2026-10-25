@@ -1,5 +1,5 @@
 rules_version = '2';
-// Objectif Mid-Am 2028 — site statique : toute la sécurité est ici.
+// Objectif Mid-Am 2028 — site statique : toute la sécurité est ici (projet golf-midam).
 // Déployé automatiquement par la GitHub Action « Déployer les règles Firebase ».
 service cloud.firestore {
   match /databases/{database}/documents {
