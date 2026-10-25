@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.3.2";
+const APP_VERSION = "1.4.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -62,8 +62,8 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
-  data: { rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
-  loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
+  data: { courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
+  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
 const valOf = id => S.data.validations.find(v => v._id === id) || null;
@@ -88,7 +88,7 @@ function firebaseStore() {
   };
 }
 function demoStore() {
-  const mem = { rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
+  const mem = { courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
   const L = {}; let seq = 1;
   const emit = col => (L[col] || []).forEach(cb => cb(mem[col].map(x => ({ ...x }))));
   const api = {
@@ -114,14 +114,15 @@ function demoStore() {
 }
 function startData() {
   if (S.subs.length) return;
-  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
+  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
   S.subs.push(Store.listenDoc("profile/main", d => { S.profile = d; render(); }));
 }
 
 /* ---------- Démarrage ---------- */
 async function boot() {
   try {
-    const [plan, drills] = await Promise.all([fetchJSON("data/plan.json"), fetchJSON("data/drills.json")]);
+    const [plan, drills, cat] = await Promise.all([fetchJSON("data/plan.json"), fetchJSON("data/drills.json"), fetchJSON("data/courses.json").catch(() => ({ clubs: [] }))]);
+    S.catalog = cat.clubs || [];
     S.plan = plan; S.drillList = drills.drills; drills.drills.forEach(d => S.drills[d.id] = d);
   } catch (e) { $("#app").innerHTML = `<p class="muted" style="padding-top:40px">Impossible de charger le plan. Recharge la page.</p>`; return; }
   S.draft = lsGet("golf-draft", null);
@@ -667,7 +668,7 @@ function vPartie(p) {
   const r = S.data.rounds.find(x => x._id === p[1]); if (!r) return S.loaded ? emptyBox("Carte introuvable", "", `<a class="btn ghost sm" href="#/parties">Retour</a>`) : `<p class="muted">Chargement…</p>`;
   const c = roundCalc(r);
   const body = `<section class="view">
-  <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span></div>
+  <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span>${r.tee ? `<span>· repère ${esc(r.tee)}</span>` : ""}${r.cr ? `<span>· SSS ${n1(r.cr)} / slope ${r.slope}</span>` : ""}${r.diff != null ? `<span class="pill acc">différentiel ${n1(r.diff)}</span>` : ""}</div>
   ${perfKpis([r])}
   ${scorecardTable(holeRowsOne(r), "one")}
   ${synthesis(holeRowsAvg([r], []), [r])}
@@ -678,9 +679,47 @@ function vPartie(p) {
   return { back: ["#/parties", "Parties"], title: esc(r.course), body, right: `<span class="serif" style="font-size:26px;font-weight:700;white-space:nowrap">${c.score}<span class="small muted"> ${sgn(c.score - c.par)}</span></span>` };
 }
 
+/* ---------- Catalogue des parcours ---------- */
+const norm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+function findCourse(id) { for (const c of S.catalog) for (const k of c.courses) if (k.id === id) return { club: c, course: k }; return null; }
+function searchCatalog(q) {
+  const n = norm(q).replace(/\b(golf|club|de|du|des|la|le|les|g c)\b/g, " ").trim(); if (n.length < 2) return [];
+  const words = n.split(/\s+/);
+  return S.catalog.filter(c => { const hay = norm([c.name, c.city, ...(c.aliases || []), ...c.courses.map(k => k.name)].join(" ")); return words.every(w => hay.includes(w)); });
+}
+const myCourses = () => S.data.courses.filter(c => !findCourse(c._id));
+const teeLabel = t => `${t.name}${t.gender === "F" ? " (dames)" : ""}`;
+function setupPicker() {
+  const st = S.setup;
+  if (st.club) {
+    const c = S.catalog.find(x => x.id === st.club); if (!c) { st.club = null; return setupPicker(); }
+    const k = c.courses.find(x => x.id === st.course) || (c.courses.length === 1 ? c.courses[0] : null); if (k) st.course = k.id;
+    const t = k && (k.tees.find(x => x.name === st.tee) || null);
+    return `<div class="card hl stack" style="gap:10px"><div class="row between"><div><span class="lbl">Club</span><div class="serif" style="font-size:18px;font-weight:700">${esc(c.name)}</div><span class="xs muted">${esc(c.city || "")} · ${c.courses.length} parcours</span></div><button type="button" class="btn ghost sm" data-act="setup-clear">Changer</button></div>
+      <div class="f"><span class="lbl">Parcours</span><div class="seg">${c.courses.map(x => `<button type="button" data-act="setup-course" data-v="${x.id}" aria-pressed="${x.id === st.course}">${esc(x.name)}<br><small style="font-weight:500">par ${x.par.reduce((a, b) => a + b, 0)}</small></button>`).join("")}</div></div>
+      ${k ? `<div class="f"><span class="lbl">Repère de départ</span><div class="pick" style="grid-template-columns:repeat(${Math.min(k.tees.length, 5)},minmax(0,1fr))">${k.tees.map(x => `<button type="button" data-act="setup-tee" data-v="${esc(x.name)}" aria-pressed="${x.name === st.tee}"><b style="font-size:15px">${esc(x.name)}${x.gender === "F" ? " ♀" : ""}</b><small>${n0(x.len.reduce((a, b) => a + b, 0))} m${x.cr ? `<br>${n1(x.cr)} / ${x.slope}` : ""}</small></button>`).join("")}</div></div>` : ""}
+      ${k ? `<p class="xs muted">Carte chargée : par, handicap des trous${t ? ", distances" + (t.cr ? ", SSS et slope (différentiel calculé)" : "") : ""}. <a href="${esc((k.source || "").split(" ")[0])}" target="_blank" rel="noopener">Source</a></p>` : ""}
+    </div>`;
+  }
+  if (st.newName) return `<div class="card hl row between"><div><span class="lbl">Nouveau parcours</span><div class="serif" style="font-size:18px;font-weight:700">${esc(st.newName)}</div><span class="xs muted">Pas encore au catalogue : par 4 par défaut, modifiable trou par trou. Je recherche la carte et l'ajoute.</span></div><button type="button" class="btn ghost sm" data-act="setup-clear">Changer</button></div>`;
+  if (st.course && !findCourse(st.course)) { const c = S.data.courses.find(x => x._id === st.course);
+    return `<div class="card hl row between"><div><span class="lbl">Parcours</span><div class="serif" style="font-size:18px;font-weight:700">${esc(c ? c.name : st.q)}</div><span class="xs muted">${c && c.pars ? "pars enregistrés lors d'une carte précédente" : "carte demandée à Claude · par 4 par défaut"}</span></div><button type="button" class="btn ghost sm" data-act="setup-clear">Changer</button></div>`; }
+  return `<div class="f"><label for="ed-search">Golf ou parcours</label><input id="ed-search" autocomplete="off" placeholder="Ex. Bondues, Golf du Sart…" value="${esc(st.q)}"></div><div id="course-sugg">${suggList(st.q)}</div>`;
+}
+function suggList(q) {
+  const hits = searchCatalog(q); const n = norm(q);
+  const mine = n.length >= 2 ? myCourses().filter(c => norm(c.name).includes(n)) : myCourses().slice(0, 5);
+  let h = "";
+  if (hits.length) h += hits.map(c => `<button type="button" class="q" data-act="setup-club" data-v="${c.id}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#2f6b45"></span><span><b>${esc(c.name)}</b><br><span class="xs muted">${esc(c.city || "")} · ${c.courses.map(k => esc(k.name)).join(", ")}</span></span><span class="st ok">carte ✓</span></button>`).join("");
+  if (mine.length) h += mine.map(c => `<button type="button" class="q" data-act="setup-mine" data-v="${c._id}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#c9b48c"></span><span>${esc(c.name)}</span><span class="st">déjà joué</span></button>`).join("");
+  if (n.length >= 3 && !hits.length) h += `<button type="button" class="q" data-act="setup-new" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#c8372d"></span><span>Ajouter « ${esc(q.trim())} »<br><span class="xs muted">Pas encore dans le catalogue : saisie avec par 4 par défaut, et je recherche la carte.</span></span><span class="st">+</span></button>`;
+  if (!h && n.length < 2) h = `<p class="xs muted" style="margin-top:6px">Tape le nom du golf : les parcours et la carte (par, handicap, distances, SSS, slope) se chargent automatiquement.</p>`;
+  return h;
+}
+
 /* ---------- Saisie de carte (UX Club-house) ---------- */
 function saveDraft() { lsSet("golf-draft", S.draft); }
-function draftFromRound(r) { return { id: r._id, date: r.date, type: r.type, courseId: r.courseId, course: r.course, holesCount: r.holesCount || (r.holesData || []).length, startHole: r.startHole || 1, holes: (r.holesData || []).map(h => ({ ...h })), cost: r.cost || "", notes: r.notes || "", stage: "holes" }; }
+function draftFromRound(r) { return { id: r._id, date: r.date, type: r.type, courseId: r.courseId, catalogId: r.catalogId || null, tee: r.tee || null, cr: r.cr ?? null, slope: r.slope ?? null, course: r.course, holesCount: r.holesCount || (r.holesData || []).length, startHole: r.startHole || 1, holes: (r.holesData || []).map(h => ({ ...h })), cost: r.cost || "", notes: r.notes || "", stage: "holes" }; }
 function holeNumbers(start, count) { const a = []; for (let i = 0; i < count; i++) a.push(((start - 1 + i) % 18) + 1); return a; }
 const SCORE_NAMES = { "-3": "albatros", "-2": "eagle", "-1": "birdie", "0": "par", "1": "bogey", "2": "double", "3": "triple" };
 function vEditor(p) {
@@ -694,9 +733,8 @@ function vEditor(p) {
       <div class="grid">
         <div class="f"><label for="ed-date">Date</label><input id="ed-date" name="date" type="date" value="${esc(x.date)}" required></div>
         <div class="f"><label for="ed-type">Type</label><select id="ed-type" name="type">${["Compétition", "Partie qualificative", "Partie amicale", "Entraînement sur le parcours"].map(o => `<option ${x.type === o ? "selected" : ""}>${o}</option>`).join("")}</select></div>
-        <div class="f full"><label for="ed-course">Parcours</label><select id="ed-course" name="courseId"><option value="">Nouveau parcours…</option>${S.data.courses.slice().sort((a, b) => a.name.localeCompare(b.name)).map(c => `<option value="${c._id}" ${x.courseId === c._id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
-        <div class="f full"><label for="ed-cname">Nom du nouveau parcours</label><input id="ed-cname" name="courseName" placeholder="Ex. Golf du Sart"></div>
       </div>
+      <div id="setup-picker">${setupPicker()}</div>
       <div class="f"><span class="lbl">Nombre de trous</span><div class="seg" data-seg="holesCount">${[7, 9, 12, 15, 18].map(n => `<button type="button" data-v="${n}" aria-pressed="${x.holesCount === n}">${n}</button>`).join("")}</div></div>
       <div class="f" style="max-width:200px"><label for="ed-start">Trou de départ</label><select id="ed-start" name="startHole">${Array.from({ length: 18 }, (_, i) => `<option value="${i + 1}" ${x.startHole === i + 1 ? "selected" : ""}>${i + 1}</option>`).join("")}</select></div>
       <button class="btn" type="submit">Commencer la saisie</button>${d ? `<button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner la saisie</button>` : ""}
@@ -725,7 +763,7 @@ function vEditor(p) {
     <tr><td class="l">Par</td>${d.holes.map((x, j) => `<td class="${j === i ? "cur" : ""}">${x.par || 4}</td>`).join("")}</tr>
     <tr><td class="l">Score</td>${d.holes.map((x, j) => `<td class="${j === i ? "cur" : ""}">${scoreCell(x.score, x.par || 4, true)}</td>`).join("")}</tr>
   </table></div>
-  <div class="row between"><span class="serif" style="font-size:22px;font-weight:700">Trou ${h.n}</span><span class="small muted">${tot.length ? `${tot.length} trou${tot.length > 1 ? "s" : ""} · ${sgn(toPar) === "—" ? "par" : (toPar === 0 ? "au par" : sgn(toPar))}` : `${i + 1}/${d.holes.length}`}</span></div>
+  <div class="row between"><span><span class="serif" style="font-size:22px;font-weight:700">Trou ${h.n}</span>${h.len || h.si ? `<span class="small muted"> · ${h.len ? h.len + " m" : ""}${h.len && h.si ? " · " : ""}${h.si ? "hcp " + h.si : ""}</span>` : ""}</span><span class="small muted">${tot.length ? `${tot.length} trou${tot.length > 1 ? "s" : ""} · ${sgn(toPar) === "—" ? "par" : (toPar === 0 ? "au par" : sgn(toPar))}` : `${i + 1}/${d.holes.length}`}</span></div>
   <div class="f"><span class="lbl">Par</span><div class="seg">${[3, 4, 5].map(v => `<button type="button" data-act="h-set" data-k="par" data-v="${v}" aria-pressed="${par === v}">Par ${v}</button>`).join("")}</div></div>
   <div class="f"><span class="lbl">Score</span><div class="pick">${opts.map(v => `<button type="button" data-act="h-score" data-v="${v}" aria-pressed="${h.score === v}"><b>${v}</b><small>${SCORE_NAMES[v - par] || ""}</small></button>`).join("")}</div>
     <div class="row" style="margin-top:6px"><span class="xs muted">Autre score :</span><button type="button" class="btn ghost sm" data-act="h-step" data-k="score" data-d="1">${custom ? h.score + " · +1" : "+3 et plus"}</button>${custom ? `<button type="button" class="btn ghost sm" data-act="h-step" data-k="score" data-d="-1">−1</button>` : ""}</div></div>
@@ -741,13 +779,19 @@ function vEditor(p) {
 }
 function startDraft(form) {
   const fd = new FormData(form); const hc = Number(form.querySelector('[data-seg="holesCount"] [aria-pressed="true"]')?.dataset.v || 18);
-  let courseId = fd.get("courseId"); let course = ""; let pars = [];
-  if (courseId) { const c = S.data.courses.find(x => x._id === courseId); course = c ? c.name : ""; pars = (c && c.pars) || []; }
-  else { course = String(fd.get("courseName") || "").trim(); if (!course) { toast("Indique le nom du parcours."); return; } }
+  const st = S.setup; let courseId = null, course = "", pars = [], si = [], len = [], tee = null, cr = null, slope = null, catalogId = null;
+  const f = st.course && findCourse(st.course);
+  if (f) { const t = f.course.tees.find(x => x.name === st.tee);
+    if (!t) { toast("Choisis ton repère de départ."); return; }
+    catalogId = courseId = f.course.id; course = `${f.club.name} · ${f.course.name}`; pars = f.course.par; si = f.course.si || []; len = t.len || []; tee = t.name; cr = t.cr; slope = t.slope; lsSet("golf-tee-" + f.course.id, t.name); }
+  else if (st.course) { const c = S.data.courses.find(x => x._id === st.course); courseId = st.course; course = c ? c.name : st.q; pars = (c && c.pars) || []; }
+  else if (st.newName) { course = st.newName; }
+  else { toast("Choisis un golf dans la liste."); return; }
   const start = Number(fd.get("startHole") || 1);
-  S.draft = { date: fd.get("date") || iso(), type: fd.get("type"), courseId: courseId || null, course, holesCount: hc, startHole: start,
-    holes: holeNumbers(start, hc).map(n => ({ n, par: pars[n - 1] || 4, score: null, putts: null, fw: null, short: 0, pen: 0 })), stage: "holes", cost: "", notes: "" };
-  S.hole = 0; saveDraft(); render();
+  S.draft = { date: fd.get("date") || iso(), type: fd.get("type"), courseId, catalogId, course, tee, cr, slope, holesCount: hc, startHole: start,
+    holes: holeNumbers(start, hc).map(n => ({ n, par: pars[n - 1] || 4, si: si[n - 1] || null, len: len[n - 1] || null, score: null, putts: null, fw: null, short: 0, pen: 0 })), stage: "holes", cost: "", notes: "" };
+  if (st.newName && !S.data.courseRequests.some(r => norm(r.name) === norm(st.newName))) Store.add("courseRequests", { name: st.newName, date: iso(), status: "open" }).catch(() => {});
+  S.setup = { q: "", club: null, course: null, tee: null }; S.hole = 0; saveDraft(); render();
 }
 async function saveRound() {
   const d = S.draft; if (!d) return;
@@ -755,12 +799,15 @@ async function saveRound() {
   try {
     let courseId = d.courseId;
     if (!courseId) { const ex = S.data.courses.find(c => c.name.toLowerCase() === d.course.toLowerCase()); courseId = ex ? ex._id : null; }
+    if (d.catalogId && !S.data.courses.some(c => c._id === d.catalogId)) { await Store.set("courses", d.catalogId, { name: d.course, pars: findCourse(d.catalogId).course.par, catalogId: d.catalogId }); }
     const c = courseId ? S.data.courses.find(x => x._id === courseId) : null;
     const pars = (c && c.pars ? c.pars.slice() : Array(18).fill(null)); for (const h of d.holes) pars[h.n - 1] = h.par || 4;
     if (courseId) await Store.set("courses", courseId, { name: c ? c.name : d.course, pars }, true);
     else courseId = await Store.add("courses", { name: d.course, pars });
     const calc = roundCalc({ holesData: d.holes });
     const doc = { date: d.date, type: d.type, courseId, course: d.course, holesCount: d.holes.length, startHole: d.startHole, holesData: d.holes, cost: d.cost || "", notes: d.notes || "",
+      tee: d.tee || null, cr: d.cr ?? null, slope: d.slope ?? null, catalogId: d.catalogId || null,
+      diff: calc.n === 18 && d.cr && d.slope ? Math.round(113 / d.slope * (calc.score - d.cr) * 10) / 10 : null,
       score: calc.score, par: calc.par, putts: calc.putts, fwHit: calc.fwHit, fwPoss: calc.fwPoss, missL: calc.missL, missR: calc.missR, gir: calc.gir, scr: calc.scr, scrOpp: calc.scrOpp, three: calc.three, short: calc.short, pen: calc.pen };
     let id = d.id; if (id) await Store.set("rounds", id, doc); else id = await Store.add("rounds", doc);
     S.draft = null; saveDraft(); toast("Carte enregistrée"); location.hash = "#/partie/" + id;
@@ -864,6 +911,13 @@ document.addEventListener("click", async e => {
     case "close": closeSheet(); break;
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
+    case "setup-club": { const c = S.catalog.find(x => x.id === b.dataset.v); S.setup.club = c.id; S.setup.course = c.courses.length === 1 ? c.courses[0].id : null; S.setup.tee = null; if (S.setup.course) defaultTee(); refreshPicker(); break; }
+    case "setup-course": S.setup.course = b.dataset.v; S.setup.tee = null; defaultTee(); refreshPicker(); break;
+    case "setup-tee": S.setup.tee = b.dataset.v; refreshPicker(); break;
+    case "setup-mine": S.setup.course = b.dataset.v; S.setup.club = null; refreshPicker(); break;
+    case "setup-new": S.setup.newName = S.setup.q.trim(); S.setup.course = null; S.setup.club = null; refreshPicker(); break;
+    case "setup-clear": S.setup = { q: "", club: null, course: null, tee: null }; refreshPicker(); const i = document.getElementById("ed-search"); i && i.focus(); break;
+
     case "form": openForm(b.dataset.kind, id); break;
     case "sheet-del": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer la suppression"; break; }
       try { await Store.del(FORMS[editing.kind].col, editing.id); const k = editing.kind; closeSheet(); toast("Supprimé"); if (k === "session" && location.hash.startsWith("#/entrainement/")) location.hash = "#/entrainements"; } catch (x) { sheetErr("Suppression impossible."); } break;
@@ -887,6 +941,10 @@ document.addEventListener("click", async e => {
     case "h-next": case "h-finish": { const h = d.holes[S.hole]; if (h.score == null) h.score = h.par || 4; if (h.putts == null) h.putts = 2; if (a === "h-next") S.hole++; else d.stage = "finish"; saveDraft(); render(); window.scrollTo(0, 0); break; }
   }
 });
+function refreshPicker() { const el = document.getElementById("setup-picker"); if (el) el.innerHTML = setupPicker(); }
+function defaultTee() { const f = findCourse(S.setup.course); if (!f) return; const saved = lsGet("golf-tee-" + f.course.id, null);
+  const t = f.course.tees.find(x => x.name === saved) || f.course.tees.find(x => x.name === "Blanc" && x.gender === "M") || f.course.tees.find(x => x.gender === "M") || f.course.tees[0]; S.setup.tee = t ? t.name : null; }
+document.addEventListener("input", e => { if (e.target.id === "ed-search") { S.setup.q = e.target.value; S.setup.newName = null; const el = document.getElementById("course-sugg"); if (el) el.innerHTML = suggList(S.setup.q); } });
 document.addEventListener("change", e => {
   const el = e.target.closest("[data-act-change]"); if (!el) return;
   if (el.dataset.actChange === "perf-course") { S.perf.course = el.value; S.perf.round = "all"; }

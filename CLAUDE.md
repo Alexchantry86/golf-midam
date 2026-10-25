@@ -9,3 +9,7 @@
   `Alexchantry86/golf-midam-data` : pousser `requests/<date>.json` → l'Action exporte `export/data.json` et
   `export/videos/<id>/` ; pousser `analyses/<id>.md` → l'analyse s'affiche sous la vidéo.
 - Style : palette gris/noir, IBM Plex, pas de gras inutile. Texte en français, tutoiement.
+- Parcours : `data/courses.json` (club → parcours → par, si, repères avec longueurs en m, cr/slope ou null, source).
+  Vérifier par total, 18 SI distincts, longueurs = totaux publiés. Parcours absents saisis par Alexandre →
+  collection Firestore `courseRequests` (visible dans l'export du dépôt data) : les rechercher, les ajouter au
+  catalogue, puis passer la demande à `status: "done"` via l'export/Action.

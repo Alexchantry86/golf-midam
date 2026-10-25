@@ -16,8 +16,8 @@ service cloud.firestore {
 
     // Données de jeu et d'entraînement : lecture pour tout compte actif (ex. le pro en lecture seule), écriture admin.
     match /{col}/{id} {
-      allow read: if active() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile'];
-      allow write: if isAdmin() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile'];
+      allow read: if active() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile', 'courseRequests'];
+      allow write: if isAdmin() && col in ['rounds', 'courses', 'lessons', 'sessions', 'validations', 'notes', 'videos', 'drillLinks', 'profile', 'courseRequests'];
     }
   }
 }

@@ -1,0 +1,41 @@
+{
+  "version": "2026-10-25",
+  "note": "Catalogue des parcours tenu par Claude. Distances en mètres. cr = course rating (SSS), slope ; null si non publié.",
+  "clubs": [
+    {
+      "id": "bondues",
+      "name": "Golf de Bondues",
+      "city": "Bondues (59)",
+      "aliases": ["bondues", "golf club de bondues", "bondues golf club"],
+      "courses": [
+        {
+          "id": "bondues-hawtree",
+          "name": "Hawtree",
+          "par": [5, 4, 3, 5, 4, 3, 4, 4, 5, 3, 4, 5, 4, 3, 4, 4, 4, 5],
+          "si":  [17, 9, 11, 7, 1, 13, 5, 3, 15, 18, 6, 16, 4, 12, 10, 14, 2, 8],
+          "tees": [
+            { "name": "Bleu", "gender": "M", "cr": null, "slope": null, "len": [443, 326, 164, 469, 418, 144, 350, 392, 457, 146, 375, 456, 387, 183, 326, 336, 366, 463] },
+            { "name": "Jaune", "gender": "M", "cr": null, "slope": null, "len": [431, 294, 152, 449, 384, 136, 323, 378, 439, 137, 350, 417, 322, 155, 302, 300, 350, 446] },
+            { "name": "Blanc", "gender": "M", "cr": null, "slope": null, "len": [368, 281, 139, 399, 356, 129, 308, 339, 406, 128, 314, 392, 310, 146, 284, 286, 313, 427] },
+            { "name": "Rouge", "gender": "F", "cr": null, "slope": null, "len": [355, 252, 127, 385, 323, 106, 277, 315, 387, 120, 301, 350, 298, 137, 247, 246, 304, 388] }
+          ],
+          "source": "https://www.1golf.eu/en/club/golf-de-bondues/scorecard/"
+        },
+        {
+          "id": "bondues-trent-jones",
+          "name": "Trent Jones",
+          "par": [5, 3, 4, 5, 4, 3, 4, 4, 5, 5, 3, 4, 4, 3, 5, 3, 4, 4],
+          "si":  [7, 11, 15, 9, 1, 17, 3, 5, 13, 2, 8, 10, 16, 18, 14, 12, 6, 4],
+          "tees": [
+            { "name": "Noir", "gender": "M", "cr": 73.3, "slope": 135, "len": [494, 176, 297, 465, 393, 142, 417, 382, 450, 480, 200, 345, 327, 156, 475, 174, 350, 423] },
+            { "name": "Blanc", "gender": "M", "cr": 72.6, "slope": 133, "len": [472, 176, 297, 465, 393, 123, 389, 382, 450, 480, 200, 329, 314, 147, 459, 174, 336, 423] },
+            { "name": "Jaune", "gender": "M", "cr": 69.8, "slope": 128, "len": [441, 150, 268, 426, 354, 109, 360, 348, 427, 450, 170, 299, 285, 129, 411, 142, 311, 390] },
+            { "name": "Bleu", "gender": "F", "cr": 72.9, "slope": 135, "len": [409, 134, 246, 386, 326, 87, 340, 327, 411, 443, 149, 283, 263, 108, 375, 124, 262, 361] },
+            { "name": "Rouge", "gender": "F", "cr": 69.8, "slope": 128, "len": [381, 112, 227, 370, 294, 68, 313, 284, 363, 396, 121, 253, 240, 97, 364, 97, 235, 336] }
+          ],
+          "source": "https://www.golfingrecord.com/golf-scorecard/f92a1ba7-c924-40b9-a8cc-31ec35b734fb ; CR/slope : https://www.1golf.eu/en/club/golf-de-bondues"
+        }
+      ]
+    }
+  ]
+}
