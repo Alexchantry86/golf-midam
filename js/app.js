@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.3.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -106,6 +106,9 @@ function demoStore() {
     holesData: pars.map((p, i) => { const r = (seed * 7 + i * 13) % 10; const score = p + (r < 2 ? -1 : r < 7 ? 0 : r < 9 ? 1 : 2); const putts = r === 8 ? 3 : r < 2 ? 1 : 2;
       return { n: i + 1, par: p, score, putts, fw: p === 3 ? null : (r % 3 === 0 ? "L" : r % 5 === 0 ? "R" : "Y"), short: r === 7 ? 1 : 0, pen: r === 9 ? 1 : 0 }; }), cost: "Exemple de données de démonstration." });
   mem.rounds.push({ ...mk("2026-10-10", 1), _id: "r1" }, { ...mk("2026-10-18", 2), _id: "r2" }, { ...mk("2026-10-21", 3), _id: "r3" });
+  const nine = r => ({ ...r, holesCount: 9, holesData: r.holesData.slice(0, 9) });
+  [["2026-05-09", 4], ["2026-05-23", 5, 9], ["2026-06-06", 6], ["2026-06-20", 7], ["2026-06-27", 8, 9], ["2026-07-11", 9], ["2026-07-25", 1], ["2026-08-08", 2], ["2026-08-14", 3, 9], ["2026-08-22", 4], ["2026-08-29", 5], ["2026-09-12", 6], ["2026-09-19", 7, 9], ["2026-09-26", 8], ["2026-10-04", 9, 9]]
+    .forEach(([dt, sd, h], k) => { const r = mk(dt, sd); mem.rounds.push({ ...(h ? nine(r) : r), _id: "x" + k }); });
   mem.profile.push({ _id: "main", indexHistory: [{ date: "2026-09-01", value: 1.4 }, { date: "2026-10-24", value: 1.0 }] });
   return api;
 }
@@ -263,9 +266,49 @@ function vTableau() {
   ${pend ? `<p class="note"><a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a></p>` : ""}
   <div class="card"><h2>Le parcours jusqu'au Mid-Am</h2><div class="path">${(plan.phases || []).map(x => { const c = x.to < iso() ? "past" : (x.from <= iso() && iso() <= x.to ? "now" : "");
     return `<div class="ms ${c}"><b>${esc(x.name)}</b>${x.indexTarget != null ? ` · index ${n1(x.indexTarget)}` : ""}${x === plan.phases[plan.phases.length - 2] ? '<span class="flag"></span>' : ""}<div class="s">${c === "now" ? "maintenant · " : ""}${fmtD(x.from)} → ${fmtD(x.to)}</div></div>`; }).join("")}</div></div>
+  ${activityChart()}
   <div class="card"><h2>Trajectoire d'index</h2><div class="chart">${indexChart(target, plan.targetDate)}</div></div>
   </section>`;
   return { kicker: fmtDl(iso()), title: "Bonjour Alexandre", body };
+}
+
+/* Activité : trous joués, parties de 18 trous, score moyen (12 derniers mois) */
+function activityChart() {
+  const months = []; const now = new Date(); for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
+  const by = Object.fromEntries(months.map(m => [m, { holes: 0, r18: 0, sc: [], tp: [] }]));
+  for (const r of S.data.rounds) { const m = (r.date || "").slice(0, 7); if (!by[m]) continue; const c = roundCalc(r); if (!c.n) continue;
+    const o = by[m]; o.holes += c.n; if (c.n === 18) { o.r18++; o.sc.push(c.score); } o.tp.push((c.score - c.par) * 18 / c.n); }
+  const tot = months.reduce((a, m) => ({ holes: a.holes + by[m].holes, r18: a.r18 + by[m].r18, sc: a.sc.concat(by[m].sc), tp: a.tp.concat(by[m].tp) }), { holes: 0, r18: 0, sc: [], tp: [] });
+  if (!tot.holes) return `<div class="card"><h2>Activité · 12 mois</h2><p class="small muted">Les trous joués, les parties de 18 trous et le score moyen apparaîtront ici dès ta première carte.</p></div>`;
+  const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  const W = 360, L = 26, R = 6, cw = (W - L - R) / 12, bw = cw * 0.62;
+  const sT = 18, sB = 74, bT = 100, bB = 220, H = 240;   // bande score en haut, barres en bas
+  const maxH = Math.max(18, ...months.map(m => by[m].holes)); const top = Math.ceil(maxH / 18) * 18;
+  const Y = v => bB - v / top * (bB - bT);
+  const mavg = months.map(m => avg(by[m].sc)); const scs = mavg.filter(v => v != null);
+  const smin = scs.length ? Math.floor(Math.min(...scs)) - 1 : 70, smax = scs.length ? Math.ceil(Math.max(...scs)) + 1 : 76;
+  const YS = v => sT + (v - smin) / Math.max(1, smax - smin) * (sB - sT);   // meilleur score en haut
+  const cx = i => L + i * cw + cw / 2;
+  let g = `<text x="0" y="10" font-size="9.5" fill="#c8372d" font-weight="700">SCORE MOYEN · 18 TROUS</text><text x="0" y="${bT - 8}" font-size="9.5" fill="#a0612f" font-weight="700">TROUS JOUÉS</text>`;
+  for (const v of [smin + 1, smax - 1]) if (v > smin && v < smax) g += `<line x1="${L}" x2="${W - R}" y1="${YS(v)}" y2="${YS(v)}" stroke="#f1e8d6"/><text x="${L - 4}" y="${YS(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
+  for (let v = 0; v <= top; v += top > 72 ? 36 : 18) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
+  months.forEach((m, i) => { const o = by[m], x = cx(i) - bw / 2;
+    if (o.holes) { g += `<rect x="${x}" y="${Y(o.holes)}" width="${bw}" height="${bB - Y(o.holes)}" rx="2.5" fill="#c9b48c"/>`;
+      if (o.r18) g += `<rect x="${x}" y="${Y(o.r18 * 18)}" width="${bw}" height="${bB - Y(o.r18 * 18)}" rx="2.5" fill="#0f2340"/>`;
+      g += `<text x="${cx(i)}" y="${Y(o.holes) - 4}" text-anchor="middle" font-size="9" fill="#0f2340" font-weight="700">${o.holes}</text>`;
+      if (o.r18 && bB - Y(o.r18 * 18) > 13) g += `<text x="${cx(i)}" y="${bB - 4}" text-anchor="middle" font-size="8.5" fill="#f3ead8" font-weight="700">${o.r18}×</text>`; }
+    g += `<text x="${cx(i)}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#7d7462">${D(m + "-15").toLocaleDateString("fr-FR", { month: "short" }).replace(".", "").slice(0, 4)}</text>`; });
+  const pts = mavg.map((v, i) => v == null ? null : [cx(i), YS(v), v]).filter(Boolean);
+  if (pts.length > 1) g += `<polyline fill="none" stroke="#c8372d" stroke-width="1.8" points="${pts.map(p => p[0] + "," + p[1]).join(" ")}"/>`;
+  g += pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="#fff" stroke="#c8372d" stroke-width="1.8"/><text x="${p[0]}" y="${p[1] + 13}" text-anchor="middle" font-size="8.5" fill="#c8372d" font-weight="700">${n1(p[2])}</text>`).join("");
+  return `<div class="card"><h2>Activité · 12 mois</h2>
+  <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
+    <div class="kpi"><div class="l">Trous</div><div class="v">${n0(tot.holes)}</div><div class="s">joués</div></div>
+    <div class="kpi"><div class="l">Parties 18 t.</div><div class="v">${tot.r18}</div><div class="s">+ ${n0(tot.holes - tot.r18 * 18)} trous</div></div>
+    <div class="kpi"><div class="l">Score moy.</div><div class="v">${tot.sc.length ? n1(avg(tot.sc)) : "—"}</div><div class="s">${tot.tp.length ? sgn(avg(tot.tp)) + " / par" : ""}</div></div>
+  </div>
+  <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Trous joués, parties de 18 trous et score moyen par mois">${g}</svg>
+  <div class="row xs muted" style="gap:14px;margin-top:4px"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> trous joués</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> dont parties de 18 trous (n×)</span><span>score : haut = meilleur</span></div></div>`;
 }
 function indexChart(target, tDate) {
   const h = ((S.profile && S.profile.indexHistory) || []).slice().sort((a, b) => a.date.localeCompare(b.date));
