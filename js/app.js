@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.8.2";
+const APP_VERSION = "1.8.3";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -78,7 +78,7 @@ const valOf = id => S.data.validations.find(v => v._id === id) || null;
 /* ---------- Accès aux données ---------- */
 let Store;
 function firebaseStore() {
-  const db = firebase.firestore(), st = firebase.storage();
+  const db = firebase.firestore(), st = firebase.storage(); st.setMaxUploadRetryTime(90000);
   const TS = () => firebase.firestore.FieldValue.serverTimestamp();
   return {
     listen(col, cb) { return db.collection(col).onSnapshot(s => cb(s.docs.map(d => ({ ...d.data(), _id: d.id }))), e => { console.error(col, e); toast("Lecture impossible : " + col); }); },
@@ -89,7 +89,8 @@ function firebaseStore() {
     upload(path, file, onProg) {
       const ext = (file.name.split(".").pop() || "").toLowerCase(), guess = { mp4: "video/mp4", mov: "video/quicktime", m4v: "video/x-m4v", "3gp": "video/3gpp", webm: "video/webm", avi: "video/x-msvideo" }[ext];
       const ref = st.ref(path); const task = ref.put(file, { contentType: file.type || guess || "application/octet-stream" });
-      return new Promise((res, rej) => task.on("state_changed", s => onProg && onProg(s.bytesTransferred / s.totalBytes), rej, async () => res({ path, url: await ref.getDownloadURL() })));
+      S.uploadTask = task;
+      return new Promise((res, rej) => task.on("state_changed", s => onProg && onProg(s.bytesTransferred / s.totalBytes, s.bytesTransferred, s.totalBytes), e => { S.uploadTask = null; rej(e); }, async () => { S.uploadTask = null; res({ path, url: await ref.getDownloadURL() }); }));
     },
     async removeFile(path) { try { await st.ref(path).delete(); } catch (e) { console.warn(e); } },
     async userDoc(uid) { const s = await db.doc("users/" + uid).get(); return s.exists ? s.data() : null; }
@@ -105,7 +106,7 @@ function demoStore() {
     async add(col, data) { const id = "d" + (seq++); mem[col].push({ ...clean(data), _id: id }); emit(col); return id; },
     async set(col, id, data, merge) { const i = mem[col].findIndex(x => x._id === id); const v = { ...(merge && i >= 0 ? mem[col][i] : {}), ...clean(data), _id: id }; if (i >= 0) mem[col][i] = v; else mem[col].push(v); emit(col); },
     async del(col, id) { mem[col] = mem[col].filter(x => x._id !== id); emit(col); },
-    async upload(path, file, onProg) { onProg && onProg(1); return { path, url: URL.createObjectURL(file) }; },
+    async upload(path, file, onProg) { for (let i = 1; i <= 4; i++) { await new Promise(r => setTimeout(r, 150)); onProg && onProg(i / 4, file.size * i / 4, file.size); } return { path, url: URL.createObjectURL(file) }; },
     async removeFile() {}
   };
   const pars = [4, 4, 3, 5, 4, 4, 4, 3, 5, 4, 3, 4, 4, 5, 4, 3, 4, 5];
@@ -499,7 +500,7 @@ function videoForm(ref, k) {
       <div class="f full"><label for="vm-${k}">Ce que tu veux qu'on regarde</label><textarea id="vm-${k}" name="comment" data-keep placeholder="Ex. chemin de club à la transition"></textarea></div>
     </div>
     <label class="row small" style="color:var(--ink)"><input type="checkbox" name="ask" checked style="width:auto"> Demander l'analyse à Claude</label>
-    <div class="progress" hidden><span></span></div>
+    <div class="upl stack" hidden style="gap:4px"><div class="progress"><span></span></div><div class="row between xs muted"><span class="upl-t">Préparation…</span><button type="button" class="btn ghost sm" data-act="upload-cancel">Annuler</button></div><span class="upl-h xs muted"></span></div>
     <div><button class="btn navy sm" type="submit">Envoyer la vidéo</button></div></form>`;
 }
 function vVideos() {
@@ -902,14 +903,17 @@ function upErr(e) { const c = (e && e.code) || "";
 async function submitVideo(form) {
   const f = form.file.files[0] || form.fileCam.files[0]; if (!f) { toast("Choisis une vidéo."); return; }
   if (f.size > 500 * 1048576) { toast("La vidéo dépasse 500 Mo : coupe-la ou exporte-la en 1080p."); return; }
-  const btn = form.querySelector("button[type=submit]"); btn.disabled = true; const pg = form.querySelector(".progress"); pg.hidden = false;
+  const btn = form.querySelector("button[type=submit]"); btn.disabled = true; const box = form.querySelector(".upl"), bar = box.querySelector(".progress span"), txt = box.querySelector(".upl-t"), hint = box.querySelector(".upl-h"); box.hidden = false;
+  const mo = n => (n / 1048576).toFixed(1).replace(".", ","); let last = Date.now(), lastB = -1;
+  txt.textContent = `0 / ${mo(f.size)} Mo · 0 %`; hint.textContent = "Garde l'app ouverte pendant l'envoi.";
+  const watch = setInterval(() => { if (Date.now() - last > 20000) hint.textContent = "Connexion lente ou coupée : l'envoi reprend dès que le réseau revient. En Wi-Fi c'est plus rapide."; }, 5000);
   try {
-    const d = iso(); const r = await Store.upload(`videos/${d.slice(0, 7)}/${Date.now()}-${safeName(f.name)}`, f, x => pg.firstElementChild.style.width = (x * 100) + "%");
+    const d = iso(); const r = await Store.upload(`videos/${d.slice(0, 7)}/${Date.now()}-${safeName(f.name)}`, f, (x, b, t) => { bar.style.width = (x * 100) + "%"; if (b !== lastB) { lastB = b; last = Date.now(); hint.textContent = x >= 1 ? "Enregistrement…" : "Garde l'app ouverte pendant l'envoi."; } txt.textContent = `${mo(b || 0)} / ${mo(t || f.size)} Mo · ${Math.round(x * 100)} %`; });
     await Store.add("videos", { ref: form.dataset.ref, date: d, name: f.name, type: f.type, size: f.size, path: r.path, url: r.url, angle: form.angle.value, club: form.club.value.trim(), comment: form.comment.value.trim(),
       analysis: form.ask.checked ? { status: "requested", requestedAt: d } : null });
-    form.reset(); form.querySelectorAll("[data-keep]").forEach(el => el.value = ""); toast("Vidéo envoyée");
+    form.reset(); form.querySelectorAll("[data-keep]").forEach(el => el.value = ""); form.querySelector(".vname").textContent = ""; bar.style.width = "0"; toast("Vidéo envoyée");
   } catch (e) { console.error(e); toast(upErr(e)); }
-  btn.disabled = false; pg.hidden = true;
+  clearInterval(watch); btn.disabled = false; box.hidden = true;
 }
 
 /* ---------- Événements ---------- */
@@ -926,6 +930,7 @@ document.addEventListener("click", async e => {
     case "close": closeSheet(); break;
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
+    case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
     case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s || valOf(s.id)) break; const d = doneOf(s); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; lsSet("golf-done-" + s.id, d); render(); break; }
     case "quick-validate": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (s) { b.disabled = true; await quickValidate(s); } break; }
     case "setup-club": { const c = S.catalog.find(x => x.id === b.dataset.v); S.setup.club = c.id; S.setup.course = c.courses.length === 1 ? c.courses[0].id : null; S.setup.tee = null; if (S.setup.course) defaultTee(); refreshPicker(); break; }
