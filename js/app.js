@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.6.0";
+const APP_VERSION = "1.7.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -32,6 +32,13 @@ let tt; function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden =
 async function fetchJSON(p) { const r = await fetch(p + "?v=" + Date.now()); if (!r.ok) throw new Error(p); return r.json(); }
 
 const DOMAINS = ["Long jeu", "Fers", "Wedges", "Petit jeu", "Bunker", "Putting", "Parcours", "Physique / vitesse", "Mental / routine"];
+const TAGS = ["Physique", "Long jeu", "Petit jeu", "Putting"];
+const TAG_COLOR = { "Physique": "#c8372d", "Long jeu": "#0f2340", "Petit jeu": "#a0612f", "Putting": "#2f6b45" };
+const DOMAIN_TAG = { "Physique / vitesse": "Physique", "Physique": "Physique", "Long jeu": "Long jeu", "Fers": "Long jeu", "Wedges": "Petit jeu", "Petit jeu": "Petit jeu", "Bunker": "Petit jeu", "Putting": "Putting" };
+const tagPill = t => `<span class="tag" style="--c:${TAG_COLOR[t] || "#7d7462"}">${esc(t)}</span>`;
+const tagsHtml = a => a && a.length ? `<span class="tags">${a.map(tagPill).join("")}</span>` : "";
+function sessionTags(s) { const set = new Set(); for (const b of s.blocks || []) for (const t of ((S.drills[b.drill] || {}).tags || [])) set.add(t); return TAGS.filter(t => set.has(t)); }
+function freeTags(s) { if (Array.isArray(s.tags) && s.tags.length) return s.tags; const t = DOMAIN_TAG[s.domain]; return t ? [t] : []; }
 const AREA_COLOR = { "Long jeu": "#0f2340", "Fers": "#2c5aa0", "Wedges": "#a0612f", "Petit jeu": "#c8372d", "Bunker": "#c9b48c", "Putting": "#2f6b45", "Parcours": "#2c5aa0", "Physique": "#c8372d", "Physique / vitesse": "#c8372d", "Mental / routine": "#a0612f", "Test": "#7d7462", "Contrôle": "#7d7462" };
 const areaColor = a => AREA_COLOR[a] || "#7d7462";
 const METRICS = {
@@ -220,8 +227,8 @@ function gaps(st) {
 const gapCls = g => g == null ? "" : g <= 0 ? "ok" : g < 0.15 ? "warn" : "bad";
 const gapCol = g => g == null ? "#c9b48c" : g <= 0 ? "#2f6b45" : g < 0.15 ? "#c9a227" : "#c8372d";
 function practiceLog() {
-  const a = S.data.sessions.map(s => ({ date: s.date, min: s.duration || 0, domain: s.domain }));
-  for (const s of S.plan.sessions) { const v = valOf(s.id); if (v && (v.status === "Faite" || v.status === "Partielle")) a.push({ date: s.date, min: v.actualMin ?? s.duration ?? 0, domain: s.domain }); }
+  const a = S.data.sessions.map(s => ({ date: s.date, min: s.duration || 0, domain: s.domain, tags: freeTags(s) }));
+  for (const s of S.plan.sessions) { const v = valOf(s.id); if (v && (v.status === "Faite" || v.status === "Partielle")) a.push({ date: s.date, min: v.actualMin ?? s.duration ?? 0, domain: s.domain, tags: sessionTags(s) }); }
   return a;
 }
 const currentIndex = () => { const h = (S.profile && S.profile.indexHistory) || []; return h.length ? h[h.length - 1] : null; };
@@ -345,12 +352,14 @@ function vPlan() {
   const p = S.plan, t = iso(), f = S.planFilter;
   let list = [...p.sessions];
   if (f === "todo") list = list.filter(s => !valOf(s.id)); if (f === "done") list = list.filter(s => valOf(s.id));
+  if (S.tagFilter) list = list.filter(s => sessionTags(s).includes(S.tagFilter));
   list.sort((a, b) => f === "done" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
   const toVal = p.sessions.filter(s => !valOf(s.id) && s.date <= t).length;
   const weeks = {}; for (const s of list) (weeks[mondayOf(s.date)] = weeks[mondayOf(s.date)] || []).push(s);
   const wk = Object.keys(weeks).sort((a, b) => f === "done" ? b.localeCompare(a) : a.localeCompare(b));
   const body = `<section class="view">
   <div class="chips" role="group" aria-label="Filtre">${[["todo", "À faire"], ["done", "Validées"], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
+  ${tagFilter()}
   ${toVal ? `<p class="note">${toVal} séance${toVal > 1 ? "s" : ""} à valider</p>` : ""}
   <div>${wk.length ? wk.map(w => `<div class="week"><div class="wl">Semaine du ${D(w).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div>${weeks[w].map(cardSession).join("")}</div>`).join("") : `<p class="small muted">Aucune séance dans ce filtre.</p>`}</div>
   <div class="card"><h2>Objectif</h2><p class="small">${esc(p.objective)}</p><p class="xs muted" style="margin-top:6px">Plan du ${fmtD(p.version)} · ${esc(p.note || "")}</p></div>
@@ -366,13 +375,14 @@ function exRows(s) {
   const done = doneOf(s), locked = !!valOf(s.id) || !canEdit();
   return `<div class="exlist">${s.blocks.map((b, i) => { const d = S.drills[b.drill] || { name: b.drill };
     return `<div class="exrow ${done[i] ? "on" : ""}"><button class="chk" data-act="ex-toggle" data-sid="${s.id}" data-i="${i}" aria-pressed="${done[i]}" aria-label="Exercice fait" ${locked ? "disabled" : ""}>${done[i] ? "✓" : ""}</button>
-      <a href="#/exercice/${b.drill}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${d.area ? " · " + esc(d.area) : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}</span></a><a class="go" href="#/exercice/${b.drill}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
+      <a href="#/exercice/${b.drill}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${(d.tags || []).length ? " · " + d.tags.map(esc).join(", ") : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}</span></a><a class="go" href="#/exercice/${b.drill}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
 }
+function tagFilter() { return `<div class="chips tagchips" role="group" aria-label="Type d'entraînement"><button data-act="tf" data-f="" aria-pressed="${!S.tagFilter}">Tous</button>${TAGS.map(t => `<button data-act="tf" data-f="${t}" aria-pressed="${S.tagFilter === t}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
 function cardSession(s) {
   const st = statusOf(s), done = doneOf(s), n = done.filter(Boolean).length;
   return `<div class="card ${st.v ? "done" : ""}" style="gap:8px;display:flex;flex-direction:column">
   <a href="#/seance/${s.id}" style="text-decoration:none;color:inherit"><div class="row between"><h3>${esc(s.title)}</h3><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span></div><p class="xs muted" style="margin-top:2px">Objectif : ${esc(s.kpi)}</p></a>
+  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span>${tagsHtml(sessionTags(s))}</div><p class="xs muted" style="margin-top:2px">Objectif : ${esc(s.kpi)}</p></a>
   ${exRows(s)}
   ${st.v ? `${st.v.measure || st.v.feedback ? `<p class="small muted">${esc([st.v.measure, st.v.feedback].filter(Boolean).join(" · "))}</p>` : ""}<div class="row"><a class="btn ghost sm" href="#/seance/${s.id}">Notes, vidéos, modifier</a></div>`
     : canEdit() ? `<div class="row between"><a class="small" href="#/seance/${s.id}">Note, vidéo, ressenti ›</a><button class="btn sm" data-act="quick-validate" data-sid="${s.id}">${n && n < s.blocks.length ? `Valider (${n}/${s.blocks.length})` : "Valider la séance"}</button></div>` : ""}
@@ -419,7 +429,7 @@ function vExercice(p) {
   const links = S.data.drillLinks.filter(l => l.drill === d.id);
   const li = a => a && a.length ? `<ul class="plain small">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="small muted">—</p>`;
   const body = `<section class="view">
-  <div class="row"><span class="pill" style="background:${areaColor(d.area)}1a;color:${areaColor(d.area)}">${esc(d.area)}</span><span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
+  <div class="row">${tagsHtml(d.tags)}<span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
   <p>${esc(d.objective)}</p>
   <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
   <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
@@ -505,24 +515,25 @@ function vPlus() {
 }
 function domainBars() {
   const since = iso(new Date(Date.now() - 60 * 864e5)); const pr = practiceLog().filter(p => p.date >= since && p.date <= iso()); if (!pr.length) return "";
-  const m = {}; for (const p of pr) { const k = p.domain || "Autre"; m[k] = (m[k] || 0) + (p.min || 0); }
+  const m = {}; for (const p of pr) { const ks = p.tags && p.tags.length ? p.tags : ["Autre"]; for (const k of ks) m[k] = (m[k] || 0) + (p.min || 0) / ks.length; }
   const tot = Object.values(m).reduce((a, b) => a + b, 0) || 1;
-  return `<div class="card"><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%;background:${areaColor(k)}"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
+  return `<div class="card"><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%;background:${TAG_COLOR[k] || "#7d7462"}"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
 }
 function vEntrainements() {
-  const l = [...S.data.sessions].sort(byDateDesc);
+  let l = [...S.data.sessions].sort(byDateDesc); if (S.tagFilter) l = l.filter(s => freeTags(s).includes(S.tagFilter));
   const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="session">+ Entraînement libre</button>` : ""}
-  ${l.length ? `<div class="card"><div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><h3>${esc(s.domain || "")}</h3><span class="small muted">${fmtD(s.date)} · ${n0(s.duration)} min${s.rating ? ` · ${s.rating}/5` : ""}</span></div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div></div>`
+  ${tagFilter()}
+  ${l.length ? `<div class="card"><div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><span class="small muted">${fmtD(s.date)} · ${n0(s.duration)} min${s.rating ? ` · ${s.rating}/5` : ""}</span>${tagsHtml(freeTags(s))}</div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div></div>`
     : emptyBox("Aucun entraînement libre", "Les séances hors plan (practice improvisé, parcours d'entraînement) se notent ici.")}</section>`;
   return { back: ["#/plus", "Plus"], title: "Entraînements libres", body };
 }
 function vEntrainement(p) {
   const s = S.data.sessions.find(x => x._id === p[1]); if (!s) return S.loaded ? emptyBox("Entraînement introuvable", "", `<a class="btn ghost sm" href="#/entrainements">Retour</a>`) : `<p class="muted">Chargement…</p>`;
   const body = `<section class="view">
-  <div class="meta"><span>${fmtD(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span>${s.rating ? `<span>· qualité ${s.rating}/5</span>` : ""}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="session" data-id="${s._id}">Modifier</button>` : ""}</div>
+  <div class="meta"><span>${fmtD(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span>${s.rating ? `<span>· qualité ${s.rating}/5</span>` : ""}${tagsHtml(freeTags(s))}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="session" data-id="${s._id}">Modifier</button>` : ""}</div>
   <div class="card"><p class="pre">${esc(s.content)}</p>${s.result ? `<p class="small" style="margin-top:6px"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}${s.notes ? `<p class="small muted pre" style="margin-top:6px">${esc(s.notes)}</p>` : ""}</div>
   ${notesBlock("free:" + s._id)}${videosBlock("free:" + s._id)}</section>`;
-  return { back: ["#/entrainements", "Entraînements libres"], title: esc(s.domain || "Entraînement"), body };
+  return { back: ["#/entrainements", "Entraînements libres"], title: esc(freeTags(s).join(" · ") || s.domain || "Entraînement"), body };
 }
 function vCours() {
   const l = [...S.data.lessons].sort(byDateDesc);
@@ -803,7 +814,7 @@ async function saveRound() {
 const FORMS = {
   session: { title: "Entraînement libre", col: "sessions", fields: [
     { k: "date", label: "Date", type: "date", req: 1 }, { k: "duration", label: "Durée (min)", type: "number", req: 1 },
-    { k: "domain", label: "Domaine", type: "select", opts: DOMAINS, full: 1 },
+    { k: "tags", label: "Type d'entraînement (un ou plusieurs)", type: "tags", full: 1 },
     { k: "content", label: "Contenu", type: "textarea", full: 1, req: 1 },
     { k: "result", label: "Mesure / résultat", type: "text", full: 1, ph: "Ex. 14/20 putts à 2 m" },
     { k: "rating", label: "Qualité (1 à 5)", type: "select", opts: ["", "1", "2", "3", "4", "5"] },
@@ -835,7 +846,8 @@ function openForm(kind, id) {
   let cur = id ? (S.data[F.col] || []).find(x => x._id === id) || {} : {};
   if (!cur.date) cur = { ...cur, date: iso() };
   openSheet((id ? "Modifier · " : "") + F.title, `<form id="sheet-form"><div class="grid">${F.fields.map(f => { const v = cur[f.k] ?? ""; const fid = "sf-" + f.k; let inp;
-    if (f.type === "textarea") inp = `<textarea id="${fid}" name="${f.k}" placeholder="${esc(f.ph || "")}">${esc(v)}</textarea>`;
+    if (f.type === "tags") { const cur2 = Array.isArray(v) ? v : (cur._id ? freeTags(cur) : []); inp = `<div class="chips tagchips" id="${fid}" data-tags="${f.k}">${TAGS.map(t => `<button type="button" data-act="tag-pick" data-v="${t}" aria-pressed="${cur2.includes(t)}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
+    else if (f.type === "textarea") inp = `<textarea id="${fid}" name="${f.k}" placeholder="${esc(f.ph || "")}">${esc(v)}</textarea>`;
     else if (f.type === "select") inp = `<select id="${fid}" name="${f.k}">${f.opts.map(o => `<option ${String(v) === o ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
     else inp = `<input id="${fid}" name="${f.k}" type="${f.type === "number" ? "text" : f.type}" ${f.type === "number" ? 'inputmode="decimal"' : ""} value="${esc(v)}" placeholder="${esc(f.ph || "")}">`;
     return `<div class="f ${f.full ? "full" : ""}"><label for="${fid}">${esc(f.label)}${f.req ? " *" : ""}</label>${inp}</div>`; }).join("")}</div>
@@ -847,7 +859,9 @@ function closeSheet() { $("#sheet").hidden = true; editing = null; }
 const sheetErr = m => { const e = $("#sheet-err"); e.textContent = m; e.hidden = false; };
 async function submitSheet(e) {
   e.preventDefault(); const { kind, id } = editing; const F = FORMS[kind]; const fd = new FormData(e.target); const data = {};
-  for (const f of F.fields) { const v = String(fd.get(f.k) ?? "").trim(); if (f.req && !v) return sheetErr("Champ obligatoire : " + f.label); data[f.k] = NUMERIC.has(f.k) ? num(v) : v; }
+  for (const f of F.fields) {
+    if (f.type === "tags") { data[f.k] = [...e.target.querySelectorAll(`[data-tags="${f.k}"] [aria-pressed="true"]`)].map(b => b.dataset.v); if (!data[f.k].length) return sheetErr("Choisis au moins un type d'entraînement."); continue; }
+    const v = String(fd.get(f.k) ?? "").trim(); if (f.req && !v) return sheetErr("Champ obligatoire : " + f.label); data[f.k] = NUMERIC.has(f.k) ? num(v) : v; }
   try {
     if (kind === "index") { const h = ((S.profile && S.profile.indexHistory) || []).filter(x => x.date !== data.date); h.push({ date: data.date, value: data.value }); h.sort((a, b) => a.date.localeCompare(b.date)); await Store.set("profile", "main", { indexHistory: h }, true); }
     else if (id) await Store.set(F.col, id, data, true); else await Store.add(F.col, data);
@@ -909,6 +923,8 @@ document.addEventListener("click", async e => {
     case "sheet-del": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer la suppression"; break; }
       try { await Store.del(FORMS[editing.kind].col, editing.id); const k = editing.kind; closeSheet(); toast("Supprimé"); if (k === "session" && location.hash.startsWith("#/entrainement/")) location.hash = "#/entrainements"; } catch (x) { sheetErr("Suppression impossible."); } break;
     case "pf": S.planFilter = b.dataset.f; render(); break;
+    case "tf": S.tagFilter = b.dataset.f || null; render(); break;
+    case "tag-pick": b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); break;
     case "vf": S.vidFilter = b.dataset.f; render(); break;
     case "unvalidate": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; } await Store.del("validations", id); toast("Validation annulée"); break;
     case "del-note": case "del-video": case "del-link": case "del-round": {

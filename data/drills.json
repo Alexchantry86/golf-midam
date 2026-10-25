@@ -59,6 +59,9 @@
      "title": "How to turn your hips in the golf swing",
      "yt": "cZoAO8KBU_8"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -119,6 +122,9 @@
      "title": "Golf drills for an effortless golf swing",
      "yt": "aG3chWJZTbc"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -179,6 +185,9 @@
      "title": "One drill to fix your entire golf swing",
      "yt": "5PIAmRlG1nw"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -227,6 +236,9 @@
      "title": "The simple swing thought that will fix your downswing",
      "yt": "VDzORkIxYYI"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -265,6 +277,9 @@
      "title": "The secret to a flat left wrist",
      "yt": "S0nXUsAyJmM"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -308,6 +323,9 @@
      "title": "L'inclinaison du corps pour stabiliser le swing",
      "yt": "URCJLadXqhU"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -365,6 +383,9 @@
      "title": "Comment lâcher prise du swing : exercice",
      "yt": "JIrp4gKWd5E"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -411,6 +432,9 @@
      "title": "Garder le bras gauche tendu après l'impact",
      "yt": "cyzV7FvgN1w"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -449,6 +473,9 @@
      "title": "Les 6 points clés du swing",
      "yt": "IyibGttL9v4"
     }
+   ],
+   "tags": [
+    "Long jeu"
    ]
   },
   {
@@ -484,7 +511,10 @@
      "url": "https://golf.com/instruction/fitness/rotational-movement-exercises-powerful-swing/"
     }
    ],
-   "yt": "medicine ball rotational throw golf"
+   "yt": "medicine ball rotational throw golf",
+   "tags": [
+    "Physique"
+   ]
   },
   {
    "id": "mobilite-90-90",
@@ -514,7 +544,10 @@
    ],
    "success": "Transitions fluides des deux côtés sans appui des mains",
    "refs": [],
-   "yt": "90 90 hip mobility golfers"
+   "yt": "90 90 hip mobility golfers",
+   "tags": [
+    "Physique"
+   ]
   },
   {
    "id": "gainage-anti-rotation",
@@ -543,7 +576,10 @@
    ],
    "success": "Séries complètes sans rotation du bassin",
    "refs": [],
-   "yt": "pallof press golf core"
+   "yt": "pallof press golf core",
+   "tags": [
+    "Physique"
+   ]
   },
   {
    "id": "overspeed",
@@ -574,7 +610,10 @@
    ],
    "success": "Vitesse mesurée et notée, tendance à la hausse sur 4 semaines",
    "refs": [],
-   "yt": "golf overspeed training swoosh drill"
+   "yt": "golf overspeed training swoosh drill",
+   "tags": [
+    "Physique"
+   ]
   },
   {
    "id": "echelle-wedges",
@@ -627,6 +666,9 @@
      "title": "Wedging : les 3 erreurs classiques",
      "yt": "fn4zOqAio30"
     }
+   ],
+   "tags": [
+    "Petit jeu"
    ]
   },
   {
@@ -668,6 +710,9 @@
      "title": "My best drills for pitching, chipping and bunker play",
      "yt": "mm6KuKDuMKw"
     }
+   ],
+   "tags": [
+    "Petit jeu"
    ]
   },
   {
@@ -715,6 +760,9 @@
      "title": "Putting tips : putter, posture, stroke",
      "yt": "ZBALEfjc5H4"
     }
+   ],
+   "tags": [
+    "Putting"
    ]
   },
   {
@@ -760,6 +808,9 @@
      "title": "Putting drills he does before every round",
      "yt": "XYQlk1155qI"
     }
+   ],
+   "tags": [
+    "Putting"
    ]
   },
   {
@@ -796,6 +847,9 @@
      "title": "How to hit bunker shots close from every distance",
      "yt": "UotuYHzWPEs"
     }
+   ],
+   "tags": [
+    "Petit jeu"
    ]
   },
   {
@@ -825,7 +879,10 @@
    ],
    "success": "Valeurs notées dans le champ « mesure » de la séance",
    "refs": [],
-   "yt": "golf baseline test driver dispersion practice"
+   "yt": "golf baseline test driver dispersion practice",
+   "tags": [
+    "Long jeu"
+   ]
   },
   {
    "id": "bilan-petit-jeu",
@@ -851,7 +908,11 @@
    "errors": [],
    "success": "Valeurs notées dans le champ « mesure »",
    "refs": [],
-   "yt": "short game test golf practice scoring"
+   "yt": "short game test golf practice scoring",
+   "tags": [
+    "Petit jeu",
+    "Putting"
+   ]
   },
   {
    "id": "test-oeil-moteur",
@@ -881,7 +942,10 @@
    ],
    "success": "Un côté nettement plus fluide et stable identifié",
    "refs": [],
-   "yt": "oeil moteur golf test"
+   "yt": "oeil moteur golf test",
+   "tags": [
+    "Putting"
+   ]
   },
   {
    "id": "routine-echauffement",
@@ -919,7 +983,8 @@
      "title": "A simple and effective warm-up drill",
      "yt": "NU4N3RERyuk"
     }
-   ]
+   ],
+   "tags": []
   },
   {
    "id": "parcours-stats",
@@ -948,7 +1013,8 @@
    ],
    "success": "Carte complète saisie dans l'app",
    "refs": [],
-   "yt": "on course practice golf transfer"
+   "yt": "on course practice golf transfer",
+   "tags": []
   }
  ]
 }
