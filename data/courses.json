@@ -1,7 +1,530 @@
 {
- "version": "2026-10-25",
- "note": "Catalogue des parcours tenu par Claude. Distances en mètres. cr = course rating (SSS), slope ; null si non publié.",
+ "version": "2026-10-25b",
+ "note": "Catalogue des parcours tenu par Claude. Distances en mètres (len null si non confirmées). cr = course rating (SSS), slope ; null si non publié. pending = parcours dont la carte reste à trouver.",
  "clubs": [
+  {
+   "id": "aa-saint-omer",
+   "name": "Aa Saint-Omer Golf Club",
+   "city": "Lumbres / Acquin-Westbécourt (62)",
+   "aliases": [
+    "saint omer",
+    "st omer",
+    "aa saint omer",
+    "lumbres"
+   ],
+   "courses": [
+    {
+     "id": "saint-omer-le-val",
+     "name": "Le Val",
+     "par": [4, 3, 4, 3, 4, 4, 5, 4, 5, 4, 3, 4, 4, 5, 5, 4, 3, 5],
+     "si": [3, 11, 1, 15, 17, 13, 7, 9, 5, 16, 18, 4, 2, 12, 14, 10, 8, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 74,
+       "slope": 140,
+       "total": 6218,
+       "len": [357, 191, 375, 152, 295, 340, 517, 355, 453, 380, 180, 314, 392, 484, 429, 354, 171, 473]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 72.7,
+       "slope": 136,
+       "total": 5960,
+       "len": [335, 184, 362, 142, 280, 329, 497, 335, 444, 367, 154, 314, 381, 456, 429, 344, 155, 445]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.7,
+       "slope": 131,
+       "total": 5244,
+       "len": [313, 166, 310, 133, 251, 294, 431, 287, 383, 304, 143, 263, 345, 401, 360, 304, 137, 410]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 73.4,
+       "slope": 130,
+       "total": 5065,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24638-aa-saint-omer-golf-club-val-course/scorecard-and-layout ; https://www.1golf.eu/en/club/aa-st-omer-golf-club",
+     "note": "Le repère « Blanc » de 1golf correspond au « Noir » de GolfPass (6 218 m)."
+    }
+   ],
+   "pending": [
+    "La Haute Drève (9 trous)"
+   ]
+  },
+  {
+   "id": "ailette",
+   "name": "Golf Bluegreen de l'Ailette",
+   "city": "Cerny-en-Laonnois (02)",
+   "aliases": [
+    "ailette",
+    "laon",
+    "cerny en laonnois",
+    "chamouille"
+   ],
+   "courses": [
+    {
+     "id": "ailette",
+     "name": "L'Ailette",
+     "par": [4, 3, 4, 5, 4, 3, 5, 5, 3, 4, 4, 5, 4, 3, 4, 5, 3, 4],
+     "si": [16, 18, 6, 8, 4, 10, 14, 2, 12, 17, 15, 7, 9, 13, 5, 1, 11, 3],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 138,
+       "total": 6115,
+       "len": [327, 166, 322, 467, 368, 137, 439, 520, 189, 326, 298, 498, 344, 204, 366, 546, 180, 418]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 141,
+       "total": 5728,
+       "len": [319, 156, 313, 446, 340, 130, 433, 490, 179, 307, 290, 469, 338, 155, 309, 536, 144, 374]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": 139,
+       "total": 5181,
+       "len": [297, 146, 303, 402, 283, 116, 386, 465, 138, 287, 209, 454, 324, 120, 288, 498, 132, 333]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 132,
+       "total": 4859,
+       "len": [294, 132, 274, 402, 283, 101, 354, 454, 124, 270, 182, 426, 295, 100, 279, 456, 100, 333]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24748-golf-bluegreen-lailette/scorecard-and-layout",
+     "note": "Source unique."
+    }
+   ]
+  },
+  {
+   "id": "dunkerque",
+   "name": "Golf Bluegreen Dunkerque Grand Littoral",
+   "city": "Coudekerque-Branche (59)",
+   "aliases": [
+    "dunkerque",
+    "grand littoral",
+    "coudekerque",
+    "vauban"
+   ],
+   "courses": [
+    {
+     "id": "dunkerque-vauban",
+     "name": "Le Vauban",
+     "par": [5, 4, 3, 5, 4, 4, 3, 4, 5, 3, 4, 3, 4, 5, 3, 5, 4, 4],
+     "si": [9, 11, 17, 5, 7, 13, 15, 3, 1, 14, 8, 18, 2, 16, 12, 4, 6, 10],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5891,
+       "len": [440, 283, 125, 486, 366, 251, 139, 366, 470, 216, 353, 168, 400, 441, 183, 476, 373, 355]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5751,
+       "len": [440, 283, 125, 478, 357, 251, 139, 361, 470, 175, 353, 165, 400, 441, 171, 430, 366, 346]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5379,
+       "len": [431, 270, 118, 450, 317, 237, 128, 326, 437, 154, 323, 154, 360, 433, 160, 405, 342, 334]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5120,
+       "len": [422, 241, 111, 432, 307, 219, 110, 320, 412, 154, 323, 149, 348, 390, 124, 394, 342, 322]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4742,
+       "len": [369, 232, 99, 410, 285, 204, 101, 293, 379, 144, 293, 136, 333, 365, 114, 347, 331, 307]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24746-dunkerque-golf-club-the-vauban-course/scorecard-and-layout",
+     "note": "Longueurs différentes sur 1golf (6 579 m) : à confirmer ; SSS/slope non repris."
+    }
+   ],
+   "pending": [
+    "Les Vallières (9 trous)"
+   ]
+  },
+  {
+   "id": "ruminghem",
+   "name": "Cap Golf Club du Bois de Ruminghem",
+   "city": "Ruminghem (62)",
+   "aliases": [
+    "ruminghem",
+    "bois de ruminghem",
+    "cap golf"
+   ],
+   "courses": [
+    {
+     "id": "ruminghem",
+     "name": "Bois de Ruminghem",
+     "par": [5, 4, 3, 4, 5, 4, 4, 4, 3, 5, 3, 5, 3, 5, 4, 4, 4, 4],
+     "si": [7, 15, 17, 3, 9, 1, 11, 5, 13, 10, 16, 8, 18, 6, 12, 4, 14, 2],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5946,
+       "len": [461, 339, 113, 355, 482, 380, 347, 370, 181, 457, 134, 438, 137, 454, 336, 358, 268, 336]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5802,
+       "len": [448, 334, 113, 340, 472, 375, 333, 359, 181, 452, 128, 432, 129, 444, 324, 354, 254, 330]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5251,
+       "len": [422, 315, 93, 295, 420, 357, 290, 313, 142, 411, 107, 403, 112, 414, 292, 321, 243, 301]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5132,
+       "len": [412, 307, 93, 289, 411, 346, 283, 308, 135, 402, 101, 403, 106, 406, 285, 314, 243, 288]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/25507-cap-golf-club-du-bois-de-ruminghem/scorecard-and-layout",
+     "note": "Source unique."
+    }
+   ]
+  },
+  {
+   "id": "chaumont-vexin",
+   "name": "Golf Country-Club de Chaumont-en-Vexin",
+   "city": "Chaumont-en-Vexin (60)",
+   "aliases": [
+    "chaumont en vexin",
+    "chaumont"
+   ],
+   "courses": [
+    {
+     "id": "chaumont-vexin",
+     "name": "Chaumont-en-Vexin",
+     "par": [4, 3, 4, 4, 3, 5, 4, 4, 4, 4, 5, 3, 4, 3, 5, 4, 4, 5],
+     "si": [7, 17, 3, 11, 5, 9, 1, 13, 15, 8, 2, 18, 12, 16, 4, 6, 14, 10],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/35c833d0-9b69-4738-bca9-4b319fcc20b2",
+     "note": "Source unique, unité des distances incertaine."
+    }
+   ]
+  },
+  {
+   "id": "amiens",
+   "name": "Golf Club d'Amiens",
+   "city": "Querrieu (80)",
+   "aliases": [
+    "  damiens"
+   ],
+   "courses": [],
+   "pending": [
+    "Amiens"
+   ]
+  },
+  {
+   "id": "arras",
+   "name": "Golf d'Arras",
+   "city": "Anzin-Saint-Aubin (62)",
+   "aliases": [
+    "arras",
+    "anzin saint aubin",
+    "golf d arras"
+   ],
+   "courses": [
+    {
+     "id": "arras-vallee",
+     "name": "La Vallée",
+     "par": [4, 4, 3, 5, 5, 4, 4, 3, 4, 3, 4, 4, 5, 3, 4, 4, 4, 5],
+     "si": [13, 3, 17, 11, 9, 15, 1, 5, 7, 10, 14, 2, 16, 18, 12, 4, 8, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.2,
+       "slope": 137,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.0,
+       "slope": 130,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.7,
+       "slope": 135,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.7,
+       "slope": 129,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24734-arras-golf-club-vallee-course/",
+     "note": "Unité des distances incertaine (yards probables) : distances non affichées."
+    },
+    {
+     "id": "arras-aubepines",
+     "name": "Les Aubépines (9 trous)",
+     "par": [4, 3, 4, 3, 3, 3, 3, 4, 4],
+     "si": [2, 9, 1, 4, 5, 8, 7, 6, 3],
+     "tees": [
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/7f2953ff-73a4-4b45-82e1-28ec1e1fb91c"
+    }
+   ]
+  },
+  {
+   "id": "hardelot",
+   "name": "Golf d'Hardelot",
+   "city": "Hardelot / Neufchâtel-Hardelot (62)",
+   "aliases": [
+    "hardelot",
+    "golf d hardelot"
+   ],
+   "courses": [
+    {
+     "id": "hardelot-les-pins",
+     "name": "Les Pins",
+     "par": [5, 4, 4, 4, 3, 5, 3, 4, 4, 5, 4, 3, 5, 3, 4, 4, 3, 4],
+     "si": [11, 3, 9, 7, 17, 5, 13, 15, 1, 14, 12, 16, 6, 18, 8, 2, 10, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5919,
+       "len": [503, 419, 338, 355, 119, 457, 132, 307, 367, 472, 282, 155, 521, 148, 328, 425, 165, 426]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5462,
+       "len": [468, 393, 315, 335, 112, 437, 106, 292, 326, 445, 249, 146, 462, 123, 316, 384, 147, 406]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5090,
+       "len": [434, 350, 297, 315, 112, 391, 91, 283, 319, 422, 230, 124, 447, 110, 292, 343, 147, 383]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4685,
+       "len": [390, 316, 285, 288, 95, 349, 86, 252, 310, 401, 210, 115, 419, 93, 278, 329, 111, 358]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24700-hardelot-golf-club-the-pines-course/scorecard-and-layout ; https://www.1golf.eu/en/club/golf-d-hardelot"
+    },
+    {
+     "id": "hardelot-les-dunes",
+     "name": "Les Dunes",
+     "par": [4, 3, 5, 4, 3, 4, 3, 5, 5, 4, 3, 4, 5, 3, 4, 4, 3, 4],
+     "si": [11, 17, 9, 3, 13, 5, 15, 7, 1, 6, 12, 2, 10, 14, 16, 4, 18, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5328,
+       "len": [311, 167, 468, 404, 128, 322, 120, 465, 431, 324, 146, 371, 428, 183, 281, 306, 126, 347]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 4893,
+       "len": [293, 145, 407, 372, 119, 292, 112, 442, 405, 287, 134, 351, 400, 161, 266, 268, 113, 326]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4406,
+       "len": [240, 122, 379, 340, 110, 283, 95, 416, 356, 251, 111, 321, 367, 134, 213, 257, 100, 311]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4117,
+       "len": [226, 106, 357, 320, 100, 248, 91, 408, 327, 232, 99, 308, 367, 123, 196, 236, 90, 283]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24701-hardelot-golf-club-the-dunes-course/scorecard-and-layout ; https://www.1golf.eu/en/club/golf-d-hardelot"
+    }
+   ]
+  },
+  {
+   "id": "belle-dune",
+   "name": "Golf de Belle Dune",
+   "city": "Fort-Mahon-Plage (80)",
+   "aliases": [
+    "belle dune",
+    "fort mahon"
+   ],
+   "courses": [
+    {
+     "id": "belle-dune",
+     "name": "Belle Dune",
+     "par": [4, 4, 3, 5, 4, 3, 4, 4, 4, 5, 4, 3, 5, 3, 5, 4, 4, 4],
+     "si": [12, 7, 18, 16, 9, 14, 5, 3, 11, 4, 6, 13, 2, 17, 1, 15, 8, 10],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.2,
+       "slope": 139,
+       "total": 6081,
+       "len": [345, 337, 144, 440, 378, 157, 364, 396, 297, 509, 365, 143, 453, 135, 605, 271, 344, 398]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71.6,
+       "slope": 125,
+       "total": 5659,
+       "len": [322, 321, 135, 414, 336, 144, 347, 367, 272, 482, 343, 137, 414, 121, 556, 252, 317, 379]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.0,
+       "slope": 132,
+       "total": 5132,
+       "len": [289, 285, 124, 379, 309, 127, 304, 349, 244, 436, 303, 117, 378, 101, 540, 229, 290, 328]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 72.3,
+       "slope": 117,
+       "total": 4762,
+       "len": [272, 268, 103, 358, 278, 115, 275, 328, 226, 410, 282, 109, 357, 96, 497, 208, 268, 312]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24737-belle-dune-golf-club/scorecard-and-layout",
+     "note": "Bleu et rouge : SSS/slope dames."
+    }
+   ]
+  },
   {
    "id": "bondues",
    "name": "Golf de Bondues",
@@ -23,28 +546,32 @@
        "gender": "M",
        "cr": null,
        "slope": null,
-       "len": [443, 326, 164, 469, 418, 144, 350, 392, 457, 146, 375, 456, 387, 183, 326, 336, 366, 463]
+       "len": [443, 326, 164, 469, 418, 144, 350, 392, 457, 146, 375, 456, 387, 183, 326, 336, 366, 463],
+       "total": 6201
       },
       {
        "name": "Jaune",
        "gender": "M",
        "cr": null,
        "slope": null,
-       "len": [431, 294, 152, 449, 384, 136, 323, 378, 439, 137, 350, 417, 322, 155, 302, 300, 350, 446]
+       "len": [431, 294, 152, 449, 384, 136, 323, 378, 439, 137, 350, 417, 322, 155, 302, 300, 350, 446],
+       "total": 5765
       },
       {
        "name": "Blanc",
        "gender": "M",
        "cr": null,
        "slope": null,
-       "len": [368, 281, 139, 399, 356, 129, 308, 339, 406, 128, 314, 392, 310, 146, 284, 286, 313, 427]
+       "len": [368, 281, 139, 399, 356, 129, 308, 339, 406, 128, 314, 392, 310, 146, 284, 286, 313, 427],
+       "total": 5325
       },
       {
        "name": "Rouge",
        "gender": "F",
        "cr": null,
        "slope": null,
-       "len": [355, 252, 127, 385, 323, 106, 277, 315, 387, 120, 301, 350, 298, 137, 247, 246, 304, 388]
+       "len": [355, 252, 127, 385, 323, 106, 277, 315, 387, 120, 301, 350, 298, 137, 247, 246, 304, 388],
+       "total": 4918
       }
      ],
      "source": "https://www.1golf.eu/en/club/golf-de-bondues/scorecard/"
@@ -60,39 +587,584 @@
        "gender": "M",
        "cr": 73.3,
        "slope": 135,
-       "len": [494, 176, 297, 465, 393, 142, 417, 382, 450, 480, 200, 345, 327, 156, 475, 174, 350, 423]
+       "len": [494, 176, 297, 465, 393, 142, 417, 382, 450, 480, 200, 345, 327, 156, 475, 174, 350, 423],
+       "total": 6146
       },
       {
        "name": "Blanc",
        "gender": "M",
        "cr": 72.6,
        "slope": 133,
-       "len": [472, 176, 297, 465, 393, 123, 389, 382, 450, 480, 200, 329, 314, 147, 459, 174, 336, 423]
+       "len": [472, 176, 297, 465, 393, 123, 389, 382, 450, 480, 200, 329, 314, 147, 459, 174, 336, 423],
+       "total": 6009
       },
       {
        "name": "Jaune",
        "gender": "M",
        "cr": 69.8,
        "slope": 128,
-       "len": [441, 150, 268, 426, 354, 109, 360, 348, 427, 450, 170, 299, 285, 129, 411, 142, 311, 390]
+       "len": [441, 150, 268, 426, 354, 109, 360, 348, 427, 450, 170, 299, 285, 129, 411, 142, 311, 390],
+       "total": 5470
       },
       {
        "name": "Bleu",
        "gender": "F",
        "cr": 72.9,
        "slope": 135,
-       "len": [409, 134, 246, 386, 326, 87, 340, 327, 411, 443, 149, 283, 263, 108, 375, 124, 262, 361]
+       "len": [409, 134, 246, 386, 326, 87, 340, 327, 411, 443, 149, 283, 263, 108, 375, 124, 262, 361],
+       "total": 5034
       },
       {
        "name": "Rouge",
        "gender": "F",
        "cr": 69.8,
        "slope": 128,
-       "len": [381, 112, 227, 370, 294, 68, 313, 284, 363, 396, 121, 253, 240, 97, 364, 97, 235, 336]
+       "len": [381, 112, 227, 370, 294, 68, 313, 284, 363, 396, 121, 253, 240, 97, 364, 97, 235, 336],
+       "total": 4551
       }
      ],
      "source": "https://www.golfingrecord.com/golf-scorecard/f92a1ba7-c924-40b9-a8cc-31ec35b734fb ; CR/slope : https://www.1golf.eu/en/club/golf-de-bondues"
     }
+   ]
+  },
+  {
+   "id": "brigode",
+   "name": "Golf de Brigode",
+   "city": "Villeneuve-d'Ascq (59)",
+   "aliases": [
+    "brigode",
+    "villeneuve d ascq"
+   ],
+   "courses": [
+    {
+     "id": "brigode",
+     "name": "Brigode",
+     "par": [4, 5, 4, 3, 4, 5, 3, 4, 4, 5, 4, 5, 4, 5, 3, 4, 3, 4],
+     "si": [3, 17, 1, 13, 7, 9, 15, 5, 11, 14, 6, 8, 18, 10, 16, 2, 12, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73,
+       "slope": 137,
+       "total": 6060,
+       "len": [340, 425, 347, 143, 348, 468, 135, 339, 365, 468, 349, 526, 261, 458, 168, 357, 176, 387]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.9,
+       "slope": 132,
+       "total": 5657,
+       "len": [328, 396, 326, 137, 312, 452, 126, 324, 321, 422, 336, 474, 254, 422, 153, 346, 166, 362]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.3,
+       "slope": 133,
+       "total": 5237,
+       "len": [315, 367, 296, 130, 293, 420, 118, 308, 294, 397, 296, 437, 240, 392, 134, 309, 155, 336]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.4,
+       "slope": 130,
+       "total": 4808,
+       "len": [265, 335, 276, 119, 279, 409, 91, 269, 262, 370, 273, 397, 230, 360, 123, 298, 148, 304]
+      }
+     ],
+     "source": "https://www.1golf.eu/en/club/golf-de-brigode/scorecard/"
+    }
+   ]
+  },
+  {
+   "id": "champagne",
+   "name": "Golf de Champagne",
+   "city": "Villers-Agron (02)",
+   "aliases": [
+    "champagne",
+    "villers agron"
+   ],
+   "courses": [
+    {
+     "id": "champagne",
+     "name": "Champagne",
+     "par": [5, 4, 4, 4, 4, 3, 5, 3, 4, 3, 4, 4, 3, 4, 5, 5, 4, 4],
+     "si": [7, 9, 1, 17, 5, 3, 11, 13, 15, 18, 14, 10, 4, 16, 12, 8, 2, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.1,
+       "slope": 133,
+       "total": 5760,
+       "len": [515, 350, 347, 259, 396, 143, 486, 120, 252, 120, 258, 386, 190, 303, 475, 445, 345, 370]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.5,
+       "slope": 128,
+       "total": 5410,
+       "len": [465, 333, 307, 244, 379, 132, 465, 116, 252, 116, 252, 340, 146, 277, 467, 435, 330, 354]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 68.3,
+       "slope": 124,
+       "total": 4811,
+       "len": [414, 309, 269, 215, 362, 118, 413, 112, 220, 107, 251, 270, 115, 257, 400, 405, 270, 304]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 66.3,
+       "slope": 120,
+       "total": 4416,
+       "len": [404, 292, 218, 215, 313, 110, 392, 108, 214, 101, 163, 234, 109, 236, 388, 358, 265, 296]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24664-champagne-golf-club/scorecard-and-layout",
+     "note": "SSS bleu/rouge probablement messieurs."
+    }
+   ]
+  },
+  {
+   "id": "chantilly",
+   "name": "Golf de Chantilly",
+   "city": "Vineuil-Saint-Firmin (60)",
+   "aliases": [
+    "chantilly",
+    "golf de chantilly",
+    "vineuil",
+    "longeres"
+   ],
+   "courses": [
+    {
+     "id": "chantilly-vineuil",
+     "name": "Vineuil",
+     "par": [4, 4, 3, 4, 4, 3, 4, 5, 5, 4, 3, 5, 4, 4, 4, 4, 3, 4],
+     "si": [5, 9, 18, 13, 1, 17, 11, 3, 7, 12, 16, 2, 6, 8, 14, 4, 15, 10],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/9231b0ef-3e09-40dc-a6f2-07a3fb159261"
+    },
+    {
+     "id": "chantilly-longeres",
+     "name": "Longères",
+     "par": [4, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 4, 4, 5],
+     "si": [9, 3, 6, 13, 15, 17, 7, 2, 11, 18, 4, 14, 1, 12, 10, 16, 5, 8],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/2f675466-1c77-4848-bf53-a06751a301ba"
+    }
+   ]
+  },
+  {
+   "id": "compiegne",
+   "name": "Golf de Compiègne",
+   "city": "Compiègne (60)",
+   "aliases": [
+    " de compigne"
+   ],
+   "courses": [],
+   "pending": [
+    "Compiègne"
+   ]
+  },
+  {
+   "id": "menneville",
+   "name": "Golf de Menneville",
+   "city": "Menneville (02)",
+   "aliases": [
+    " de menneville"
+   ],
+   "courses": [],
+   "pending": [
+    "9 trous"
+   ]
+  },
+  {
+   "id": "morfontaine",
+   "name": "Golf de Morfontaine",
+   "city": "Mortefontaine (60)",
+   "aliases": [
+    " de morfontaine"
+   ],
+   "courses": [],
+   "pending": [
+    "Grand Parcours",
+    "Vallière (9 trous)"
+   ]
+  },
+  {
+   "id": "mormal",
+   "name": "Golf de Mormal",
+   "city": "Preux-au-Sart (59)",
+   "aliases": [
+    "mormal",
+    "preux au sart"
+   ],
+   "courses": [
+    {
+     "id": "mormal",
+     "name": "Mormal",
+     "par": [5, 4, 4, 3, 4, 3, 5, 4, 4, 5, 4, 3, 4, 5, 3, 4, 4, 4],
+     "si": [7, 3, 5, 17, 15, 11, 1, 9, 13, 6, 18, 14, 2, 12, 16, 4, 10, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 125,
+       "total": 6022,
+       "len": [481, 374, 325, 141, 286, 151, 514, 309, 320, 495, 340, 187, 434, 493, 169, 320, 333, 350]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 113,
+       "total": 5396,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": 118,
+       "total": 5067,
+       "len": [410, 336, 289, 105, 258, 110, 429, 267, 275, 402, 285, 151, 358, 445, 137, 266, 277, 267]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 120,
+       "total": null,
+       "len": [359, 315, 269, 105, 193, 100, 415, 217, 225, 382, 268, 121, 336, 406, 119, 235, 270, 253]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24670-mormal-golf-club/scorecard-and-layout ; https://www.1golf.eu/en/club/golf-de-mormal/"
+    }
+   ]
+  },
+  {
+   "id": "nampont",
+   "name": "Golf de Nampont-Saint-Martin",
+   "city": "Nampont-Saint-Martin (80)",
+   "aliases": [
+    "nampont",
+    "nampont saint martin",
+    "belvedere",
+    "cygnes"
+   ],
+   "courses": [
+    {
+     "id": "nampont-belvedere",
+     "name": "Le Belvédère",
+     "par": [5, 4, 4, 3, 5, 3, 3, 5, 4, 3, 4, 3, 5, 3, 4, 4, 4, 5],
+     "si": [13, 15, 17, 5, 1, 11, 7, 9, 3, 14, 16, 18, 2, 10, 4, 12, 8, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5217,
+       "len": [428, 288, 283, 155, 452, 147, 179, 440, 426, 130, 212, 94, 464, 148, 325, 296, 265, 485]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 4831,
+       "len": [387, 260, 239, 117, 411, 137, 171, 425, 389, 122, 181, 94, 453, 140, 303, 279, 257, 466]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4469,
+       "len": [365, 234, 229, 108, 398, 137, 151, 378, 351, 111, 151, 85, 442, 119, 267, 238, 247, 458]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4183,
+       "len": [339, 234, 218, 96, 375, 126, 127, 378, 324, 111, 134, 85, 385, 119, 198, 238, 238, 458]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24763-nampont-st-martin-golf-club-the-belvedere-course/scorecard-and-layout",
+     "note": "Source unique."
+    },
+    {
+     "id": "nampont-cygnes",
+     "name": "Les Cygnes",
+     "par": [4, 4, 3, 4, 5, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 4, 4, 5],
+     "si": [6, 16, 14, 2, 10, 18, 8, 4, 12, 17, 7, 3, 15, 11, 1, 13, 9, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5860,
+       "len": [322, 263, 122, 347, 467, 134, 454, 336, 260, 116, 367, 589, 351, 141, 390, 355, 350, 496]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5394,
+       "len": [322, 251, 111, 338, 378, 106, 438, 326, 228, 116, 315, 561, 338, 115, 358, 319, 314, 460]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5055,
+       "len": [298, 208, 111, 300, 348, 97, 408, 315, 228, 105, 303, 542, 321, 111, 358, 268, 307, 427]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4714,
+       "len": [298, 199, 111, 294, 348, 83, 387, 315, 187, 105, 303, 500, 307, 60, 300, 268, 241, 408]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24762-nampont-st-martin-golf-club-the-cygnes-course/scorecard-and-layout",
+     "note": "Source unique."
+    }
+   ]
+  },
+  {
+   "id": "rebetz",
+   "name": "Golf Club de Rebetz",
+   "city": "Chaumont-en-Vexin (60)",
+   "aliases": [
+    "rebetz",
+    "chaumont en vexin rebetz"
+   ],
+   "courses": [
+    {
+     "id": "rebetz",
+     "name": "Rebetz",
+     "par": [5, 4, 4, 3, 4, 5, 4, 4, 3, 4, 5, 5, 3, 4, 4, 3, 4, 5],
+     "si": [9, 13, 1, 15, 3, 17, 5, 7, 11, 2, 18, 16, 12, 14, 8, 10, 4, 6],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 73.3,
+       "slope": 127,
+       "total": 6385,
+       "len": [460, 345, 409, 155, 404, 477, 358, 355, 163, 370, 478, 464, 192, 360, 369, 173, 343, 510]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.7,
+       "slope": 124,
+       "total": 6101,
+       "len": [460, 345, 379, 145, 355, 477, 358, 336, 134, 370, 443, 464, 171, 322, 339, 150, 343, 510]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.9,
+       "slope": 120,
+       "total": 5887,
+       "len": [460, 318, 379, 145, 355, 449, 321, 336, 134, 345, 443, 430, 171, 322, 339, 150, 309, 481]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73.1,
+       "slope": 124,
+       "total": 5321,
+       "len": [426, 279, 344, 117, 323, 433, 296, 291, 113, 305, 392, 406, 139, 294, 315, 131, 284, 433]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.2,
+       "slope": 121,
+       "total": 5025,
+       "len": [426, 263, 294, 117, 279, 380, 273, 291, 113, 264, 392, 379, 139, 294, 315, 131, 284, 391]
+      }
+     ],
+     "source": "https://www.1golf.eu/en/club/golf-club-de-rebetz/scorecard/"
+    }
+   ]
+  },
+  {
+   "id": "st-quentin",
+   "name": "Golf de Saint-Quentin Mesnil",
+   "city": "Mesnil-Saint-Laurent (02)",
+   "aliases": [
+    " de saintquentin mesnil"
+   ],
+   "courses": [],
+   "pending": [
+    "9 trous"
+   ]
+  },
+  {
+   "id": "thumeries",
+   "name": "Golf de Thumeries-Moncheaux",
+   "city": "Thumeries (59)",
+   "aliases": [
+    "thumeries",
+    "moncheaux",
+    "thumeries douai"
+   ],
+   "courses": [
+    {
+     "id": "thumeries",
+     "name": "Thumeries-Moncheaux",
+     "par": [4, 3, 4, 4, 3, 4, 5, 4, 3, 4, 4, 5, 4, 3, 4, 5, 4, 5],
+     "si": [4, 16, 18, 10, 14, 8, 2, 6, 12, 15, 9, 5, 13, 17, 1, 3, 7, 11],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72,
+       "slope": 139,
+       "total": 5994,
+       "len": [373, 115, 271, 341, 176, 381, 455, 358, 167, 332, 359, 465, 331, 165, 358, 508, 375, 464]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.2,
+       "slope": 128,
+       "total": 5628,
+       "len": [344, 110, 271, 312, 153, 364, 426, 343, 158, 318, 329, 433, 311, 160, 345, 464, 365, 422]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73.1,
+       "slope": 131,
+       "total": 5111,
+       "len": [301, 104, 239, 292, 139, 330, 384, 311, 146, 286, 298, 407, 277, 124, 314, 419, 323, 417]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.8,
+       "slope": 129,
+       "total": 4787,
+       "len": [281, 100, 211, 286, 118, 307, 379, 306, 129, 263, 280, 402, 252, 116, 302, 380, 287, 388]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/046b736d-6355-4c1e-b228-ecfa199cff34",
+     "note": "Source unique pour le détail ; 1golf indique des slopes 132/129/128/125."
+    }
+   ]
+  },
+  {
+   "id": "valenciennes",
+   "name": "Golf Club de Valenciennes",
+   "city": "Marly (59)",
+   "aliases": [
+    "  de valenciennes"
+   ],
+   "courses": [],
+   "pending": [
+    "9 trous"
    ]
   },
   {
@@ -116,21 +1188,24 @@
        "gender": "M",
        "cr": 73.0,
        "slope": 128,
-       "len": [511, 207, 368, 350, 383, 175, 508, 322, 354, 179, 318, 151, 386, 365, 358, 299, 452, 474]
+       "len": [511, 207, 368, 350, 383, 175, 508, 322, 354, 179, 318, 151, 386, 365, 358, 299, 452, 474],
+       "total": 6160
       },
       {
        "name": "Blanc",
        "gender": "M",
        "cr": 71.5,
        "slope": 123,
-       "len": [506, 201, 326, 343, 345, 156, 467, 310, 340, 174, 292, 151, 346, 331, 358, 293, 444, 466]
+       "len": [506, 201, 326, 343, 345, 156, 467, 310, 340, 174, 292, 151, 346, 331, 358, 293, 444, 466],
+       "total": 5849
       },
       {
        "name": "Jaune",
        "gender": "M",
        "cr": 69.7,
        "slope": 119,
-       "len": [450, 176, 309, 292, 334, 150, 463, 297, 328, 143, 292, 146, 338, 331, 350, 254, 422, 435]
+       "len": [450, 176, 309, 292, 334, 150, 463, 297, 328, 143, 292, 146, 338, 331, 350, 254, 422, 435],
+       "total": 5510
       },
       {
        "name": "Bleu",
@@ -138,7 +1213,8 @@
        "cr": 72.9,
        "slope": 124,
        "si": [8, 10, 14, 2, 6, 18, 4, 16, 12, 13, 9, 17, 5, 1, 7, 11, 15, 3],
-       "len": [447, 174, 299, 291, 289, 124, 444, 247, 294, 144, 290, 123, 296, 291, 315, 254, 378, 408]
+       "len": [447, 174, 299, 291, 289, 124, 444, 247, 294, 144, 290, 123, 296, 291, 315, 254, 378, 408],
+       "total": 5108
       },
       {
        "name": "Rouge",
@@ -146,11 +1222,816 @@
        "cr": 71.0,
        "slope": 121,
        "si": [8, 10, 14, 2, 6, 18, 4, 16, 12, 13, 9, 17, 5, 1, 7, 11, 15, 3],
-       "len": [411, 147, 272, 288, 285, 124, 394, 247, 294, 114, 262, 118, 269, 272, 315, 214, 378, 408]
+       "len": [411, 147, 272, 288, 285, 124, 394, 247, 294, 114, 262, 118, 269, 272, 315, 214, 378, 408],
+       "total": 4812
       }
      ],
      "source": "https://www.golfingrecord.com/golf-scorecard/409cf385-2c28-44b2-8cb5-adbe8b65c8a1 ; CR/slope : https://www.1golf.eu/en/club/golf-de-wimereux/scorecard/"
     }
+   ]
+  },
+  {
+   "id": "flandres",
+   "name": "Golf des Flandres",
+   "city": "Marcq-en-Barœul (59)",
+   "aliases": [
+    "flandres",
+    "marcq en baroeul",
+    "golf des flandres"
+   ],
+   "courses": [
+    {
+     "id": "flandres",
+     "name": "Les Flandres (9 trous)",
+     "par": [3, 4, 3, 5, 4, 3, 4, 3, 4],
+     "si": [18, 10, 7, 1, 16, 3, 12, 14, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 32.3,
+       "slope": 122,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 31.9,
+       "slope": 117,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 33.1,
+       "slope": 111,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 32.5,
+       "slope": 106,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/c61d17b1-26f7-49bc-823e-4756b694b292",
+     "note": "SSS 9 trous ; distances non affichées."
+    }
+   ]
+  },
+  {
+   "id": "humieres",
+   "name": "Golf du Château d'Humières",
+   "city": "Monchy-Humières (60)",
+   "aliases": [
+    "humieres",
+    "monchy humieres",
+    "compiegne humieres"
+   ],
+   "courses": [
+    {
+     "id": "humieres",
+     "name": "Château d'Humières",
+     "par": [4, 4, 5, 4, 4, 3, 5, 3, 4, 4, 4, 4, 4, 3, 4, 4, 3, 4],
+     "si": [13, 11, 1, 5, 7, 17, 3, 15, 9, 18, 2, 12, 14, 10, 6, 8, 16, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 70.3,
+       "slope": 127,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.0,
+       "slope": 121,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.8,
+       "slope": 125,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 69.8,
+       "slope": 120,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/b7945cb1-35f7-4529-b553-aacae11f4f26",
+     "note": "Handicap du trou 17 corrigé (doublon dans la source)."
+    }
+   ]
+  },
+  {
+   "id": "lys-chantilly",
+   "name": "Club du Lys-Chantilly",
+   "city": "Lamorlaye (60)",
+   "aliases": [
+    "lys",
+    "lys chantilly",
+    "lamorlaye",
+    "bouleaux",
+    "chenes"
+   ],
+   "courses": [
+    {
+     "id": "lys-bouleaux",
+     "name": "Les Bouleaux",
+     "par": [3, 4, 3, 4, 3, 4, 4, 3, 4, 5, 4, 3, 5, 3, 4, 3, 4, 5],
+     "si": [11, 5, 15, 9, 13, 17, 7, 1, 3, 4, 16, 8, 2, 10, 12, 18, 6, 14],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 65.7,
+       "slope": 108,
+       "total": 4823,
+       "len": [146, 318, 135, 309, 147, 322, 363, 146, 351, 461, 283, 171, 462, 163, 284, 79, 271, 412]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 65.4,
+       "slope": 106,
+       "total": 4756,
+       "len": [146, 318, 135, 301, 147, 322, 363, 132, 351, 449, 283, 166, 434, 163, 284, 79, 271, 412]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 65.5,
+       "slope": 109,
+       "total": 4228,
+       "len": [134, 305, 122, 280, 131, 303, 314, 114, 304, 367, 242, 137, 390, 137, 232, 68, 249, 399]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 67.3,
+       "slope": 106,
+       "total": 4068,
+       "len": [134, 305, 122, 272, 131, 303, 314, 88, 304, 319, 242, 123, 326, 137, 232, 68, 249, 399]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24829-club-du-lys-chantilly-the-bouleaux-course/scorecard-and-layout"
+    }
+   ],
+   "pending": [
+    "Les Chênes"
+   ]
+  },
+  {
+   "id": "golf-du-sart",
+   "name": "Golf du Sart",
+   "city": "Villeneuve-d'Ascq (59)",
+   "aliases": [
+    "sart",
+    "golf du sart",
+    "villeneuve d ascq"
+   ],
+   "courses": [
+    {
+     "id": "sart",
+     "name": "Golf du Sart",
+     "par": [4, 3, 5, 4, 4, 4, 3, 4, 5, 4, 4, 3, 4, 4, 3, 4, 4, 5],
+     "si": [7, 9, 17, 3, 1, 5, 11, 15, 13, 12, 6, 16, 8, 4, 18, 10, 2, 14],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 130,
+       "total": 5724,
+       "len": [347, 172, 408, 363, 391, 331, 163, 262, 443, 340, 349, 137, 327, 365, 141, 324, 411, 450]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 126,
+       "total": 5329,
+       "len": [305, 162, 390, 355, 361, 306, 134, 255, 435, 304, 304, 130, 300, 345, 128, 287, 393, 435]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4918,
+       "len": [290, 152, 363, 309, 331, 295, 125, 240, 400, 267, 297, 125, 283, 307, 112, 253, 368, 401]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 129,
+       "total": 4652,
+       "len": [280, 139, 352, 300, 314, 286, 113, 230, 391, 258, 288, 122, 230, 286, 108, 229, 344, 382]
+      }
+     ],
+     "source": "https://www.1golf.eu/en/club/golf-du-sart-lille/scorecard/"
+    }
+   ]
+  },
+  {
+   "id": "le-touquet",
+   "name": "Golf du Touquet",
+   "city": "Le Touquet-Paris-Plage (62)",
+   "aliases": [
+    "touquet",
+    "le touquet golf resort",
+    "golf du touquet"
+   ],
+   "courses": [
+    {
+     "id": "touquet-la-mer",
+     "name": "La Mer",
+     "par": [5, 3, 4, 5, 4, 4, 3, 4, 4, 3, 4, 4, 4, 4, 5, 3, 5, 4],
+     "si": [8, 4, 18, 14, 10, 16, 12, 6, 2, 17, 1, 7, 3, 5, 11, 9, 15, 13],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 74,
+       "slope": 139,
+       "total": 6430,
+       "len": [482, 208, 350, 455, 420, 319, 146, 349, 413, 139, 437, 367, 416, 416, 487, 186, 456, 384]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.3,
+       "slope": 136,
+       "total": 6259,
+       "len": [469, 198, 336, 455, 409, 319, 146, 349, 406, 139, 422, 367, 382, 377, 465, 180, 456, 384]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71,
+       "slope": 128,
+       "total": 5809,
+       "len": [445, 175, 321, 428, 371, 296, 134, 329, 370, 128, 405, 351, 334, 322, 433, 153, 441, 373]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74,
+       "slope": 128,
+       "total": 5330,
+       "len": [429, 151, 294, 398, 354, 279, 109, 297, 315, 113, 378, 324, 312, 303, 405, 138, 391, 340]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.2,
+       "slope": 121,
+       "total": 4854,
+       "len": [409, 134, 277, 369, 310, 269, 101, 272, 278, 104, 330, 280, 261, 279, 374, 123, 350, 334]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24818-touquet-golf-club-the-sea-course/scorecard-and-layout ; https://www.1golf.eu/en/club/le-touquet-golf-resort/"
+    },
+    {
+     "id": "touquet-la-foret",
+     "name": "La Forêt",
+     "par": [5, 4, 4, 4, 5, 3, 4, 3, 4, 4, 5, 3, 4, 4, 3, 5, 4, 4],
+     "si": [9, 11, 13, 5, 7, 17, 3, 15, 1, 12, 6, 8, 2, 16, 14, 10, 4, 18],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.4,
+       "slope": 127,
+       "total": 5915,
+       "len": [440, 294, 330, 415, 472, 152, 354, 153, 382, 335, 482, 161, 349, 310, 145, 454, 373, 314]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.7,
+       "slope": 127,
+       "total": 5621,
+       "len": [422, 286, 312, 400, 446, 135, 337, 135, 366, 320, 466, 148, 334, 295, 134, 436, 354, 295]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 72.8,
+       "slope": 124,
+       "total": 5120,
+       "len": [390, 262, 278, 360, 405, 130, 314, 133, 326, 281, 401, 133, 294, 273, 119, 417, 335, 269]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.5,
+       "slope": 121,
+       "total": 4805,
+       "len": [382, 251, 251, 336, 375, 116, 295, 121, 310, 281, 369, 129, 285, 263, 114, 378, 300, 249]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24820-touquet-golf-club-the-forest-course/scorecard-and-layout ; https://www.1golf.eu/en/club/le-touquet-golf-resort/"
+    },
+    {
+     "id": "touquet-le-manoir",
+     "name": "Le Manoir (9 trous)",
+     "par": [4, 4, 5, 3, 4, 4, 4, 3, 4],
+     "si": [3, 1, 9, 7, 5, 2, 4, 8, 6],
+     "tees": [
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2413,
+       "len": [298, 339, 382, 102, 282, 294, 285, 125, 300]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2130,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/8d56d0d0-b968-42dd-8a24-59f4897822f1 ; https://www.1golf.eu/en/club/le-touquet-golf-resort/"
+    }
+   ]
+  },
+  {
+   "id": "val-secret",
+   "name": "Golf du Val Secret",
+   "city": "Brasles / Château-Thierry (02)",
+   "aliases": [
+    "val secret",
+    "chateau thierry",
+    "brasles"
+   ],
+   "courses": [
+    {
+     "id": "val-secret",
+     "name": "Val Secret",
+     "par": [4, 3, 4, 4, 5, 3, 5, 5, 3, 4, 5, 4, 3, 5, 4, 3, 4, 4],
+     "si": [8, 16, 6, 10, 12, 18, 14, 4, 2, 5, 7, 3, 11, 13, 17, 9, 1, 15],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.3,
+       "slope": 141,
+       "total": 5703,
+       "len": [323, 151, 353, 356, 483, 136, 451, 446, 161, 311, 469, 387, 167, 461, 254, 157, 339, 296]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.1,
+       "slope": 133,
+       "total": 5365,
+       "len": [278, 144, 316, 336, 463, 130, 432, 421, 154, 304, 438, 362, 160, 443, 247, 149, 329, 259]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 72.2,
+       "slope": 132,
+       "total": 4900,
+       "len": [238, 136, 301, 330, 445, 124, 420, 361, 118, 274, 415, 322, 145, 414, 196, 138, 305, 218]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.2,
+       "slope": 125,
+       "total": 4545,
+       "len": [229, 130, 294, 301, 412, 118, 380, 349, 110, 269, 346, 316, 87, 377, 190, 130, 296, 211]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24674-val-secret-golf-club/scorecard-and-layout ; https://www.1golf.eu/en/club/golf-du-val-secret/scorecard/"
+    }
+   ]
+  },
+  {
+   "id": "lille-metropole",
+   "name": "Golf Lille Métropole",
+   "city": "Ronchin (59)",
+   "aliases": [
+    "lille metropole",
+    "bluegreen lille",
+    "ronchin"
+   ],
+   "courses": [
+    {
+     "id": "lille-metropole-18",
+     "name": "18 trous",
+     "par": [5, 5, 4, 4, 3, 4, 4, 4, 3, 4, 3, 4, 4, 5, 3, 5, 4, 4],
+     "si": [12, 6, 16, 2, 18, 14, 4, 8, 10, 3, 13, 7, 9, 11, 17, 15, 1, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/20c4dc5d-66e2-43c0-bfcf-854bd0ef0e55",
+     "note": "Longueurs non confirmées par une seconde source : distances non affichées."
+    }
+   ],
+   "pending": [
+    "9 trous"
+   ]
+  },
+  {
+   "id": "merignies",
+   "name": "Mérignies Golf & Country Club",
+   "city": "Mérignies (59)",
+   "aliases": [
+    "merignies",
+    "val de marque",
+    "rupilly",
+    "valutte"
+   ],
+   "courses": [
+    {
+     "id": "merignies-val-de-marque",
+     "name": "Val de Marque (9 trous)",
+     "par": [4, 5, 4, 5, 3, 5, 3, 4, 4],
+     "si": [15, 9, 13, 11, 7, 5, 3, 17, 1],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/34891-merignies-golf-val-de-marque-course/scorecard-and-layout",
+     "note": "Source unique ; distances non affichées."
+    },
+    {
+     "id": "merignies-rupilly",
+     "name": "Rupilly (9 trous)",
+     "par": [4, 3, 5, 3, 4, 4, 4, 3, 4],
+     "si": [17, 7, 13, 11, 5, 1, 15, 9, 3],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": null,
+       "len": null
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/34892-merignies-golf-rupilly-course/scorecard-and-layout",
+     "note": "Source unique ; distances non affichées."
+    }
+   ],
+   "pending": [
+    "La Valutte (9 trous)"
+   ]
+  },
+  {
+   "id": "olhain",
+   "name": "Golf public d'Olhain",
+   "city": "Houdain (62)",
+   "aliases": [
+    " public dolhain"
+   ],
+   "courses": [],
+   "pending": [
+    "9 trous"
+   ]
+  },
+  {
+   "id": "apremont",
+   "name": "UGolf Apremont",
+   "city": "Apremont (60)",
+   "aliases": [
+    "apremont",
+    "ugolf apremont"
+   ],
+   "courses": [
+    {
+     "id": "apremont",
+     "name": "Apremont",
+     "par": [4, 5, 3, 5, 4, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4, 3, 4, 4],
+     "si": [5, 9, 15, 1, 7, 17, 3, 13, 11, 10, 2, 16, 6, 12, 4, 14, 18, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 134,
+       "total": 6395,
+       "len": [404, 496, 168, 511, 373, 316, 388, 151, 350, 498, 413, 178, 380, 455, 375, 171, 354, 414]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 124,
+       "total": 5804,
+       "len": [359, 464, 147, 486, 338, 290, 338, 134, 330, 465, 367, 160, 347, 436, 333, 137, 316, 357]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": 122,
+       "total": 5354,
+       "len": [329, 416, 132, 440, 299, 279, 306, 104, 311, 435, 349, 142, 322, 407, 315, 127, 300, 341]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 120,
+       "total": 5061,
+       "len": [307, 407, 117, 427, 292, 261, 302, 101, 290, 419, 313, 127, 301, 388, 289, 113, 283, 324]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24657-apremont-golf-country-club/scorecard-and-layout"
+    }
+   ]
+  },
+  {
+   "id": "raray",
+   "name": "UGolf Château de Raray",
+   "city": "Raray (60)",
+   "aliases": [
+    "raray",
+    "licorne",
+    "daguet"
+   ],
+   "courses": [
+    {
+     "id": "raray-licorne",
+     "name": "La Licorne",
+     "par": [5, 4, 3, 4, 5, 3, 4, 4, 4, 4, 4, 3, 4, 4, 5, 3, 5, 4],
+     "si": [11, 5, 15, 1, 17, 7, 9, 13, 3, 12, 6, 16, 2, 18, 8, 10, 14, 4],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": 135,
+       "total": 6509,
+       "len": [486, 366, 175, 386, 485, 193, 370, 336, 405, 391, 376, 187, 386, 355, 488, 212, 522, 390]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 133,
+       "total": 6145,
+       "len": [471, 356, 170, 369, 460, 180, 356, 324, 372, 366, 348, 170, 376, 334, 475, 174, 512, 332]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 129,
+       "total": 5758,
+       "len": [440, 344, 149, 344, 443, 171, 326, 314, 350, 353, 332, 160, 340, 324, 448, 160, 460, 300]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": 124,
+       "total": 5295,
+       "len": [419, 326, 131, 324, 413, 161, 309, 276, 343, 310, 313, 141, 294, 310, 416, 120, 424, 265]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 121,
+       "total": 4906,
+       "len": [370, 263, 131, 318, 372, 155, 303, 268, 300, 303, 265, 141, 287, 293, 384, 120, 384, 249]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24660-raray-golf-club-licorne-course/scorecard-and-layout"
+    }
+   ],
+   "pending": [
+    "Le Daguet (9 trous)"
+   ]
+  },
+  {
+   "id": "foret-chantilly",
+   "name": "UGolf Forêt de Chantilly",
+   "city": "Vineuil-Saint-Firmin (60)",
+   "aliases": [
+    "foret de chantilly",
+    "ugolf chantilly",
+    "garden golf chantilly"
+   ],
+   "courses": [
+    {
+     "id": "foret-chantilly",
+     "name": "Forêt de Chantilly",
+     "par": [4, 5, 4, 3, 4, 5, 4, 3, 4, 4, 5, 3, 5, 4, 4, 4, 3, 4],
+     "si": [1, 9, 15, 13, 7, 11, 5, 17, 3, 10, 14, 18, 12, 6, 4, 2, 8, 16],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6181,
+       "len": [392, 483, 299, 160, 333, 483, 353, 145, 355, 376, 486, 124, 500, 379, 381, 433, 163, 336]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5740,
+       "len": [359, 459, 283, 154, 311, 463, 336, 126, 332, 346, 463, 91, 472, 354, 355, 385, 140, 311]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5311,
+       "len": [344, 458, 250, 141, 281, 437, 320, 105, 314, 322, 434, 80, 412, 308, 325, 365, 117, 298]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4674,
+       "len": [298, 402, 220, 127, 235, 370, 258, 87, 291, 304, 404, 69, 389, 269, 265, 326, 91, 269]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24776-garden-golf-de-chantilly/scorecard-and-layout",
+     "note": "Source unique."
+    }
+   ]
+  },
+  {
+   "id": "templiers",
+   "name": "UGolf Les Templiers",
+   "city": "Ivry-le-Temple (60)",
+   "aliases": [
+    "templiers",
+    "ivry le temple",
+    "ugolf templiers"
+   ],
+   "courses": [
+    {
+     "id": "templiers",
+     "name": "Les Templiers",
+     "par": [4, 4, 3, 4, 4, 3, 4, 5, 4, 4, 4, 3, 4, 5, 4, 3, 5, 4],
+     "si": [3, 1, 7, 11, 15, 5, 9, 17, 13, 10, 4, 6, 8, 18, 2, 12, 16, 14],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": 134,
+       "total": 6130,
+       "len": [323, 294, 170, 369, 402, 207, 308, 526, 333, 392, 397, 189, 373, 479, 408, 180, 460, 320]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": 128,
+       "total": 5671,
+       "len": [271, 263, 131, 336, 358, 178, 302, 490, 331, 377, 385, 176, 366, 443, 379, 169, 429, 287]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": 132,
+       "total": 5170,
+       "len": [235, 230, 100, 299, 329, 148, 267, 456, 329, 352, 350, 167, 341, 395, 352, 159, 401, 260]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": 128,
+       "total": 4927,
+       "len": [230, 230, 70, 295, 329, 135, 254, 447, 277, 341, 337, 156, 326, 395, 328, 149, 373, 255]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24698-templiers-golf-club/scorecard-and-layout",
+     "note": "Source unique."
+    }
+   ]
+  },
+  {
+   "id": "vert-parc",
+   "name": "Vert Parc Golf Club",
+   "city": "Illies (59)",
+   "aliases": [
+    "vert parc  "
+   ],
+   "courses": [],
+   "pending": [
+    "Vert Parc"
    ]
   }
  ]

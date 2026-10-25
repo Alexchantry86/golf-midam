@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.4.3";
+const APP_VERSION = "1.5.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -697,8 +697,8 @@ function setupPicker() {
     const k = c.courses.find(x => x.id === st.course) || (c.courses.length === 1 ? c.courses[0] : null); if (k) st.course = k.id;
     const t = k && (k.tees.find(x => x.name === st.tee) || null);
     return `<div class="card hl stack" style="gap:10px"><div class="row between"><div><span class="lbl">Club</span><div class="serif" style="font-size:18px;font-weight:700">${esc(c.name)}</div><span class="xs muted">${esc(c.city || "")} · ${c.courses.length} parcours</span></div><button type="button" class="btn ghost sm" data-act="setup-clear">Changer</button></div>
-      <div class="f"><span class="lbl">Parcours</span><div class="seg">${c.courses.map(x => `<button type="button" data-act="setup-course" data-v="${x.id}" aria-pressed="${x.id === st.course}">${esc(x.name)}<br><small style="font-weight:500">par ${x.par.reduce((a, b) => a + b, 0)}</small></button>`).join("")}</div></div>
-      ${k ? `<div class="f"><span class="lbl">Repère de départ</span><div class="pick" style="grid-template-columns:repeat(${Math.min(k.tees.length, 5)},minmax(0,1fr))">${k.tees.map(x => `<button type="button" data-act="setup-tee" data-v="${esc(x.name)}" aria-pressed="${x.name === st.tee}"><b style="font-size:15px">${esc(x.name)}${x.gender === "F" ? " ♀" : ""}</b><small>${n0(x.len.reduce((a, b) => a + b, 0))} m${x.cr ? `<br>${n1(x.cr)} / ${x.slope}` : ""}</small></button>`).join("")}</div></div>` : ""}
+      <div class="f"><span class="lbl">Parcours</span><div class="seg" style="grid-auto-flow:row;grid-template-columns:repeat(${Math.min(c.courses.length + (c.pending || []).length, 3)},minmax(0,1fr))">${c.courses.map(x => `<button type="button" data-act="setup-course" data-v="${x.id}" aria-pressed="${x.id === st.course}">${esc(x.name)}<br><small style="font-weight:500">par ${x.par.reduce((a, b) => a + b, 0)}</small></button>`).join("")}${(c.pending || []).map(x => `<button type="button" data-act="setup-pending" data-v="${esc(c.name + " · " + x)}">${esc(x)}<br><small style="font-weight:500">carte à venir</small></button>`).join("")}</div></div>
+      ${k ? `<div class="f"><span class="lbl">Repère de départ</span><div class="pick" style="grid-template-columns:repeat(${Math.min(k.tees.length, 5)},minmax(0,1fr))">${k.tees.map(x => `<button type="button" data-act="setup-tee" data-v="${esc(x.name)}" aria-pressed="${x.name === st.tee}"><b style="font-size:15px">${esc(x.name)}${x.gender === "F" ? " ♀" : ""}</b><small>${x.total || (x.len && x.len.length) ? n0(x.total || x.len.reduce((a, b) => a + b, 0)) + " m" : "&nbsp;"}${x.cr ? `<br>${n1(x.cr)} / ${x.slope}` : ""}</small></button>`).join("")}</div></div>` : ""}
       ${k ? `<p class="xs muted">Carte chargée : par, handicap des trous${t ? ", distances" + (t.cr ? ", SSS et slope (différentiel calculé)" : "") : ""}. <a href="${esc((k.source || "").split(" ")[0])}" target="_blank" rel="noopener">Source</a></p>` : ""}
     </div>`;
   }
@@ -711,7 +711,9 @@ function suggList(q) {
   const hits = searchCatalog(q); const n = norm(q);
   const mine = n.length >= 2 ? myCourses().filter(c => norm(c.name).includes(n)) : myCourses().slice(0, 5);
   let h = "";
-  if (hits.length) h += hits.map(c => `<button type="button" class="q" data-act="setup-club" data-v="${c.id}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#2f6b45"></span><span><b>${esc(c.name)}</b><br><span class="xs muted">${esc(c.city || "")} · ${c.courses.map(k => esc(k.name)).join(", ")}</span></span><span class="st ok">carte ✓</span></button>`).join("");
+  const ok = hits.filter(c => c.courses.length), pend = hits.filter(c => !c.courses.length);
+  h += pend.map(c => `<button type="button" class="q" data-act="setup-pending" data-v="${esc(c.name)}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#c9a227"></span><span><b>${esc(c.name)}</b><br><span class="xs muted">${esc(c.city || "")} · carte à venir : par 4 par défaut</span></span><span class="st">à venir</span></button>`).join("");
+  if (ok.length) h += ok.map(c => `<button type="button" class="q" data-act="setup-club" data-v="${c.id}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#2f6b45"></span><span><b>${esc(c.name)}</b><br><span class="xs muted">${esc(c.city || "")} · ${c.courses.map(k => esc(k.name)).join(", ")}${(c.pending || []).length ? " · " + c.pending.map(esc).join(", ") + " (à venir)" : ""}</span></span><span class="st ok">carte ✓</span></button>`).join("");
   if (mine.length) h += mine.map(c => `<button type="button" class="q" data-act="setup-mine" data-v="${c._id}" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#c9b48c"></span><span>${esc(c.name)}</span><span class="st">déjà joué</span></button>`).join("");
   if (n.length >= 3 && !hits.length) h += `<button type="button" class="q" data-act="setup-new" style="font:inherit;text-align:left;cursor:pointer;width:100%;margin-top:6px"><span class="d" style="background:#c8372d"></span><span>Ajouter « ${esc(q.trim())} »<br><span class="xs muted">Pas encore dans le catalogue : saisie avec par 4 par défaut, et je recherche la carte.</span></span><span class="st">+</span></button>`;
   if (!h && n.length < 2) h = `<p class="xs muted" style="margin-top:6px">Tape le nom du golf : les parcours et la carte (par, handicap, distances, SSS, slope) se chargent automatiquement.</p>`;
@@ -793,13 +795,13 @@ function startDraft(form) {
   const f = st.course && findCourse(st.course);
   if (f) { const t = f.course.tees.find(x => x.name === st.tee);
     if (!t) { toast("Choisis ton repère de départ."); return; }
-    catalogId = courseId = f.course.id; course = `${f.club.name} · ${f.course.name}`; pars = f.course.par; si = t.si || f.course.si || []; len = t.len || []; tee = t.name; cr = t.cr; slope = t.slope; lsSet("golf-tee-" + f.course.id, t.name); }
+    catalogId = courseId = f.course.id; course = `${f.club.name} · ${f.course.name}`; pars = f.course.par; si = t.si || f.course.si || []; len = t.len || []; tee = t.name; cr = f.course.par.length === 18 ? t.cr : null; slope = f.course.par.length === 18 ? t.slope : null; lsSet("golf-tee-" + f.course.id, t.name); }
   else if (st.course) { const c = S.data.courses.find(x => x._id === st.course); courseId = st.course; course = c ? c.name : st.q; pars = (c && c.pars) || []; }
   else if (st.newName) { course = st.newName; }
   else { toast("Choisis un golf dans la liste."); return; }
   const start = Number(fd.get("startHole") || 1);
   S.draft = { date: fd.get("date") || iso(), type: fd.get("type"), courseId, catalogId, course, tee, cr, slope, holesCount: hc, startHole: start,
-    holes: holeNumbers(start, hc).map(n => ({ n, par: pars[n - 1] || 4, si: si[n - 1] || null, len: len[n - 1] || null, score: null, putts: null, fw: null, short: 0, pen: 0 })), stage: "holes", cost: "", notes: "" };
+    holes: holeNumbers(start, hc).map(n => { const L = pars.length || 18, j = (n - 1) % L; return { n, par: pars[j] || 4, si: si[j] || null, len: len[j] || null, score: null, putts: null, fw: null, short: 0, pen: 0 }; }), stage: "holes", cost: "", notes: "" };
   if (st.newName && !S.data.courseRequests.some(r => norm(r.name) === norm(st.newName))) Store.add("courseRequests", { name: st.newName, date: iso(), status: "open" }).catch(() => {});
   S.setup = { q: "", club: null, course: null, tee: null }; S.hole = 0; saveDraft(); render();
 }
@@ -926,6 +928,7 @@ document.addEventListener("click", async e => {
     case "setup-course": S.setup.course = b.dataset.v; S.setup.tee = null; defaultTee(); refreshPicker(); break;
     case "setup-tee": S.setup.tee = b.dataset.v; refreshPicker(); break;
     case "setup-mine": S.setup.course = b.dataset.v; S.setup.club = null; refreshPicker(); break;
+    case "setup-pending": S.setup.q = b.dataset.v; S.setup.newName = b.dataset.v; S.setup.course = null; S.setup.club = null; refreshPicker(); break;
     case "setup-new": S.setup.newName = S.setup.q.trim(); S.setup.course = null; S.setup.club = null; refreshPicker(); break;
     case "setup-clear": S.setup = { q: "", club: null, course: null, tee: null }; refreshPicker(); const i = document.getElementById("ed-search"); i && i.focus(); break;
 
