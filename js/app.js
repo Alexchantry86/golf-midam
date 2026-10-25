@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.5.0";
+const APP_VERSION = "1.6.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -180,7 +180,6 @@ function render() {
     <nav class="tabbar">${tb("tableau", "Accueil", "home")}${tb("plan", "Séances", "cal")}${canEdit() ? `<button class="plus" data-act="add-menu" aria-label="Ajouter">${icon("plus")}</button>` : ""}${tb("parties", "Parties", "flag")}${tb("plus", "Plus", "more")}</nav>`;
   for (const id in keep) { const el = document.getElementById(id); if (el && !el.value) el.value = keep[id]; }
   if (focusId) { const el = document.getElementById(focusId); if (el && el.matches("input,textarea,select")) el.focus({ preventScroll: true }); }
-  tickRun();
 }
 function emptyBox(t, s, btn) { return `<div class="empty"><b>${t}</b>${s}${btn ? `<div style="margin-top:12px">${btn}</div>` : ""}</div>`; }
 
@@ -250,7 +249,7 @@ function vTableau() {
   const since = iso(new Date(Date.now() - 30 * 864e5)); const mins = practiceLog().filter(p => p.date >= since && p.date <= iso()).reduce((s, p) => s + (p.min || 0), 0);
   const st = statsOf(S.data.rounds); const G = st ? gaps(st).filter(g => g.v != null).slice(0, 3) : [];
   const ph = currentPhase(); const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
-  const run = today ? lsGet("golf-run-" + today.id, null) : null; const doneBlocks = run ? run.done.filter(Boolean).length : 0;
+  const doneBlocks = today ? doneOf(today).filter(Boolean).length : 0;
   const body = `<section class="view">
   <div class="ringcard">${ring(pIdx, pPlan, ci ? n1(ci.value) : "—")}
     <div><div class="sm">Index actuel → cible</div><div class="big">${ci ? n1(ci.value) : "—"} → <span class="red">${n1(target)}</span></div>
@@ -259,7 +258,7 @@ function vTableau() {
   ${today ? `<a class="hero" href="#/seance/${today.id}"><span class="lb">${today.date === iso() ? "Séance du jour" : today.date < iso() ? "Séance en retard" : "Prochaine séance · " + fmtDs(today.date)} · ${n0(today.duration)} min</span>
     <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span><span>${esc(today.domain)}</span>${late > 1 ? `<span>${late} séances à valider</span>` : ""}</span>
     ${doneBlocks ? `<span class="pg"><i style="width:${doneBlocks / today.blocks.length * 100}%"></i></span>` : ""}
-    <span class="cta">${icon("play", "width:14px;height:14px;vertical-align:-2px")} ${doneBlocks ? "Reprendre" : "Démarrer"} la séance</span></a>` : `<div class="empty"><b>Toutes les séances du plan sont validées</b>Demande-moi les 4 semaines suivantes dans le projet Coach de Golf.</div>`}
+    <span class="cta">${doneBlocks ? "Continuer la séance" : "Voir la séance"}</span></a>` : `<div class="empty"><b>Toutes les séances du plan sont validées</b>Demande-moi les 4 semaines suivantes dans le projet Coach de Golf.</div>`}
   <div class="sec"><span>Ce qu'il faut travailler</span><a href="#/parties/perf">Détail</a></div>
   <div class="tiles">${G.map(g => `<a class="tile" href="#/parties/perf"><div class="l">${esc(g.short)}</div><div class="v">${fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`).join("")}
     <a class="tile" href="#/plus"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${mins >= 600 ? "ok" : "warn"}">${past.filter(s => s.date >= since && (valOf(s.id) || {}).status === "Faite").length}/${past.filter(s => s.date >= since).length} séances faites</div><div class="tb"><i style="width:${Math.min(100, mins / 900 * 100)}%;background:#0f2340"></i></div></a></div>
@@ -362,59 +361,44 @@ function vPlan() {
   </section>`;
   return { kicker: "Plan d'entraînement", title: "Séances", body };
 }
+function doneOf(s) { const v = valOf(s.id); let d = v && Array.isArray(v.blocksDone) ? v.blocksDone : lsGet("golf-done-" + s.id, null); if (!Array.isArray(d) || d.length !== s.blocks.length) d = s.blocks.map(() => false); return d; }
+function exRows(s) {
+  const done = doneOf(s), locked = !!valOf(s.id) || !canEdit();
+  return `<div class="exlist">${s.blocks.map((b, i) => { const d = S.drills[b.drill] || { name: b.drill };
+    return `<div class="exrow ${done[i] ? "on" : ""}"><button class="chk" data-act="ex-toggle" data-sid="${s.id}" data-i="${i}" aria-pressed="${done[i]}" aria-label="Exercice fait" ${locked ? "disabled" : ""}>${done[i] ? "✓" : ""}</button>
+      <a href="#/exercice/${b.drill}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${d.area ? " · " + esc(d.area) : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}</span></a><a class="go" href="#/exercice/${b.drill}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
+}
 function cardSession(s) {
-  const st = statusOf(s); const run = lsGet("golf-run-" + s.id, null); const db = run ? run.done.filter(Boolean).length : 0;
-  return `<a class="card ${st.v ? "done" : ""}" href="#/seance/${s.id}"><div class="row between"><h3>${esc(s.title)}</h3><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${esc(s.domain)}</span><span>·</span><span>${n0(s.duration)} min</span>${!st.v && db ? `<span>· ${db}/${s.blocks.length} exercices faits</span>` : ""}</div>
-  <div class="row" style="gap:6px">${(s.blocks || []).map(b => { const d = S.drills[b.drill] || {}; return `<span class="pill" style="background:${areaColor(d.area)}1a;color:${areaColor(d.area)}">${esc(d.name || b.drill)}</span>`; }).join("")}</div>
-  ${st.v && st.v.feedback ? `<p class="small muted">${esc(st.v.feedback)}</p>` : ""}</a>`;
+  const st = statusOf(s), done = doneOf(s), n = done.filter(Boolean).length;
+  return `<div class="card ${st.v ? "done" : ""}" style="gap:8px;display:flex;flex-direction:column">
+  <a href="#/seance/${s.id}" style="text-decoration:none;color:inherit"><div class="row between"><h3>${esc(s.title)}</h3><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
+  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span></div><p class="xs muted" style="margin-top:2px">Objectif : ${esc(s.kpi)}</p></a>
+  ${exRows(s)}
+  ${st.v ? `${st.v.measure || st.v.feedback ? `<p class="small muted">${esc([st.v.measure, st.v.feedback].filter(Boolean).join(" · "))}</p>` : ""}<div class="row"><a class="btn ghost sm" href="#/seance/${s.id}">Notes, vidéos, modifier</a></div>`
+    : canEdit() ? `<div class="row between"><a class="small" href="#/seance/${s.id}">Note, vidéo, ressenti ›</a><button class="btn sm" data-act="quick-validate" data-sid="${s.id}">${n && n < s.blocks.length ? `Valider (${n}/${s.blocks.length})` : "Valider la séance"}</button></div>` : ""}
+  </div>`;
 }
-
-/* Séance guidée : chronomètre par exercice, file, compteur de réussite (UX Night session) */
-function getRun(s) {
-  let r = lsGet("golf-run-" + s.id, null);
-  if (!r || !r.blocks || r.blocks.length !== s.blocks.length) r = { i: 0, blocks: s.blocks.map(() => ({ el: 0, ok: 0, tot: 0 })), done: s.blocks.map(() => false), running: false, t0: null };
-  return r;
-}
-function saveRun(s, r) { lsSet("golf-run-" + s.id, r); }
-function elapsed(r, i) { const b = r.blocks[i]; return b.el + (r.running && r.i === i && r.t0 ? (Date.now() - r.t0) / 1000 : 0); }
-let tickH = null;
-function tickRun() {
-  clearInterval(tickH);
-  const el = document.getElementById("clock"); if (!el) return;
-  const s = S.plan.sessions.find(x => x.id === el.dataset.sid); if (!s) return;
-  const upd = () => { const r = getRun(s); const rem = s.blocks[r.i].min * 60 - elapsed(r, r.i); el.textContent = mmss(rem); el.classList.toggle("over", rem < 0);
-    if (rem < 0 && r.running && !r.buzzed) { r.buzzed = true; saveRun(s, r); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {} } };
-  upd(); tickH = setInterval(upd, 500);
+async function quickValidate(s) {
+  let done = doneOf(s); const n = done.filter(Boolean).length;
+  if (!n) done = done.map(() => true);
+  const all = done.every(Boolean);
+  const mins = s.blocks.reduce((a, b, i) => a + (done[i] ? b.min : 0), 0);
+  try { await Store.set("validations", s.id, { status: all ? "Faite" : "Partielle", blocksDone: done, actualMin: mins, rating: null, measure: "", feedback: "", validatedAt: iso() }); lsSet("golf-done-" + s.id, null); toast(all ? "Séance validée" : "Séance validée (partielle)"); }
+  catch (e) { console.error(e); toast("Enregistrement impossible (" + ((e && e.code) || "réseau") + ")."); }
 }
 function vSeance(p) {
   const s = S.plan.sessions.find(x => x.id === p[1]); if (!s) return emptyBox("Séance introuvable", "Elle a peut-être été retirée du plan.", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
-  const st = statusOf(s), v = st.v || {}, r = getRun(s);
-  const nDone = r.done.filter(Boolean).length; const i = Math.min(r.i, s.blocks.length - 1); const b = s.blocks[i]; const d = S.drills[b.drill] || { name: b.drill };
-  const totMin = Math.round(r.blocks.reduce((a, x, k) => a + elapsed(r, k), 0) / 60);
-  const measure = s.blocks.map((x, k) => r.blocks[k].tot ? `${(S.drills[x.drill] || {}).name || x.drill} : ${r.blocks[k].ok}/${r.blocks[k].tot}` : "").filter(Boolean).join(" · ");
+  const st = statusOf(s), v = st.v || {}, done = doneOf(s), nDone = done.filter(Boolean).length;
+  const mins = s.blocks.reduce((a, b, i) => a + (done[i] ? b.min : 0), 0);
   const body = `<section class="view">
-  <div class="row between"><span class="pill" style="background:${areaColor(s.domain)}1a;color:${areaColor(s.domain)}">${esc(s.domain)} · exercice ${i + 1}/${s.blocks.length}</span><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
+  <div class="row between"><span class="pill" style="background:${areaColor(s.domain)}1a;color:${areaColor(s.domain)}">${esc(s.domain)} · ${s.blocks.length} exercice${s.blocks.length > 1 ? "s" : ""}</span><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
   <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(s.kpi)}</p></div>
-  <div class="timer">
-    <div class="ex">${esc(d.name)}</div>
-    <div class="clock" id="clock" data-sid="${s.id}">${mmss(b.min * 60 - elapsed(r, i))}</div>
-    <div class="sub">sur ${b.min}:00 · objectif : ${esc(d.success || "")}</div>
-    <div class="ctrl"><button data-act="run-prev" ${i === 0 ? "disabled" : ""} aria-label="Exercice précédent">${icon("prev")}</button>
-      <button class="play" data-act="run-toggle" aria-label="${r.running ? "Pause" : "Démarrer"}">${icon(r.running ? "pause" : "play", "width:26px;height:26px")}</button>
-      <button data-act="run-next" aria-label="${i === s.blocks.length - 1 ? "Terminer" : "Exercice suivant"}">${icon("next")}</button></div>
-  </div>
-  ${(d.videos || []).length ? `<details class="card vids"><summary><b>Démo vidéo · ${esc(d.videos[0].pro)}</b>${d.videos.length > 1 ? ` <span class="muted">+ ${d.videos.length - 1} autre${d.videos.length > 2 ? "s" : ""}</span>` : ""}</summary><div class="stack" style="margin-top:10px">${d.videos.map(proVideo).join("")}</div></details>` : ""}
-  <a class="demo" href="#/exercice/${b.drill}">${icon("play", "color:#2c5aa0;flex:none")}<span><b>Voir la fiche de l'exercice</b><br><span class="muted">${esc((d.cues || [])[0] || d.objective || "")}</span></span></a>
-  <div class="counter"><button data-act="run-cnt" data-d="-1" aria-label="Retirer une réussite">−</button><div><div class="v">${r.blocks[i].ok} / ${r.blocks[i].tot}</div><div class="l">réussites / essais</div></div><button data-act="run-cnt" data-d="1" aria-label="Ajouter une réussite">+</button></div>
-  <div class="row" style="justify-content:center"><button class="btn ghost sm" data-act="run-miss">+ 1 essai raté</button><button class="btn ghost sm" data-act="run-reset">Remettre à zéro</button></div>
-  <div><h2>Programme</h2><div class="queue">${s.blocks.map((x, k) => { const dd = S.drills[x.drill] || { name: x.drill }; const bk = r.blocks[k];
-    return `<button class="q ${k === i ? "now" : ""} ${r.done[k] ? "ok" : ""}" data-act="run-go" data-i="${k}" style="font:inherit;text-align:left;cursor:pointer"><span class="d" style="background:${r.done[k] ? "#2f6b45" : k === i ? "#c8372d" : areaColor(dd.area)}"></span><span>${esc(dd.name)} · ${x.min} min${(dd.videos || []).length ? " · ▶" : ""}</span><span class="st ${r.done[k] ? "ok" : ""}">${r.done[k] ? `✓${bk.tot ? " " + bk.ok + "/" + bk.tot : ""}` : k === i ? (r.running ? "en cours" : "prêt") : "à venir"}</span></button>`; }).join("")}</div></div>
-  ${canEdit() ? `<div class="card"><h2>${st.v ? "Validation" : `Valider la séance${nDone ? ` · ${nDone}/${s.blocks.length} exercices faits` : ""}`}</h2><form class="stack" data-form="validate" data-id="${s.id}">
+  <div><h2>Exercices · touche une ligne pour le détail</h2>${exRows(s)}</div>
+  ${canEdit() ? `<div class="card"><h2>${st.v ? "Validation" : "Valider la séance"}</h2><form class="stack" data-form="validate" data-id="${s.id}">
     <div class="f"><span class="lbl">Résultat</span><div class="seg" data-seg="status">${["Faite", "Partielle", "Non faite"].map(o => `<button type="button" data-v="${o}" aria-pressed="${(v.status || (nDone && nDone < s.blocks.length ? "Partielle" : "Faite")) === o}">${o}</button>`).join("")}</div></div>
     <div class="f"><span class="lbl">Qualité ressentie</span><div class="seg" data-seg="rating">${[1, 2, 3, 4, 5].map(o => `<button type="button" data-v="${o}" aria-pressed="${v.rating === o}">${o}</button>`).join("")}</div></div>
-    <div class="grid"><div class="f"><label for="v-min">Durée réelle (min)</label><input id="v-min" name="actualMin" inputmode="numeric" value="${esc(v.actualMin ?? (totMin || s.duration))}"></div>
-      <div class="f"><label for="v-measure">Mesure obtenue</label><input id="v-measure" name="measure" value="${esc(v.measure || measure)}" placeholder="Ex. 8/10 dans la porte"></div>
+    <div class="grid"><div class="f"><label for="v-min">Durée réelle (min)</label><input id="v-min" name="actualMin" inputmode="numeric" value="${esc(v.actualMin ?? (nDone ? mins : s.duration))}"></div>
+      <div class="f"><label for="v-measure">Mesure obtenue</label><input id="v-measure" name="measure" value="${esc(v.measure || "")}" placeholder="Ex. 8/10 dans la porte"></div>
       <div class="f full"><label for="v-fb">Retour : ce qui a marché, ce qui coince</label><textarea id="v-fb" name="feedback" data-keep>${esc(v.feedback || "")}</textarea></div></div>
     <div class="row"><button class="btn" type="submit">${st.v ? "Mettre à jour" : "Valider la séance"}</button>${st.v ? `<button class="btn ghost sm" type="button" data-act="unvalidate" data-id="${s.id}">Annuler la validation</button>` : ""}</div>
   </form></div>` : ""}
@@ -422,18 +406,6 @@ function vSeance(p) {
   ${videosBlock("plan:" + s.id)}
   </section>`;
   return { back: ["#/plan", "Séances"], title: esc(s.title), body, right: `<span class="xs muted" style="white-space:nowrap">${fmtDs(s.date)}<br>${n0(s.duration)} min</span>` };
-}
-function runAct(a, b) {
-  const s = S.plan.sessions.find(x => x.id === parts()[1]); if (!s) return; const r = getRun(s);
-  const stop = () => { if (r.running && r.t0) { r.blocks[r.i].el += (Date.now() - r.t0) / 1000; } r.t0 = r.running ? Date.now() : null; };
-  if (a === "run-toggle") { if (r.running) { stop(); r.running = false; r.t0 = null; } else { r.running = true; r.t0 = Date.now(); } }
-  else if (a === "run-next") { stop(); r.done[r.i] = true; r.buzzed = false; if (r.i < s.blocks.length - 1) { r.i++; r.t0 = r.running ? Date.now() : null; } else { r.running = false; r.t0 = null; toast("Séance terminée : valide-la ci-dessous"); } }
-  else if (a === "run-prev") { stop(); if (r.i > 0) r.i--; r.buzzed = false; r.t0 = r.running ? Date.now() : null; }
-  else if (a === "run-go") { stop(); r.i = Number(b.dataset.i); r.buzzed = false; r.t0 = r.running ? Date.now() : null; }
-  else if (a === "run-cnt") { const x = r.blocks[r.i]; if (Number(b.dataset.d) > 0) { x.ok++; x.tot++; } else if (x.ok > 0) { x.ok--; x.tot--; } }
-  else if (a === "run-miss") { r.blocks[r.i].tot++; }
-  else if (a === "run-reset") { const x = r.blocks[r.i]; x.ok = 0; x.tot = 0; x.el = 0; if (r.running) r.t0 = Date.now(); r.done[r.i] = false; }
-  saveRun(s, r); render();
 }
 
 /* ---------- Vidéos des pros ---------- */
@@ -917,13 +889,14 @@ document.addEventListener("click", async e => {
   const a = b.dataset.act, id = b.dataset.id;
   if (b.tagName === "A" && a !== "close-go") e.preventDefault();
   const d = S.draft;
-  if (a.startsWith("run-")) return runAct(a, b);
   switch (a) {
     case "logout": if (!DEMO) firebase.auth().signOut(); break;
     case "back": if (S.draft && S.draft.stage === "finish" && parts()[0] === "partie") { S.draft.stage = "holes"; saveDraft(); render(); break; } if (history.length > 1) history.back(); else location.hash = "#/plan"; break;
     case "close": closeSheet(); break;
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
+    case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s || valOf(s.id)) break; const d = doneOf(s); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; lsSet("golf-done-" + s.id, d); render(); break; }
+    case "quick-validate": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (s) { b.disabled = true; await quickValidate(s); } break; }
     case "setup-club": { const c = S.catalog.find(x => x.id === b.dataset.v); S.setup.club = c.id; S.setup.course = c.courses.length === 1 ? c.courses[0].id : null; S.setup.tee = null; if (S.setup.course) defaultTee(); refreshPicker(); break; }
     case "setup-course": S.setup.course = b.dataset.v; S.setup.tee = null; defaultTee(); refreshPicker(); break;
     case "setup-tee": S.setup.tee = b.dataset.v; refreshPicker(); break;
@@ -978,7 +951,7 @@ document.addEventListener("submit", async e => {
   if (t === "validate") {
     const st = form.querySelector('[data-seg="status"] [aria-pressed="true"]')?.dataset.v || "Faite";
     const rt = form.querySelector('[data-seg="rating"] [aria-pressed="true"]')?.dataset.v;
-    try { await Store.set("validations", form.dataset.id, { status: st, rating: rt ? Number(rt) : null, actualMin: num(form.actualMin.value), measure: form.measure.value.trim(), feedback: form.feedback.value.trim(), validatedAt: iso() }); lsSet("golf-run-" + form.dataset.id, null); toast("Séance validée"); }
+    try { await Store.set("validations", form.dataset.id, { status: st, blocksDone: (() => { const s = S.plan.sessions.find(x => x.id === form.dataset.id); return s ? doneOf(s) : null; })(), rating: rt ? Number(rt) : null, actualMin: num(form.actualMin.value), measure: form.measure.value.trim(), feedback: form.feedback.value.trim(), validatedAt: iso() }); lsSet("golf-done-" + form.dataset.id, null); toast("Séance validée"); }
     catch (x) { console.error(x); toast("Enregistrement impossible."); }
   }
 });
