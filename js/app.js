@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.7.0";
+const APP_VERSION = "1.7.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -263,12 +263,16 @@ function vTableau() {
     <div class="sm">${ci ? `${n1(ci.value - target)} coups à gagner · ` : ""}<b style="color:var(--red)">${n0(left)} jours</b> avant la clôture des inscriptions · plan ${pc(pPlan * 100)} réalisé</div>
     ${canEdit() ? `<button class="btn ghost sm" style="margin-top:6px" data-act="form" data-kind="index">Mettre à jour l'index</button>` : ""}</div></div>
   ${today ? `<a class="hero" href="#/seance/${today.id}"><span class="lb">${today.date === iso() ? "Séance du jour" : today.date < iso() ? "Séance en retard" : "Prochaine séance · " + fmtDs(today.date)} · ${n0(today.duration)} min</span>
-    <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span><span>${esc(today.domain)}</span>${late > 1 ? `<span>${late} séances à valider</span>` : ""}</span>
+    <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span>${sessionTags(today).map(t => `<span>${t}</span>`).join("")}${late > 1 ? `<span>${late} séances à valider</span>` : ""}</span>
     ${doneBlocks ? `<span class="pg"><i style="width:${doneBlocks / today.blocks.length * 100}%"></i></span>` : ""}
     <span class="cta">${doneBlocks ? "Continuer la séance" : "Voir la séance"}</span></a>` : `<div class="empty"><b>Toutes les séances du plan sont validées</b>Demande-moi les 4 semaines suivantes dans le projet Coach de Golf.</div>`}
   <div class="sec"><span>Ce qu'il faut travailler</span><a href="#/parties/perf">Détail</a></div>
   <div class="tiles">${G.map(g => `<a class="tile" href="#/parties/perf"><div class="l">${esc(g.short)}</div><div class="v">${fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`).join("")}
-    <a class="tile" href="#/plus"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${mins >= 600 ? "ok" : "warn"}">${past.filter(s => s.date >= since && (valOf(s.id) || {}).status === "Faite").length}/${past.filter(s => s.date >= since).length} séances faites</div><div class="tb"><i style="width:${Math.min(100, mins / 900 * 100)}%;background:#0f2340"></i></div></a></div>
+    ${(() => { const due = past.filter(s => s.date >= since), doneN = due.filter(s => ["Faite", "Partielle"].includes((valOf(s.id) || {}).status)).length;
+      const upcoming = plan.sessions.filter(s => s.date > iso() && !valOf(s.id)); const nxt = upcoming.sort((a, b) => a.date.localeCompare(b.date))[0];
+      const sub = due.length ? `${doneN}/${due.length} séance${due.length > 1 ? "s" : ""} prévue${due.length > 1 ? "s" : ""} faite${doneN > 1 ? "s" : ""}` : `${upcoming.length} programmées · 1re ${nxt ? fmtDs(nxt.date) : "—"}`;
+      const cls = !due.length ? "" : doneN === due.length ? "ok" : doneN / due.length >= 0.5 ? "warn" : "bad";
+      return `<a class="tile" href="#/plan"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${cls}">${sub}</div><div class="tb"><i style="width:${due.length ? doneN / due.length * 100 : 0}%;background:#0f2340"></i></div></a>`; })()}</div>
   ${!st ? emptyBox("Pas encore de carte saisie", "Saisis ta prochaine partie trou par trou : les tuiles ci-dessus se rempliront avec tes écarts au niveau +2.", canEdit() ? `<a class="btn sm" href="#/partie/new">Saisir une carte</a>` : "") : ""}
   ${pend ? `<p class="note"><a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a></p>` : ""}
   <div class="card"><h2>Le parcours jusqu'au Mid-Am</h2><div class="path">${(plan.phases || []).map(x => { const c = x.to < iso() ? "past" : (x.from <= iso() && iso() <= x.to ? "now" : "");
@@ -377,7 +381,7 @@ function exRows(s) {
     return `<div class="exrow ${done[i] ? "on" : ""}"><button class="chk" data-act="ex-toggle" data-sid="${s.id}" data-i="${i}" aria-pressed="${done[i]}" aria-label="Exercice fait" ${locked ? "disabled" : ""}>${done[i] ? "✓" : ""}</button>
       <a href="#/exercice/${b.drill}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${(d.tags || []).length ? " · " + d.tags.map(esc).join(", ") : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}</span></a><a class="go" href="#/exercice/${b.drill}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
 }
-function tagFilter() { return `<div class="chips tagchips" role="group" aria-label="Type d'entraînement"><button data-act="tf" data-f="" aria-pressed="${!S.tagFilter}">Tous</button>${TAGS.map(t => `<button data-act="tf" data-f="${t}" aria-pressed="${S.tagFilter === t}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
+function tagFilter() { return `<div class="chips tagchips" role="group" aria-label="Type d'entraînement"><span class="lbl" style="align-self:center;margin-right:2px">Type</span><button data-act="tf" data-f="" aria-pressed="${!S.tagFilter}">Tous</button>${TAGS.map(t => `<button data-act="tf" data-f="${t}" aria-pressed="${S.tagFilter === t}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
 function cardSession(s) {
   const st = statusOf(s), done = doneOf(s), n = done.filter(Boolean).length;
   return `<div class="card ${st.v ? "done" : ""}" style="gap:8px;display:flex;flex-direction:column">
