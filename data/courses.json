@@ -1,5 +1,5 @@
 {
- "version": "2026-10-25b",
+ "version": "2026-10-25c",
  "note": "Catalogue des parcours tenu par Claude. Distances en mètres (len null si non confirmées). cr = course rating (SSS), slope ; null si non publié. pending = parcours dont la carte reste à trouver.",
  "clubs": [
   {
@@ -2032,6 +2032,2999 @@
    "courses": [],
    "pending": [
     "Vert Parc"
+   ]
+  },
+  {
+   "id": "isle-adam",
+   "name": "Golf de l'Isle-Adam",
+   "city": "L'Isle-Adam (95)",
+   "aliases": [
+    "isle adam",
+    "l'isle adam",
+    "isle-adam"
+   ],
+   "courses": [
+    {
+     "id": "isle-adam-18",
+     "name": "18 trous",
+     "par": [4, 4, 4, 3, 5, 3, 4, 5, 4, 4, 4, 5, 3, 4, 4, 3, 4, 5],
+     "si": [5, 3, 1, 11, 9, 17, 15, 13, 7, 10, 6, 14, 12, 2, 16, 18, 4, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.4,
+       "slope": 131,
+       "total": 6188,
+       "len": [394, 366, 347, 187, 514, 142, 290, 446, 384, 315, 342, 491, 173, 420, 328, 155, 373, 521]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.9,
+       "slope": 128,
+       "total": 5697,
+       "len": [352, 329, 302, 163, 474, 123, 266, 411, 358, 285, 320, 467, 158, 386, 310, 139, 348, 505]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 72.3,
+       "slope": 126,
+       "total": 5152,
+       "len": [300, 317, 261, 139, 429, 101, 242, 395, 338, 271, 273, 427, 144, 343, 271, 114, 317, 470]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 68.9,
+       "slope": 121,
+       "total": 4613,
+       "len": [265, 291, 231, 116, 416, 84, 225, 363, 276, 244, 225, 403, 131, 311, 240, 91, 276, 424]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24405-lisle-adam-golf-club/scorecard-and-layout ; https://www.golfingrecord.com/golf-scorecard/1cc1c6b0-88f0-4ddc-8c62-9bd2a919d06c",
+     "note": "Bleu et Rouge : CR/slope dames (GolfingRecord)."
+    }
+   ]
+  },
+  {
+   "id": "golf-national",
+   "name": "Le Golf National",
+   "city": "Guyancourt (78)",
+   "aliases": [
+    "golf national",
+    "national",
+    "albatros",
+    "guyancourt",
+    "saint-quentin-en-yvelines"
+   ],
+   "courses": [
+    {
+     "id": "national-albatros",
+     "name": "L'Albatros",
+     "par": [4, 3, 5, 4, 4, 4, 4, 3, 5, 4, 3, 4, 4, 5, 4, 3, 4, 5],
+     "si": [4, 6, 12, 8, 16, 18, 2, 14, 10, 9, 17, 7, 3, 11, 1, 13, 5, 15],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 76.5,
+       "slope": 155,
+       "total": 6718,
+       "len": [380, 195, 515, 445, 370, 350, 455, 190, 545, 350, 175, 405, 390, 555, 365, 160, 443, 430]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 74.4,
+       "slope": 155,
+       "total": 6275,
+       "len": [347, 168, 481, 398, 351, 329, 391, 182, 527, 319, 155, 374, 351, 508, 367, 147, 425, 455]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 72,
+       "slope": 145,
+       "total": 5842,
+       "len": [316, 162, 443, 382, 336, 299, 371, 172, 497, 300, 133, 340, 334, 442, 347, 134, 400, 434]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 75.4,
+       "slope": 147,
+       "total": 5262,
+       "len": [288, 137, 407, 357, 295, 278, 350, 149, 403, 286, 124, 310, 310, 387, 321, 109, 333, 418]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 74.2,
+       "slope": 143,
+       "total": 5056,
+       "len": [272, 120, 401, 335, 283, 278, 336, 134, 398, 280, 115, 307, 296, 375, 302, 106, 321, 397]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/4964053b-1a04-4c3e-a587-f8ecfb7018a2 ; CR/slope : https://www.1golf.eu/en/club/le-golf-national"
+    },
+    {
+     "id": "national-aigle",
+     "name": "L'Aigle",
+     "par": [4, 4, 4, 3, 4, 3, 5, 4, 4, 3, 4, 4, 3, 4, 5, 4, 5, 4],
+     "si": [12, 2, 18, 16, 6, 14, 10, 8, 4, 9, 11, 1, 17, 5, 15, 3, 13, 7],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.4,
+       "slope": 124,
+       "total": 5907,
+       "len": [339, 387, 256, 156, 386, 175, 494, 358, 340, 198, 365, 336, 164, 386, 443, 323, 462, 339]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.2,
+       "slope": 124,
+       "total": 5678,
+       "len": [310, 369, 248, 147, 377, 165, 480, 348, 327, 186, 348, 324, 153, 368, 431, 323, 454, 320]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 72.8,
+       "slope": 128,
+       "total": 5085,
+       "len": [302, 353, 208, 110, 329, 119, 436, 304, 289, 152, 323, 306, 130, 353, 369, 307, 398, 297]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.5,
+       "slope": 123,
+       "total": 4852,
+       "len": [289, 336, 200, 110, 318, 109, 395, 293, 278, 144, 323, 289, 113, 353, 356, 290, 376, 280]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/242d5507-c472-4b1d-82fc-c7740afd8be9 ; CR/slope : https://www.1golf.eu/en/club/le-golf-national"
+    }
+   ],
+   "pending": [
+    "L'Oiselet (compact)"
+   ]
+  },
+  {
+   "id": "saint-nom",
+   "name": "Golf de Saint-Nom-la-Bretèche",
+   "city": "Saint-Nom-la-Bretèche (78)",
+   "aliases": [
+    "saint nom",
+    "st nom",
+    "saint-nom-la-breteche",
+    "breteche"
+   ],
+   "courses": [
+    {
+     "id": "saint-nom-rouge",
+     "name": "Rouge",
+     "par": [4, 4, 3, 4, 5, 4, 5, 4, 3, 4, 4, 5, 3, 4, 4, 3, 5, 4],
+     "si": [15, 11, 9, 3, 17, 1, 13, 5, 7, 4, 18, 14, 6, 10, 2, 8, 16, 12],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 74.7,
+       "slope": 142,
+       "total": 6253,
+       "len": [333, 389, 150, 411, 444, 394, 495, 386, 191, 382, 337, 498, 187, 328, 362, 167, 462, 337]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 72.8,
+       "slope": 133,
+       "total": 5836,
+       "len": [321, 364, 139, 350, 429, 373, 457, 377, 149, 365, 324, 452, 177, 315, 346, 151, 427, 320]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 75.5,
+       "slope": 132,
+       "total": 5327,
+       "len": [310, 338, 127, 306, 370, 310, 429, 315, 134, 302, 311, 442, 155, 301, 333, 136, 415, 293]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 73.3,
+       "slope": 125,
+       "total": 4882,
+       "len": [299, 304, 95, 306, 322, 310, 399, 315, 120, 281, 288, 387, 133, 254, 316, 123, 357, 273]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/883bcbb2-9d9a-4993-ac0f-6bc5ae992e2f"
+    },
+    {
+     "id": "saint-nom-bleu",
+     "name": "Bleu",
+     "par": [4, 4, 3, 4, 4, 5, 3, 4, 4, 5, 3, 4, 5, 4, 4, 5, 3, 4],
+     "si": [3, 11, 7, 1, 13, 15, 9, 5, 17, 18, 10, 4, 14, 16, 2, 8, 12, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.2,
+       "slope": 139,
+       "total": 6126,
+       "len": [411, 335, 185, 417, 332, 467, 136, 382, 308, 446, 155, 374, 457, 294, 413, 507, 147, 360]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71.7,
+       "slope": 132,
+       "total": 5776,
+       "len": [393, 307, 168, 390, 314, 437, 127, 352, 304, 425, 143, 357, 433, 285, 376, 483, 141, 341]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.1,
+       "slope": 135,
+       "total": 5252,
+       "len": [379, 262, 157, 340, 309, 397, 113, 330, 283, 409, 130, 303, 427, 237, 336, 419, 131, 290]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 72.6,
+       "slope": 131,
+       "total": 4932,
+       "len": [357, 257, 144, 300, 295, 356, 107, 312, 263, 366, 118, 291, 395, 237, 315, 419, 119, 281]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/6c1e7cff-9034-4ae4-becf-a911a6b94802"
+    }
+   ]
+  },
+  {
+   "id": "joyenval",
+   "name": "Golf de Joyenval",
+   "city": "Chambourcy (78)",
+   "aliases": [
+    "joyenval",
+    "chambourcy",
+    "retz",
+    "marly"
+   ],
+   "courses": [
+    {
+     "id": "joyenval-retz",
+     "name": "Retz",
+     "par": [4, 3, 4, 5, 4, 5, 3, 4, 4, 4, 3, 4, 5, 4, 3, 5, 4, 4],
+     "si": [11, 15, 17, 1, 5, 7, 13, 3, 9, 8, 2, 18, 16, 4, 14, 10, 6, 12],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6242,
+       "len": [356, 172, 353, 462, 318, 484, 156, 412, 386, 395, 204, 273, 476, 429, 144, 479, 379, 364]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5963,
+       "len": [356, 141, 328, 462, 318, 484, 156, 358, 344, 395, 154, 273, 476, 401, 144, 479, 330, 364]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5539,
+       "len": [326, 134, 304, 435, 291, 455, 148, 349, 344, 369, 112, 244, 452, 371, 128, 447, 294, 336]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5095,
+       "len": [296, 128, 277, 391, 268, 416, 134, 312, 321, 341, 120, 215, 415, 371, 99, 406, 281, 304]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5018,
+       "len": [282, 106, 278, 395, 260, 423, 137, 332, 329, 331, 106, 210, 418, 372, 91, 416, 270, 262]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/6056a9cc-ecba-48a8-b345-5152e4cd35ac",
+     "note": "CR/slope non publiés par la source."
+    },
+    {
+     "id": "joyenval-marly",
+     "name": "Marly",
+     "par": [4, 5, 3, 5, 4, 4, 4, 3, 4, 4, 3, 4, 4, 4, 4, 5, 3, 5],
+     "si": [17, 9, 15, 3, 13, 1, 7, 11, 5, 2, 12, 18, 4, 16, 6, 10, 8, 14],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6177,
+       "len": [324, 491, 152, 482, 324, 401, 364, 192, 363, 350, 182, 283, 412, 336, 379, 471, 216, 455]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5948,
+       "len": [324, 482, 152, 466, 324, 375, 333, 165, 344, 326, 182, 283, 386, 336, 351, 471, 193, 455]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5535,
+       "len": [297, 456, 123, 451, 286, 341, 318, 140, 331, 306, 167, 245, 372, 325, 342, 439, 168, 428]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5139,
+       "len": [263, 448, 104, 434, 277, 333, 301, 132, 304, 284, 152, 232, 342, 271, 314, 407, 158, 383]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4993,
+       "len": [264, 418, 95, 382, 261, 334, 280, 107, 279, 292, 130, 241, 374, 236, 334, 419, 140, 407]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/90b7e542-1eb7-4afb-82db-083799a1c68e",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "prieure",
+   "name": "Golf du Prieuré",
+   "city": "Sailly (78)",
+   "aliases": [
+    "prieure",
+    "prieuré",
+    "sailly"
+   ],
+   "courses": [
+    {
+     "id": "prieure-ouest",
+     "name": "Ouest",
+     "par": [3, 4, 4, 4, 5, 3, 4, 5, 3, 5, 3, 4, 3, 4, 5, 4, 4, 5],
+     "si": [17, 3, 11, 5, 1, 9, 7, 13, 15, 8, 16, 2, 18, 14, 10, 4, 6, 12],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 73.7,
+       "slope": 133,
+       "total": 6235,
+       "len": [175, 391, 375, 385, 488, 200, 401, 486, 183, 465, 156, 371, 166, 286, 447, 411, 395, 454]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.3,
+       "slope": 132,
+       "total": 6148,
+       "len": [175, 367, 375, 385, 488, 187, 401, 453, 166, 465, 156, 371, 166, 286, 447, 411, 395, 454]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71.4,
+       "slope": 126,
+       "total": 5681,
+       "len": [161, 358, 364, 364, 452, 174, 362, 447, 151, 433, 144, 353, 140, 258, 397, 351, 334, 438]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.6,
+       "slope": 130,
+       "total": 5335,
+       "len": [147, 347, 352, 345, 443, 133, 334, 426, 131, 420, 137, 336, 117, 232, 373, 342, 324, 396]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 72.3,
+       "slope": 124,
+       "total": 4894,
+       "len": [129, 312, 342, 313, 416, 120, 297, 399, 124, 403, 129, 305, 101, 231, 342, 298, 280, 353]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/e415e8c9-b709-40d3-8fa8-f9e202e55757"
+    },
+    {
+     "id": "prieure-est",
+     "name": "Est",
+     "par": [4, 4, 3, 5, 4, 3, 4, 4, 4, 5, 4, 3, 5, 4, 4, 4, 5, 3],
+     "si": [16, 2, 12, 10, 6, 18, 14, 8, 4, 1, 11, 9, 5, 15, 3, 13, 7, 17],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 73.2,
+       "slope": 133,
+       "total": 6159,
+       "len": [315, 368, 191, 434, 347, 193, 317, 390, 357, 519, 357, 201, 498, 304, 325, 349, 529, 165]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.9,
+       "slope": 132,
+       "total": 5937,
+       "len": [305, 349, 180, 423, 323, 167, 310, 380, 357, 519, 357, 190, 468, 287, 325, 349, 500, 148]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.8,
+       "slope": 129,
+       "total": 5567,
+       "len": [294, 318, 170, 411, 311, 149, 283, 369, 327, 492, 328, 176, 426, 273, 325, 320, 458, 137]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73,
+       "slope": 133,
+       "total": 5158,
+       "len": [283, 285, 158, 381, 298, 139, 253, 358, 294, 461, 298, 164, 409, 259, 287, 290, 420, 121]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.4,
+       "slope": 129,
+       "total": 4741,
+       "len": [272, 252, 135, 351, 285, 119, 230, 329, 263, 429, 270, 164, 367, 228, 287, 260, 386, 114]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/79359c5b-f3c1-4d43-838a-21d24f6a0547"
+    }
+   ]
+  },
+  {
+   "id": "marivaux",
+   "name": "Golf de Marivaux",
+   "city": "Janvry (91)",
+   "aliases": [
+    "marivaux",
+    "janvry"
+   ],
+   "courses": [
+    {
+     "id": "marivaux-18",
+     "name": "La Forêt",
+     "par": [4, 4, 3, 5, 4, 4, 5, 3, 4, 4, 3, 4, 5, 4, 4, 5, 3, 4],
+     "si": [3, 7, 13, 5, 1, 11, 17, 15, 9, 2, 16, 8, 6, 12, 10, 18, 14, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.8,
+       "slope": 138,
+       "total": 6026,
+       "len": [377, 323, 136, 480, 325, 360, 449, 187, 359, 357, 139, 359, 466, 324, 386, 464, 161, 374]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71,
+       "slope": 128,
+       "total": 5545,
+       "len": [317, 286, 124, 445, 282, 322, 425, 163, 328, 347, 133, 337, 443, 305, 353, 434, 147, 354]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73.4,
+       "slope": 130,
+       "total": 5002,
+       "len": [282, 279, 116, 397, 248, 313, 377, 138, 283, 302, 126, 309, 395, 270, 324, 382, 137, 324]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71,
+       "slope": 124,
+       "total": 4646,
+       "len": [277, 245, 89, 366, 244, 289, 356, 138, 275, 292, 120, 281, 364, 236, 294, 358, 128, 294]
+      }
+     ],
+     "source": "https://www.1golf.eu/en/club/golf-de-marivaux/scorecard/",
+     "note": "Bleu/Rouge : CR/slope probablement dames (source ambiguë)."
+    }
+   ]
+  },
+  {
+   "id": "villarceaux",
+   "name": "Golf de Villarceaux",
+   "city": "Chaussy (95)",
+   "aliases": [
+    "villarceaux",
+    "chaussy"
+   ],
+   "courses": [
+    {
+     "id": "villarceaux-18",
+     "name": "18 trous",
+     "par": [4, 4, 3, 5, 4, 5, 4, 4, 3, 5, 3, 5, 4, 4, 4, 4, 3, 4],
+     "si": [7, 3, 9, 11, 13, 17, 5, 1, 15, 4, 8, 2, 16, 12, 14, 10, 18, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.4,
+       "slope": 131,
+       "total": 6116,
+       "len": [353, 398, 193, 463, 331, 446, 396, 417, 141, 483, 158, 454, 327, 344, 338, 336, 156, 381]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.5,
+       "slope": 123,
+       "total": 5769,
+       "len": [345, 386, 182, 418, 331, 433, 371, 399, 141, 471, 149, 433, 311, 331, 294, 311, 120, 343]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.9,
+       "slope": 125,
+       "total": 5129,
+       "len": [294, 361, 134, 401, 283, 398, 313, 362, 134, 436, 108, 379, 283, 305, 240, 286, 101, 311]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.0,
+       "slope": 123,
+       "total": 4842,
+       "len": [294, 297, 134, 387, 256, 381, 276, 353, 134, 387, 108, 358, 274, 305, 240, 286, 101, 269]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24514-villarceaux-golf-club/",
+     "note": "Longueurs GolfPass (yards convertis) ; 1golf publie 6 059 m en blanc."
+    }
+   ],
+   "pending": [
+    "Par 3"
+   ]
+  },
+  {
+   "id": "ableiges",
+   "name": "Golf d'Ableiges",
+   "city": "Ableiges (95)",
+   "aliases": [
+    "ableiges",
+    "etangs",
+    "étangs"
+   ],
+   "courses": [
+    {
+     "id": "ableiges-etangs",
+     "name": "Les Étangs",
+     "par": [4, 4, 5, 3, 4, 5, 4, 3, 4, 5, 4, 3, 4, 4, 5, 4, 3, 4],
+     "si": [4, 6, 12, 8, 2, 10, 16, 18, 14, 13, 3, 11, 5, 7, 15, 1, 17, 9],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 74.5,
+       "slope": 133,
+       "total": 6183,
+       "len": [399, 363, 518, 197, 388, 488, 307, 128, 338, 472, 407, 159, 366, 304, 502, 315, 163, 369]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71.4,
+       "slope": 125,
+       "total": 5673,
+       "len": [380, 326, 488, 166, 369, 454, 267, 119, 310, 433, 374, 144, 341, 281, 432, 294, 144, 351]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 75.1,
+       "slope": 121,
+       "total": 5217,
+       "len": [347, 301, 444, 182, 340, 421, 244, 109, 271, 403, 336, 123, 313, 252, 412, 270, 130, 319]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.6,
+       "slope": 116,
+       "total": 4751,
+       "len": [310, 284, 385, 145, 296, 394, 233, 99, 258, 373, 327, 123, 309, 216, 405, 238, 94, 262]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/8425f8f6-7b84-4e08-bfcc-7c3bc0afff50"
+    }
+   ],
+   "pending": [
+    "Les Vallées (9 trous)"
+   ]
+  },
+  {
+   "id": "cely",
+   "name": "UGolf Château de Cély",
+   "city": "Cély-en-Bière (77)",
+   "aliases": [
+    "cely",
+    "cély",
+    "chateau de cely"
+   ],
+   "courses": [
+    {
+     "id": "cely-18",
+     "name": "18 trous",
+     "par": [5, 4, 4, 4, 3, 5, 3, 4, 4, 5, 4, 3, 4, 4, 5, 4, 3, 4],
+     "si": [6, 16, 8, 9, 3, 1, 18, 7, 4, 5, 15, 14, 12, 11, 2, 13, 17, 10],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 72,
+       "slope": null,
+       "total": 5924,
+       "len": [444, 312, 327, 328, 215, 521, 143, 307, 315, 426, 318, 162, 328, 330, 603, 335, 145, 365]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.6,
+       "slope": null,
+       "total": 5856,
+       "len": [444, 312, 327, 328, 183, 521, 143, 307, 315, 425, 318, 162, 328, 330, 568, 335, 145, 365]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.3,
+       "slope": null,
+       "total": 5421,
+       "len": [409, 287, 305, 301, 146, 498, 123, 276, 284, 414, 307, 141, 300, 313, 551, 304, 133, 329]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 72.9,
+       "slope": null,
+       "total": 5087,
+       "len": [390, 282, 298, 270, 111, 441, 119, 278, 262, 372, 298, 131, 286, 305, 534, 294, 107, 309]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.5,
+       "slope": null,
+       "total": 4709,
+       "len": [364, 263, 268, 270, 101, 441, 112, 261, 244, 356, 236, 122, 270, 281, 493, 266, 91, 270]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/69b11491-e0a3-4064-bd68-5b43b49d7abc",
+     "note": "Slope non publié par la source ; SI différents de ceux de GolfPass (version GolfingRecord retenue)."
+    }
+   ]
+  },
+  {
+   "id": "saint-germain",
+   "name": "Golf de Saint-Germain",
+   "city": "Saint-Germain-en-Laye (78)",
+   "aliases": [
+    "saint germain",
+    "st germain",
+    "saint-germain-en-laye"
+   ],
+   "courses": [
+    {
+     "id": "saint-germain-18",
+     "name": "18 trous",
+     "par": [4, 5, 4, 4, 3, 5, 3, 4, 5, 4, 3, 4, 4, 4, 5, 4, 3, 4],
+     "si": [3, 15, 11, 1, 7, 9, 5, 13, 17, 10, 12, 4, 14, 2, 16, 18, 8, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.5,
+       "slope": 138,
+       "total": 6142,
+       "len": [389, 452, 345, 417, 172, 521, 162, 326, 445, 332, 140, 399, 310, 421, 478, 291, 141, 403]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.7,
+       "slope": 132,
+       "total": 5789,
+       "len": [380, 438, 317, 404, 164, 504, 139, 313, 445, 284, 129, 361, 302, 358, 467, 264, 141, 379]
+      },
+      {
+       "name": "Bleu",
+       "gender": "M",
+       "cr": 69.4,
+       "slope": 129,
+       "total": 5538,
+       "len": [359, 423, 300, 364, 156, 486, 133, 301, 430, 266, 123, 358, 294, 358, 453, 263, 134, 339]
+      },
+      {
+       "name": "Rouge",
+       "gender": "M",
+       "cr": 67.9,
+       "slope": 126,
+       "total": 5247,
+       "len": [337, 390, 287, 338, 153, 455, 125, 298, 415, 249, 116, 335, 287, 312, 447, 253, 113, 335]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24500-saint-germain-golf-club/scorecard-and-layout",
+     "note": "Longueurs GolfPass (yards convertis) ; CR/slope messieurs pour tous les repères."
+    }
+   ]
+  },
+  {
+   "id": "fontainebleau",
+   "name": "Golf de Fontainebleau",
+   "city": "Fontainebleau (77)",
+   "aliases": [
+    "fontainebleau"
+   ],
+   "courses": [
+    {
+     "id": "fontainebleau-18",
+     "name": "18 trous",
+     "par": [4, 3, 5, 4, 4, 4, 3, 5, 4, 3, 5, 5, 4, 3, 4, 4, 4, 4],
+     "si": [17, 5, 15, 1, 11, 3, 9, 7, 13, 12, 6, 16, 8, 14, 4, 2, 18, 10],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 72.7,
+       "slope": 137,
+       "total": 6153,
+       "len": [307, 162, 482, 400, 341, 400, 168, 519, 303, 187, 528, 416, 374, 145, 414, 346, 261, 400]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.9,
+       "slope": 136,
+       "total": 6016,
+       "len": [307, 162, 482, 376, 328, 392, 168, 519, 303, 175, 507, 416, 351, 145, 394, 346, 261, 384]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.2,
+       "slope": 133,
+       "total": 5667,
+       "len": [295, 158, 470, 365, 305, 376, 157, 501, 286, 151, 483, 389, 335, 137, 350, 336, 229, 344]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73.5,
+       "slope": 137,
+       "total": 5196,
+       "len": [272, 144, 433, 331, 269, 337, 126, 485, 271, 137, 448, 366, 312, 131, 305, 303, 207, 319]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.4,
+       "slope": 131,
+       "total": 4820,
+       "len": [263, 135, 392, 310, 254, 327, 116, 448, 232, 128, 411, 348, 264, 122, 296, 294, 190, 290]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/63d8b170-41e8-4818-ba52-2df10f1566f2"
+    }
+   ]
+  },
+  {
+   "id": "seraincourt",
+   "name": "Golf de Seraincourt",
+   "city": "Seraincourt (95)",
+   "aliases": [
+    "seraincourt"
+   ],
+   "courses": [
+    {
+     "id": "seraincourt-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 3, 4, 4, 5, 3, 5, 4, 4, 3, 4, 4, 5, 4, 3, 5],
+     "si": [3, 15, 7, 1, 9, 5, 17, 11, 13, 12, 4, 18, 16, 6, 14, 8, 2, 10],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.5,
+       "slope": 132,
+       "total": 5873,
+       "len": [305, 156, 345, 156, 361, 347, 469, 140, 467, 356, 392, 124, 357, 388, 465, 376, 215, 454]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.3,
+       "slope": 132,
+       "total": 5445,
+       "len": [292, 130, 303, 135, 334, 301, 465, 125, 448, 330, 370, 112, 333, 346, 444, 354, 188, 435]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.7,
+       "slope": 130,
+       "total": 4933,
+       "len": [257, 116, 258, 121, 303, 274, 417, 104, 410, 302, 355, 93, 310, 326, 410, 333, 156, 388]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.4,
+       "slope": 129,
+       "total": 4822,
+       "len": [257, 112, 258, 121, 303, 274, 367, 104, 373, 302, 350, 93, 298, 326, 410, 333, 156, 385]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/21a1eeae-7c0b-4aff-a278-744fae225c7f"
+    }
+   ]
+  },
+  {
+   "id": "gadancourt",
+   "name": "Golf de Gadancourt",
+   "city": "Avernes (95)",
+   "aliases": [
+    "gadancourt",
+    "avernes"
+   ],
+   "courses": [
+    {
+     "id": "gadancourt-18",
+     "name": "18 trous",
+     "par": [4, 4, 4, 3, 4, 5, 4, 4, 3, 5, 3, 4, 5, 4, 3, 4, 5, 4],
+     "si": [3, 11, 13, 9, 8, 1, 5, 18, 10, 14, 16, 6, 7, 2, 12, 15, 17, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6266,
+       "len": [403, 343, 378, 152, 381, 521, 328, 349, 174, 475, 179, 360, 515, 401, 141, 331, 443, 392]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6051,
+       "len": [388, 333, 339, 140, 371, 506, 319, 339, 166, 465, 170, 351, 505, 390, 133, 322, 434, 380]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5197,
+       "len": [324, 300, 288, 111, 330, 408, 291, 290, 148, 399, 135, 298, 413, 342, 120, 288, 383, 329]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4780,
+       "len": [274, 244, 279, 103, 321, 364, 280, 282, 139, 389, 125, 252, 377, 335, 116, 279, 352, 269]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/81a44469-ca8e-48ef-8293-5cacade06251",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "cergy",
+   "name": "Golf de Cergy-Vauréal",
+   "city": "Vauréal (95)",
+   "aliases": [
+    "cergy",
+    "vaureal",
+    "vauréal",
+    "cergy pontoise"
+   ],
+   "courses": [
+    {
+     "id": "cergy-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 3, 4, 3, 4, 4, 5, 4, 5, 3, 4, 4, 4, 5, 3, 5],
+     "si": [17, 16, 1, 12, 3, 13, 2, 14, 10, 6, 5, 15, 7, 4, 18, 9, 11, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 70.7,
+       "slope": 137,
+       "total": 5935,
+       "len": [262, 145, 454, 162, 364, 170, 471, 311, 454, 387, 485, 132, 315, 399, 272, 480, 190, 482]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.4,
+       "slope": 123,
+       "total": 5509,
+       "len": [249, 139, 422, 134, 326, 142, 443, 290, 433, 369, 474, 118, 306, 359, 260, 435, 173, 437]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.7,
+       "slope": 126,
+       "total": 5109,
+       "len": [226, 112, 410, 125, 318, 139, 423, 277, 408, 321, 431, 107, 272, 319, 230, 411, 157, 423]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4543,
+       "len": [215, 104, 368, 102, 282, 122, 376, 252, 364, 306, 363, 95, 232, 303, 213, 371, 115, 360]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/801c8a08-34f9-4e8e-8f4d-963b5bfb5dad",
+     "note": "Rouge : CR publié incohérent (63,4), non repris."
+    }
+   ]
+  },
+  {
+   "id": "guerville",
+   "name": "Golf de Guerville",
+   "city": "Guerville (78)",
+   "aliases": [
+    "guerville",
+    "mantes"
+   ],
+   "courses": [
+    {
+     "id": "guerville-18",
+     "name": "18 trous",
+     "par": [4, 4, 3, 5, 4, 5, 4, 3, 5, 5, 4, 3, 4, 3, 4, 5, 3, 4],
+     "si": [11, 1, 17, 7, 13, 3, 5, 15, 9, 10, 18, 16, 8, 14, 2, 6, 12, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5858,
+       "len": [335, 398, 122, 440, 326, 492, 297, 137, 437, 445, 304, 160, 358, 163, 374, 500, 201, 369]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5483,
+       "len": [325, 368, 112, 407, 290, 458, 287, 127, 406, 406, 294, 150, 348, 153, 364, 459, 170, 359]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4895,
+       "len": [280, 335, 93, 361, 268, 405, 255, 106, 358, 373, 271, 126, 281, 131, 333, 426, 148, 345]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4617,
+       "len": [270, 317, 88, 352, 259, 391, 245, 98, 352, 367, 245, 98, 275, 109, 302, 395, 143, 311]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/1e50a002-fc6a-4eac-b4ae-8e3aa53fb924",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "boucles-de-seine",
+   "name": "Golf des Boucles de Seine",
+   "city": "Moisson (78)",
+   "aliases": [
+    "boucles de seine",
+    "moisson"
+   ],
+   "courses": [
+    {
+     "id": "boucles-18",
+     "name": "18 trous",
+     "par": [4, 4, 4, 3, 5, 4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3, 5],
+     "si": [3, 2, 9, 15, 1, 5, 18, 7, 6, 8, 13, 11, 12, 10, 16, 14, 17, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 69.8,
+       "slope": 130,
+       "total": 5497,
+       "len": [326, 315, 398, 175, 430, 347, 127, 324, 379, 353, 294, 315, 332, 290, 182, 295, 148, 467]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 67.2,
+       "slope": 124,
+       "total": 5116,
+       "len": [304, 295, 375, 145, 407, 328, 107, 300, 358, 334, 276, 297, 314, 272, 158, 278, 127, 441]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 68.9,
+       "slope": 125,
+       "total": 4513,
+       "len": [265, 261, 330, 128, 358, 291, 89, 270, 316, 297, 242, 263, 275, 245, 140, 243, 109, 391]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 67,
+       "slope": 125,
+       "total": 4260,
+       "len": [249, 246, 314, 128, 339, 266, 89, 252, 297, 277, 224, 247, 259, 227, 140, 227, 109, 370]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/6ba69c0b-f06c-40bb-889e-445573388f81"
+    }
+   ]
+  },
+  {
+   "id": "villennes",
+   "name": "Golf de Villennes",
+   "city": "Villennes-sur-Seine (78)",
+   "aliases": [
+    "villennes",
+    "bluegreen villennes"
+   ],
+   "courses": [
+    {
+     "id": "villennes-18",
+     "name": "18 trous",
+     "par": [4, 4, 3, 5, 4, 3, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 5, 4],
+     "si": [17, 9, 15, 11, 1, 13, 3, 7, 5, 14, 18, 12, 10, 6, 4, 16, 2, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5674,
+       "len": [296, 307, 145, 499, 429, 126, 340, 367, 341, 152, 350, 346, 275, 357, 211, 302, 500, 331]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5446,
+       "len": [296, 275, 145, 483, 395, 126, 340, 358, 341, 148, 314, 336, 270, 342, 213, 288, 450, 326]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5086,
+       "len": [285, 252, 134, 472, 353, 111, 315, 344, 305, 137, 265, 307, 258, 329, 199, 278, 434, 308]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4767,
+       "len": [276, 246, 120, 453, 350, 89, 303, 317, 295, 131, 255, 295, 207, 318, 175, 268, 386, 283]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/33e12a82-3ab1-4492-9c8f-06892fe9e86a",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "vaucouleurs",
+   "name": "La Vaucouleurs Golf Club",
+   "city": "Civry-la-Forêt (78)",
+   "aliases": [
+    "vaucouleurs",
+    "civry"
+   ],
+   "courses": [
+    {
+     "id": "vaucouleurs-riviere",
+     "name": "La Rivière",
+     "par": [4, 5, 3, 4, 5, 4, 3, 5, 4, 5, 3, 4, 3, 3, 4, 5, 5, 4],
+     "si": [15, 7, 11, 5, 9, 3, 17, 13, 1, 16, 18, 4, 8, 12, 2, 6, 14, 10],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.9,
+       "slope": 144,
+       "total": 6172,
+       "len": [322, 501, 208, 300, 470, 376, 147, 453, 372, 485, 126, 351, 153, 191, 378, 513, 463, 363]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.4,
+       "slope": 132,
+       "total": 5608,
+       "len": [293, 469, 189, 273, 445, 347, 129, 431, 341, 451, 111, 333, 124, 152, 332, 455, 421, 312]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 74.3,
+       "slope": 137,
+       "total": 5319,
+       "len": [285, 434, 176, 262, 420, 343, 100, 425, 332, 443, 102, 327, 115, 129, 297, 433, 414, 282]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 71.4,
+       "slope": 128,
+       "total": 4859,
+       "len": [266, 377, 157, 230, 369, 318, 91, 398, 312, 408, 94, 309, 84, 108, 268, 404, 392, 274]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/240affe8-d85d-44ca-aa1b-b4c5c89ff94f"
+    }
+   ],
+   "pending": [
+    "La Plaine"
+   ]
+  },
+  {
+   "id": "bethemont",
+   "name": "UGolf Béthemont",
+   "city": "Poissy (78)",
+   "aliases": [
+    "bethemont",
+    "béthemont",
+    "poissy"
+   ],
+   "courses": [
+    {
+     "id": "bethemont-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 4, 3, 5, 3, 5, 5, 4, 5, 4, 3, 5, 4, 4, 3, 4],
+     "si": [7, 13, 1, 3, 15, 9, 17, 11, 5, 14, 8, 6, 12, 16, 2, 10, 18, 4],
+     "tees": [
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5560,
+       "len": [305, 135, 350, 320, 130, 460, 135, 435, 420, 300, 480, 300, 150, 470, 340, 360, 145, 325]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/b9e6e9cb-4d8a-55fb-c54c-d88b7dfb622e",
+     "note": "Seul le repère jaune est publié ; CR non publié."
+    }
+   ]
+  },
+  {
+   "id": "feucherolles",
+   "name": "UGolf Feucherolles",
+   "city": "Feucherolles (78)",
+   "aliases": [
+    "feucherolles",
+    "sainte-gemme"
+   ],
+   "courses": [
+    {
+     "id": "feucherolles-18",
+     "name": "18 trous",
+     "par": [4, 4, 4, 3, 4, 5, 3, 4, 5, 4, 5, 4, 3, 4, 3, 4, 4, 5],
+     "si": [18, 12, 16, 10, 14, 8, 6, 4, 2, 11, 7, 9, 3, 1, 5, 17, 15, 13],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6364,
+       "len": [359, 372, 322, 191, 331, 473, 175, 410, 522, 358, 481, 383, 224, 393, 185, 332, 359, 494]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5877,
+       "len": [335, 346, 298, 176, 308, 435, 153, 384, 487, 333, 453, 353, 198, 371, 155, 301, 321, 470]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5466,
+       "len": [309, 324, 267, 152, 279, 428, 128, 358, 471, 321, 429, 307, 178, 354, 136, 280, 308, 437]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4970,
+       "len": [277, 285, 236, 116, 252, 409, 106, 340, 445, 268, 410, 287, 157, 327, 123, 255, 265, 412]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/fb3b9079-a254-45a4-b5c1-00c85eb017f9",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "fourqueux",
+   "name": "Golf de Fourqueux",
+   "city": "Saint-Germain-en-Laye (78)",
+   "aliases": [
+    "fourqueux"
+   ],
+   "courses": [
+    {
+     "id": "fourqueux-18",
+     "name": "18 trous",
+     "par": [4, 5, 4, 4, 4, 3, 5, 4, 3, 4, 4, 4, 3, 4, 4, 4, 5, 3],
+     "si": [15, 7, 13, 1, 11, 3, 17, 9, 5, 4, 8, 10, 6, 14, 18, 2, 12, 16],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 69.5,
+       "slope": 138,
+       "total": 5376,
+       "len": [286, 436, 283, 378, 298, 180, 449, 267, 165, 353, 312, 279, 152, 278, 257, 423, 452, 128]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 68.6,
+       "slope": 125,
+       "total": 5098,
+       "len": [277, 421, 272, 364, 285, 164, 435, 252, 157, 340, 275, 256, 127, 270, 242, 403, 438, 120]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.4,
+       "slope": 136,
+       "total": 4801,
+       "len": [268, 403, 260, 347, 237, 133, 411, 231, 150, 327, 262, 240, 116, 255, 234, 389, 426, 112]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 69.7,
+       "slope": 123,
+       "total": 4441,
+       "len": [254, 376, 248, 338, 205, 123, 394, 222, 143, 236, 247, 220, 93, 243, 221, 374, 410, 94]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/bc34706d-a572-4841-8c61-dbc180e8d06a",
+     "note": "Combinaison 18 trous publiée par la source (le club compte 27 trous)."
+    }
+   ]
+  },
+  {
+   "id": "yvelines",
+   "name": "Golf des Yvelines",
+   "city": "La Queue-lez-Yvelines (78)",
+   "aliases": [
+    "yvelines",
+    "golf des yvelines",
+    "la queue lez yvelines",
+    "les chenes"
+   ],
+   "courses": [
+    {
+     "id": "yvelines-chenes",
+     "name": "Les Chênes",
+     "par": [4, 4, 4, 3, 4, 5, 4, 5, 3, 4, 3, 4, 5, 3, 4, 4, 4, 5],
+     "si": [17, 13, 7, 9, 3, 11, 15, 1, 5, 4, 16, 2, 12, 10, 6, 18, 8, 14],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.4,
+       "slope": 136,
+       "total": 6187,
+       "len": [349, 346, 381, 163, 381, 479, 322, 516, 175, 347, 140, 408, 443, 166, 369, 305, 387, 510]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/9776207f-d7a1-4f2c-b23f-b17e349ef8fc",
+     "note": "Seul le repère blanc est publié par la source."
+    }
+   ]
+  },
+  {
+   "id": "saint-quentin",
+   "name": "Golf Bluegreen de Saint-Quentin-en-Yvelines",
+   "city": "Trappes (78)",
+   "aliases": [
+    "saint quentin",
+    "saint-quentin-en-yvelines",
+    "st quentin",
+    "trappes",
+    "bluegreen saint quentin"
+   ],
+   "courses": [
+    {
+     "id": "sqy-bleu",
+     "name": "Bleu",
+     "par": [4, 3, 4, 4, 3, 4, 5, 5, 4, 3, 4, 5, 5, 3, 4, 4, 4, 4],
+     "si": [14, 4, 10, 2, 16, 18, 12, 8, 6, 15, 13, 1, 5, 11, 3, 7, 17, 9],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6121,
+       "len": [386, 182, 380, 397, 164, 308, 457, 519, 354, 171, 301, 477, 468, 148, 382, 369, 305, 353]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5741,
+       "len": [360, 172, 347, 372, 150, 284, 443, 489, 343, 140, 288, 451, 458, 132, 350, 358, 294, 310]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5347,
+       "len": [352, 164, 339, 358, 134, 266, 412, 455, 310, 136, 283, 401, 395, 131, 323, 338, 247, 303]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4983,
+       "len": [326, 143, 301, 339, 128, 258, 406, 416, 289, 101, 241, 395, 390, 118, 291, 329, 241, 271]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/227376c7-bcef-4cc3-a1c5-47dd4eba1c8e",
+     "note": "CR/slope non publiés par la source."
+    },
+    {
+     "id": "sqy-rouge",
+     "name": "Rouge",
+     "par": [5, 4, 3, 5, 4, 4, 3, 4, 4, 3, 4, 4, 4, 5, 4, 3, 4, 5],
+     "si": [12, 4, 18, 14, 2, 10, 8, 6, 16, 15, 13, 3, 1, 7, 5, 17, 9, 11],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5787,
+       "len": [455, 331, 152, 444, 369, 281, 184, 375, 315, 141, 324, 322, 356, 481, 348, 155, 276, 478]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5456,
+       "len": [425, 322, 139, 426, 354, 267, 174, 330, 304, 130, 310, 291, 347, 467, 330, 145, 272, 423]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5049,
+       "len": [403, 274, 117, 394, 311, 233, 150, 324, 280, 116, 303, 284, 340, 430, 292, 138, 252, 408]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4756,
+       "len": [372, 262, 113, 386, 306, 225, 150, 287, 273, 102, 276, 241, 334, 414, 283, 132, 246, 354]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/6a380c7b-f5fd-4aa5-98ef-567e4721dbc2",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "saint-aubin",
+   "name": "Golf Bluegreen de Saint-Aubin",
+   "city": "Saint-Aubin (91)",
+   "aliases": [
+    "saint aubin",
+    "st aubin",
+    "bluegreen saint aubin",
+    "le mesnil"
+   ],
+   "courses": [
+    {
+     "id": "saint-aubin-18",
+     "name": "18 trous",
+     "par": [5, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 4, 4, 5, 3, 4, 3, 4],
+     "si": [1, 15, 3, 7, 13, 18, 16, 4, 9, 11, 8, 5, 17, 12, 10, 6, 14, 2],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5495,
+       "len": [483, 288, 422, 356, 151, 279, 315, 369, 305, 156, 317, 336, 321, 439, 165, 316, 149, 327]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5234,
+       "len": [470, 262, 389, 332, 141, 266, 299, 356, 305, 139, 309, 326, 283, 430, 155, 304, 141, 327]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4998,
+       "len": [456, 248, 369, 332, 131, 256, 299, 342, 273, 117, 304, 315, 283, 417, 140, 279, 134, 304]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4788,
+       "len": [432, 232, 369, 308, 123, 245, 278, 333, 273, 117, 292, 301, 250, 406, 134, 271, 134, 289]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24501-golf-bluegreen-saint-aubin-18-hole/scorecard-and-layout",
+     "note": "Longueurs GolfPass (yards convertis) ; CR non publié par la source."
+    }
+   ],
+   "pending": [
+    "9 trous"
+   ]
+  },
+  {
+   "id": "la-boulie",
+   "name": "Golf de La Boulie (Racing Club de France)",
+   "city": "Versailles (78)",
+   "aliases": [
+    "la boulie",
+    "boulie",
+    "racing club de france",
+    "rcf",
+    "versailles"
+   ],
+   "courses": [
+    {
+     "id": "boulie-vallee",
+     "name": "La Vallée",
+     "par": [4, 4, 3, 5, 4, 4, 3, 5, 4, 3, 5, 4, 3, 4, 3, 4, 5, 5],
+     "si": [5, 1, 9, 17, 3, 11, 7, 13, 15, 6, 14, 12, 4, 8, 10, 2, 16, 18],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.0,
+       "slope": 135,
+       "total": 5920,
+       "len": [364, 407, 150, 470, 423, 329, 162, 460, 280, 192, 456, 306, 158, 369, 171, 386, 433, 402]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71.0,
+       "slope": 129,
+       "total": 5673,
+       "len": [349, 390, 143, 445, 382, 309, 157, 454, 274, 171, 447, 299, 149, 362, 156, 371, 433, 379]
+      },
+      {
+       "name": "Bleu",
+       "gender": "M",
+       "cr": 68.7,
+       "slope": 124,
+       "total": 5192,
+       "len": [334, 366, 132, 368, 334, 284, 142, 434, 241, 154, 406, 291, 113, 321, 151, 359, 414, 348]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 72.7,
+       "slope": 133,
+       "total": 5034,
+       "len": [321, 358, 123, 368, 334, 276, 132, 401, 226, 154, 402, 277, 113, 313, 142, 344, 401, 348]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24656-racing-club-de-france-la-vallee-course/scorecard-and-layout",
+     "note": "Longueurs GolfPass (yards convertis), total conforme à 1golf (5 918 m)."
+    },
+    {
+     "id": "boulie-foret",
+     "name": "La Forêt",
+     "par": [4, 3, 5, 4, 5, 4, 4, 4, 3, 5, 3, 4, 3, 5, 4, 4, 4, 4],
+     "si": [10, 2, 18, 8, 16, 14, 4, 12, 6, 9, 1, 17, 7, 15, 13, 3, 11, 5],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6107,
+       "len": [357, 122, 443, 422, 426, 334, 397, 347, 166, 531, 166, 386, 143, 469, 380, 369, 314, 336]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.1,
+       "slope": 127,
+       "total": 6088,
+       "len": [337, 122, 443, 422, 426, 334, 397, 347, 166, 531, 166, 386, 143, 469, 380, 369, 314, 336]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 72.3,
+       "slope": 120,
+       "total": 5882,
+       "len": [337, 117, 434, 403, 412, 326, 383, 326, 159, 509, 158, 365, 134, 459, 370, 358, 302, 326]
+      },
+      {
+       "name": "Bleu",
+       "gender": "M",
+       "cr": 69.7,
+       "slope": 115,
+       "total": 5356,
+       "len": [337, 112, 421, 347, 398, 288, 322, 291, 153, 482, 149, 332, 119, 446, 358, 315, 265, 222]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 73.8,
+       "slope": 124,
+       "total": 5136,
+       "len": [337, 108, 413, 347, 364, 288, 294, 287, 147, 456, 119, 307, 112, 417, 337, 315, 265, 222]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24658-racing-club-de-france-la-foret-course/scorecard-and-layout",
+     "note": "Longueurs GolfPass (yards convertis)."
+    }
+   ],
+   "pending": [
+    "Le Coteau (9 trous, par 3)"
+   ]
+  },
+  {
+   "id": "rochefort",
+   "name": "UGolf Château de Rochefort",
+   "city": "Rochefort-en-Yvelines (78)",
+   "aliases": [
+    "rochefort",
+    "rochefort en yvelines"
+   ],
+   "courses": [
+    {
+     "id": "rochefort-18",
+     "name": "18 trous",
+     "par": [4, 5, 3, 4, 5, 4, 4, 3, 4, 3, 5, 3, 4, 5, 4, 4, 3, 4],
+     "si": [9, 11, 17, 3, 15, 13, 5, 7, 1, 8, 18, 14, 2, 10, 16, 4, 12, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5627,
+       "len": [356, 476, 124, 337, 417, 315, 337, 192, 387, 156, 448, 143, 356, 437, 310, 352, 148, 336]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5411,
+       "len": [346, 457, 121, 327, 405, 300, 327, 177, 369, 150, 430, 134, 347, 433, 298, 333, 142, 315]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5006,
+       "len": [311, 443, 115, 317, 395, 284, 304, 166, 302, 143, 369, 125, 315, 387, 287, 299, 136, 308]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4778,
+       "len": [303, 431, 112, 305, 358, 272, 294, 154, 294, 134, 356, 116, 307, 362, 255, 293, 132, 300]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/297e6644-2159-4027-bd60-1ec0cb4bb004",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "forges",
+   "name": "Golf de Forges-les-Bains",
+   "city": "Forges-les-Bains (91)",
+   "aliases": [
+    "forges",
+    "forges les bains"
+   ],
+   "courses": [
+    {
+     "id": "forges-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 4, 5, 4, 4, 3, 5, 4, 4, 3, 5, 4, 3, 4, 4, 5],
+     "si": [4, 16, 10, 14, 5, 1, 8, 15, 6, 2, 7, 17, 9, 12, 18, 13, 11, 3],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5631,
+       "len": [351, 155, 326, 282, 437, 367, 329, 198, 435, 363, 331, 147, 409, 301, 140, 293, 318, 449]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5219,
+       "len": [323, 139, 308, 242, 409, 344, 320, 177, 424, 330, 290, 134, 398, 281, 131, 267, 290, 412]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4791,
+       "len": [294, 124, 277, 233, 376, 319, 273, 154, 379, 308, 280, 123, 369, 260, 120, 242, 264, 396]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4464,
+       "len": [353, 94, 262, 210, 339, 283, 240, 140, 376, 272, 248, 110, 357, 230, 110, 215, 234, 391],
+       "si": [1, 18, 8, 14, 6, 5, 10, 15, 3, 7, 9, 17, 4, 12, 16, 13, 11, 2]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/20adea66-9163-4977-b087-7fa7c6f613a9",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "courson",
+   "name": "Golf de Courson (Stade Français)",
+   "city": "Courson-Monteloup (91)",
+   "aliases": [
+    "courson",
+    "stade francais",
+    "stade français",
+    "monteloup"
+   ],
+   "courses": [
+    {
+     "id": "courson-lilas-noir",
+     "name": "Lilas / Noir",
+     "par": [4, 4, 4, 3, 4, 5, 4, 3, 5, 4, 3, 4, 4, 5, 3, 4, 4, 5],
+     "si": [8, 16, 2, 14, 6, 10, 4, 12, 18, 1, 17, 9, 11, 3, 13, 7, 5, 15],
+     "tees": [
+      {
+       "name": "Messieurs",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6257,
+       "len": [361, 340, 399, 172, 358, 480, 399, 138, 468, 405, 149, 362, 371, 459, 160, 362, 348, 526]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/2f8588e5-42cb-bf68-f4a5-890120822404",
+     "note": "Repère unique publié par la source (couleur non précisée) ; CR/slope non repris (SSS ancien)."
+    },
+    {
+     "id": "courson-vert-noir",
+     "name": "Vert / Noir",
+     "par": [4, 3, 4, 4, 5, 4, 4, 3, 5, 4, 3, 4, 4, 5, 3, 4, 4, 5],
+     "si": [7, 17, 15, 9, 1, 3, 5, 13, 11, 2, 18, 10, 12, 4, 14, 8, 6, 16],
+     "tees": [
+      {
+       "name": "Messieurs",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6036,
+       "len": [391, 142, 361, 372, 502, 396, 367, 148, 500, 365, 139, 345, 351, 435, 114, 335, 312, 461]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/fe0d3bf4-5e02-dbe2-3166-6354ebb98d54",
+     "note": "Repère unique publié par la source (couleur non précisée) ; CR/slope non repris (SSS ancien)."
+    },
+    {
+     "id": "courson-lilas-orange",
+     "name": "Lilas / Orange",
+     "par": [4, 4, 4, 3, 4, 5, 4, 3, 5, 5, 4, 4, 4, 3, 4, 4, 3, 5],
+     "si": [8, 16, 2, 14, 10, 6, 4, 12, 18, 17, 9, 11, 15, 5, 3, 1, 13, 7],
+     "tees": [
+      {
+       "name": "Messieurs",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5733,
+       "len": [330, 315, 352, 158, 333, 464, 390, 116, 446, 439, 309, 337, 318, 136, 374, 342, 152, 422]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/4efb0fe1-2c4d-f08f-2de3-13c3bad84f0f",
+     "note": "Repère unique publié par la source (couleur non précisée) ; CR/slope non repris (SSS ancien)."
+    }
+   ]
+  },
+  {
+   "id": "disneyland",
+   "name": "Golf Disneyland",
+   "city": "Bailly-Romainvilliers / Magny-le-Hongre (77)",
+   "aliases": [
+    "disneyland",
+    "disney",
+    "golf disneyland",
+    "magny le hongre",
+    "val d'europe"
+   ],
+   "courses": [
+    {
+     "id": "disney-rouge",
+     "name": "Rouge (9 trous)",
+     "par": [5, 3, 5, 4, 3, 5, 4, 3, 4],
+     "si": [4, 8, 2, 6, 9, 1, 3, 7, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2905,
+       "len": [465, 165, 450, 340, 130, 475, 360, 185, 335]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2660,
+       "len": [435, 145, 420, 310, 110, 450, 330, 155, 305]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2435,
+       "len": [410, 130, 395, 290, 90, 400, 310, 130, 280]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2225,
+       "len": [385, 110, 375, 270, 75, 375, 285, 115, 235]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/5765aec3-da19-4513-af87-1c09123dee80"
+    },
+    {
+     "id": "disney-bleu",
+     "name": "Bleu (9 trous)",
+     "par": [4, 4, 4, 3, 5, 3, 4, 4, 5],
+     "si": [7, 9, 3, 5, 1, 8, 6, 2, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3127,
+       "len": [331, 296, 407, 215, 546, 160, 306, 385, 481]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2933,
+       "len": [315, 270, 387, 191, 507, 153, 291, 361, 458]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2737,
+       "len": [291, 252, 365, 168, 487, 128, 278, 336, 432]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2548,
+       "len": [269, 237, 340, 151, 470, 110, 243, 316, 412]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/193867fc-0b92-43ff-bcd2-9bdde726017b"
+    },
+    {
+     "id": "disney-blanc",
+     "name": "Blanc (9 trous)",
+     "par": [4, 5, 4, 3, 4, 4, 3, 4, 5],
+     "si": [8, 1, 3, 7, 4, 5, 9, 2, 6],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3094,
+       "len": [339, 535, 373, 170, 355, 335, 146, 402, 439]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2905,
+       "len": [336, 515, 351, 150, 335, 315, 122, 379, 402]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2729,
+       "len": [308, 495, 324, 137, 315, 290, 119, 356, 385]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2510,
+       "len": [290, 460, 292, 123, 290, 270, 90, 330, 365]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/6093c7dc-8f9e-495e-a2a5-e9d3eb91722f"
+    }
+   ]
+  },
+  {
+   "id": "mont-griffon",
+   "name": "Golf Hôtel de Mont Griffon",
+   "city": "Luzarches (95)",
+   "aliases": [
+    "mont griffon",
+    "montgriffon",
+    "luzarches"
+   ],
+   "courses": [
+    {
+     "id": "mont-griffon-lacs",
+     "name": "Les Lacs",
+     "par": [4, 4, 4, 4, 5, 3, 3, 5, 4, 4, 3, 5, 5, 4, 4, 3, 4, 4],
+     "si": [16, 6, 4, 12, 10, 18, 14, 8, 2, 17, 13, 9, 3, 15, 1, 11, 7, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 71.9,
+       "slope": 137,
+       "total": 5889,
+       "len": [327, 347, 335, 347, 468, 157, 143, 453, 358, 333, 148, 477, 457, 347, 367, 139, 354, 333]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.5,
+       "slope": 130,
+       "total": 5605,
+       "len": [310, 338, 326, 332, 450, 146, 135, 433, 326, 321, 140, 460, 445, 315, 358, 134, 343, 294]
+      },
+      {
+       "name": "Bleu",
+       "gender": "M",
+       "cr": 68.4,
+       "slope": 125,
+       "total": 5212,
+       "len": [283, 306, 275, 310, 432, 136, 123, 422, 312, 306, 120, 438, 428, 272, 337, 123, 317, 272]
+      },
+      {
+       "name": "Rouge",
+       "gender": "M",
+       "cr": 66.6,
+       "slope": 122,
+       "total": 4901,
+       "len": [278, 294, 266, 273, 412, 120, 116, 379, 297, 276, 112, 418, 414, 260, 326, 112, 290, 260]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24289-mont-griffon-golf-club-lakes-course/scorecard-and-layout",
+     "note": "Longueurs GolfPass (yards convertis) ; CR/slope messieurs pour tous les repères."
+    }
+   ],
+   "pending": [
+    "L'Arbalète (9 trous)"
+   ]
+  },
+  {
+   "id": "coudray",
+   "name": "UGolf du Coudray",
+   "city": "Le Coudray-Montceaux (91)",
+   "aliases": [
+    "coudray",
+    "coudray montceaux",
+    "le coudray"
+   ],
+   "courses": [
+    {
+     "id": "coudray-18",
+     "name": "18 trous",
+     "par": [4, 4, 3, 5, 4, 4, 4, 5, 3, 4, 4, 5, 4, 3, 4, 4, 3, 4],
+     "si": [7, 5, 15, 11, 1, 17, 9, 3, 13, 18, 14, 8, 12, 10, 6, 2, 16, 4],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 70.2,
+       "slope": 120,
+       "total": 5761,
+       "len": [363, 334, 139, 455, 400, 295, 319, 505, 172, 283, 310, 480, 332, 170, 302, 386, 174, 342]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.2,
+       "slope": 117,
+       "total": 5559,
+       "len": [346, 324, 133, 445, 388, 280, 309, 495, 162, 276, 300, 468, 310, 155, 302, 374, 160, 332]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.3,
+       "slope": 118,
+       "total": 5018,
+       "len": [329, 312, 110, 429, 348, 244, 281, 407, 155, 245, 285, 396, 273, 141, 288, 345, 131, 299]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.5,
+       "slope": 116,
+       "total": 4884,
+       "len": [307, 306, 106, 421, 339, 238, 275, 400, 149, 240, 272, 384, 268, 136, 288, 337, 124, 294]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/8aac71c4-9d03-4bd4-8c1c-6a69e8abcca4"
+    }
+   ],
+   "pending": [
+    "La Guiche (9 trous, compact)"
+   ]
+  },
+  {
+   "id": "chevannes",
+   "name": "Golf de Mennecy-Chevannes",
+   "city": "Chevannes (91)",
+   "aliases": [
+    "chevannes",
+    "mennecy",
+    "mennecy chevannes"
+   ],
+   "courses": [
+    {
+     "id": "chevannes-18",
+     "name": "18 trous",
+     "par": [4, 4, 4, 3, 4, 5, 4, 3, 4, 4, 4, 5, 3, 4, 4, 5, 3, 4],
+     "si": [6, 2, 3, 16, 17, 13, 8, 18, 9, 15, 14, 5, 11, 4, 10, 12, 7, 1],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 73.1,
+       "slope": 132,
+       "total": 6277,
+       "len": [375, 439, 379, 123, 347, 476, 368, 159, 342, 346, 358, 539, 158, 369, 391, 484, 194, 430]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 69.9,
+       "slope": 131,
+       "total": 5748,
+       "len": [363, 375, 364, 120, 332, 461, 316, 142, 328, 333, 343, 484, 153, 324, 311, 470, 150, 379]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 71.6,
+       "slope": 125,
+       "total": 5048,
+       "len": [327, 308, 318, 102, 291, 403, 304, 120, 285, 292, 301, 413, 130, 275, 300, 409, 144, 326]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 69.9,
+       "slope": 122,
+       "total": 4798,
+       "len": [315, 298, 304, 101, 277, 390, 294, 115, 271, 278, 288, 398, 127, 264, 253, 392, 122, 311]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/adb9e1eb-364d-4657-b22e-6bdc65c93eaa"
+    }
+   ]
+  },
+  {
+   "id": "saint-germain-corbeil",
+   "name": "UGolf Saint-Germain-lès-Corbeil",
+   "city": "Saint-Germain-lès-Corbeil (91)",
+   "aliases": [
+    "saint germain les corbeil",
+    "st germain les corbeil",
+    "corbeil"
+   ],
+   "courses": [
+    {
+     "id": "sglc-18",
+     "name": "18 trous",
+     "par": [4, 4, 5, 5, 3, 5, 3, 3, 4, 3, 5, 4, 3, 4, 4, 3, 4, 4],
+     "si": [14, 16, 6, 4, 10, 2, 12, 18, 8, 17, 13, 9, 7, 11, 1, 5, 3, 15],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 69.6,
+       "slope": 137,
+       "total": 5462,
+       "len": [282, 348, 456, 432, 161, 531, 187, 173, 304, 134, 430, 300, 176, 302, 389, 178, 376, 303]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 67.1,
+       "slope": 131,
+       "total": 5074,
+       "len": [264, 325, 436, 405, 140, 509, 158, 157, 277, 128, 410, 272, 156, 283, 358, 164, 344, 288]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 70.7,
+       "slope": 131,
+       "total": 4722,
+       "len": [251, 286, 414, 378, 122, 491, 137, 138, 249, 115, 396, 263, 143, 261, 339, 147, 320, 272]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 67.8,
+       "slope": 128,
+       "total": 4325,
+       "len": [235, 262, 399, 358, 109, 464, 122, 119, 222, 91, 352, 232, 128, 244, 312, 134, 292, 250]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/f4d4f36d-5da0-4ce0-b338-2bd051b15886"
+    }
+   ]
+  },
+  {
+   "id": "etiolles",
+   "name": "Golf d'Étiolles",
+   "city": "Étiolles (91)",
+   "aliases": [
+    "etiolles",
+    "étiolles",
+    "les cerfs"
+   ],
+   "courses": [
+    {
+     "id": "etiolles-cerfs",
+     "name": "Les Cerfs",
+     "par": [5, 4, 4, 4, 3, 5, 4, 5, 3, 4, 4, 4, 5, 4, 3, 5, 3, 4],
+     "si": [8, 12, 2, 18, 10, 4, 14, 6, 16, 13, 7, 1, 3, 17, 15, 9, 11, 5],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6176,
+       "len": [474, 363, 395, 280, 183, 509, 336, 465, 154, 307, 343, 384, 501, 287, 160, 462, 190, 383]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5705,
+       "len": [443, 336, 372, 236, 155, 468, 322, 442, 134, 285, 330, 365, 457, 266, 137, 431, 184, 342]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5396,
+       "len": [415, 326, 349, 225, 135, 456, 308, 422, 113, 271, 303, 347, 440, 266, 123, 409, 166, 322]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5067,
+       "len": [388, 295, 317, 216, 126, 451, 301, 400, 113, 241, 265, 321, 394, 258, 115, 403, 150, 313]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/5b2f3b66-4477-4a8e-a3f8-09527175bd57",
+     "note": "CR/slope non publiés par la source."
+    }
+   ],
+   "pending": [
+    "Les Chênes (9 trous)"
+   ]
+  },
+  {
+   "id": "val-grand",
+   "name": "Golf de Val Grand",
+   "city": "Bondoufle (91)",
+   "aliases": [
+    "val grand",
+    "bondoufle"
+   ],
+   "courses": [
+    {
+     "id": "val-grand-18",
+     "name": "18 trous",
+     "par": [5, 4, 4, 4, 3, 4, 5, 3, 4, 3, 5, 4, 3, 5, 4, 4, 3, 4],
+     "si": [8, 10, 14, 6, 12, 18, 4, 16, 2, 9, 1, 13, 7, 5, 17, 15, 11, 3],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5893,
+       "len": [475, 345, 328, 372, 149, 288, 473, 178, 396, 195, 508, 342, 170, 466, 308, 334, 174, 392]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5298,
+       "len": [443, 336, 287, 354, 117, 263, 421, 155, 354, 168, 463, 296, 158, 409, 281, 303, 148, 342]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4876,
+       "len": [419, 328, 279, 329, 107, 258, 382, 139, 339, 155, 415, 272, 148, 355, 236, 294, 134, 287]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4421,
+       "len": [385, 289, 242, 284, 99, 222, 369, 112, 303, 114, 411, 262, 127, 348, 209, 265, 98, 282]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/311c1b64-9578-46bb-ac84-99c7bf71ad73",
+     "note": "Slope non publié par la source."
+    }
+   ]
+  },
+  {
+   "id": "crecy",
+   "name": "Golf Bluegreen de Crécy-la-Chapelle",
+   "city": "Crécy-la-Chapelle (77)",
+   "aliases": [
+    "crecy",
+    "crécy",
+    "crecy la chapelle",
+    "montpichet",
+    "vignoly"
+   ],
+   "courses": [
+    {
+     "id": "crecy-montpichet",
+     "name": "Montpichet",
+     "par": [4, 3, 5, 4, 5, 4, 3, 5, 3, 4, 3, 5, 4, 4, 5, 4, 3, 4],
+     "si": [11, 17, 7, 3, 1, 13, 15, 5, 9, 8, 6, 12, 4, 2, 18, 10, 14, 16],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6038,
+       "len": [307, 146, 483, 308, 505, 347, 162, 503, 149, 372, 170, 518, 352, 410, 448, 384, 175, 299]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5785,
+       "len": [284, 142, 461, 302, 492, 338, 156, 485, 143, 359, 156, 496, 332, 380, 433, 374, 163, 289]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5392,
+       "len": [264, 134, 427, 295, 446, 333, 142, 450, 133, 348, 147, 454, 289, 337, 415, 348, 151, 279]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5170,
+       "len": [264, 124, 393, 286, 409, 327, 142, 435, 127, 340, 143, 409, 289, 323, 407, 326, 147, 279]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/c3f578d3-2ae1-4902-bb05-4355d6e38841",
+     "note": "CR/slope non publiés par la source."
+    },
+    {
+     "id": "crecy-vignoly",
+     "name": "Vignoly",
+     "par": [4, 5, 3, 4, 4, 5, 4, 3, 4, 5, 3, 4, 5, 4, 4, 3, 4, 4],
+     "si": [11, 7, 3, 15, 1, 9, 5, 13, 17, 16, 6, 8, 10, 18, 4, 14, 12, 2],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6342,
+       "len": [425, 502, 155, 335, 416, 487, 366, 197, 332, 492, 149, 363, 508, 313, 292, 135, 438, 437]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6123,
+       "len": [406, 491, 155, 325, 395, 478, 348, 186, 322, 485, 144, 350, 476, 313, 292, 135, 406, 416]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5764,
+       "len": [382, 472, 141, 304, 372, 452, 329, 160, 309, 475, 133, 331, 450, 292, 275, 123, 379, 385]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5347,
+       "len": [317, 429, 129, 286, 352, 427, 310, 145, 292, 444, 126, 300, 403, 279, 264, 111, 369, 364]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4832,
+       "len": [311, 414, 109, 246, 305, 356, 270, 124, 248, 404, 109, 262, 403, 258, 245, 99, 341, 328]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/1360c568-e9e1-403a-88ee-8c3fba33d914",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "meaux-boutigny",
+   "name": "Golf de Meaux-Boutigny",
+   "city": "Boutigny (77)",
+   "aliases": [
+    "meaux",
+    "boutigny",
+    "meaux boutigny"
+   ],
+   "courses": [
+    {
+     "id": "meaux-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 4, 5, 4, 5, 3, 4, 3, 4, 4, 4, 3, 4, 5, 3, 5],
+     "si": [16, 8, 6, 10, 12, 15, 4, 14, 2, 11, 17, 3, 5, 13, 18, 1, 9, 7],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 69.5,
+       "slope": 135,
+       "total": 5767,
+       "len": [323, 176, 297, 351, 488, 360, 440, 122, 420, 168, 305, 411, 358, 166, 287, 433, 168, 494]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 68.5,
+       "slope": 134,
+       "total": 5547,
+       "len": [305, 172, 297, 321, 478, 352, 440, 105, 412, 162, 305, 401, 321, 155, 275, 433, 151, 462]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 69.6,
+       "slope": 120,
+       "total": 4861,
+       "len": [260, 151, 258, 296, 407, 315, 369, 98, 291, 157, 285, 328, 302, 148, 230, 398, 119, 449]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 68.6,
+       "slope": 112,
+       "total": 4580,
+       "len": [260, 151, 258, 254, 342, 315, 288, 98, 282, 147, 285, 320, 302, 148, 230, 390, 119, 391]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/05eb0ceb-cbc3-4a13-a3e1-221f6d233ea6"
+    }
+   ]
+  },
+  {
+   "id": "lesigny",
+   "name": "Golf de Lésigny-Réveillon",
+   "city": "Lésigny (77)",
+   "aliases": [
+    "lesigny",
+    "lésigny",
+    "reveillon",
+    "réveillon"
+   ],
+   "courses": [
+    {
+     "id": "lesigny-blanc",
+     "name": "Blanc (9 trous)",
+     "par": [4, 5, 3, 4, 5, 3, 4, 4, 4],
+     "si": [6, 3, 5, 4, 2, 8, 1, 7, 9],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3032,
+       "len": [294, 518, 188, 334, 521, 187, 406, 318, 266]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2846,
+       "len": [280, 480, 160, 334, 489, 164, 371, 302, 266]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2561,
+       "len": [280, 416, 140, 304, 435, 164, 316, 274, 232]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2446,
+       "len": [262, 416, 140, 263, 435, 139, 316, 243, 232]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/cd1c0b66-c890-4625-a6aa-c1e206c09b97"
+    },
+    {
+     "id": "lesigny-jaune",
+     "name": "Jaune (9 trous)",
+     "par": [4, 5, 3, 4, 4, 4, 4, 4, 3],
+     "si": [8, 2, 6, 5, 1, 3, 7, 4, 9],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2861,
+       "len": [277, 457, 168, 347, 427, 379, 297, 351, 158]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2646,
+       "len": [257, 457, 144, 313, 385, 350, 297, 321, 122]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2420,
+       "len": [219, 417, 144, 313, 333, 303, 248, 321, 122]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2265,
+       "len": [219, 417, 116, 259, 333, 303, 248, 280, 90]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/49d63968-3f15-4fd4-93a4-c1c975c50873"
+    },
+    {
+     "id": "lesigny-orange",
+     "name": "Orange (9 trous)",
+     "par": [3, 4, 4, 5, 5, 4, 4, 3, 4],
+     "si": [9, 7, 6, 2, 4, 1, 3, 5, 8],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3064,
+       "len": [141, 295, 340, 541, 473, 396, 364, 220, 294]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2792,
+       "len": [121, 295, 311, 489, 435, 358, 335, 191, 257]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2590,
+       "len": [121, 230, 271, 432, 435, 358, 295, 191, 257]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2343,
+       "len": [101, 230, 271, 432, 372, 301, 295, 140, 201]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/b40be65f-e29d-44ec-b453-11ca7b999f21"
+    }
+   ]
+  },
+  {
+   "id": "ormesson",
+   "name": "Golf d'Ormesson",
+   "city": "Ormesson-sur-Marne (94)",
+   "aliases": [
+    "ormesson",
+    "la queue en brie"
+   ],
+   "courses": [
+    {
+     "id": "ormesson-18",
+     "name": "18 trous",
+     "par": [5, 4, 4, 4, 3, 4, 4, 5, 3, 4, 3, 5, 4, 3, 4, 5, 4, 4],
+     "si": [9, 3, 13, 1, 15, 7, 17, 5, 11, 2, 12, 10, 6, 16, 4, 8, 18, 14],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 6132,
+       "len": [420, 395, 326, 395, 150, 355, 315, 490, 184, 390, 213, 470, 395, 166, 385, 450, 253, 380]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5878,
+       "len": [420, 370, 310, 370, 140, 335, 315, 460, 160, 390, 205, 439, 375, 155, 360, 450, 244, 380]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5173,
+       "len": [360, 340, 270, 320, 125, 320, 260, 411, 155, 345, 170, 395, 326, 140, 310, 390, 210, 326]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4957,
+       "len": [360, 307, 270, 312, 106, 288, 260, 390, 129, 345, 152, 370, 326, 126, 310, 390, 190, 326]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/25f3a1e7-3927-4b18-9207-e4302723bab9",
+     "note": "CR non publié par la source."
+    }
+   ]
+  },
+  {
+   "id": "bussy-guermantes",
+   "name": "Golf de Bussy-Guermantes",
+   "city": "Bussy-Saint-Georges (77)",
+   "aliases": [
+    "bussy",
+    "guermantes",
+    "bussy saint georges"
+   ],
+   "courses": [],
+   "pending": [
+    "18 trous"
+   ]
+  },
+  {
+   "id": "clement-ader",
+   "name": "Golf Clément Ader",
+   "city": "Gretz-Armainvilliers (77)",
+   "aliases": [
+    "clement ader",
+    "clément ader",
+    "gretz"
+   ],
+   "courses": [],
+   "pending": [
+    "18 trous"
+   ]
+  },
+  {
+   "id": "isabella",
+   "name": "Golf Isabella",
+   "city": "Plaisir (78)",
+   "aliases": [
+    "isabella",
+    "plaisir"
+   ],
+   "courses": [],
+   "pending": [
+    "18 trous"
+   ]
+  },
+  {
+   "id": "ozoir",
+   "name": "Golf d'Ozoir-la-Ferrière",
+   "city": "Ozoir-la-Ferrière (77)",
+   "aliases": [
+    "ozoir",
+    "ozoir la ferriere"
+   ],
+   "courses": [],
+   "pending": [
+    "18 trous"
+   ]
+  },
+  {
+   "id": "domont",
+   "name": "Golf de Domont-Montmorency",
+   "city": "Domont (95)",
+   "aliases": [
+    "domont",
+    "montmorency",
+    "domont montmorency"
+   ],
+   "courses": [
+    {
+     "id": "domont-18",
+     "name": "18 trous",
+     "par": [4, 3, 4, 4, 5, 4, 5, 3, 4, 4, 4, 3, 5, 3, 4, 3, 5, 4],
+     "si": [15, 5, 3, 11, 7, 17, 13, 9, 1, 14, 8, 12, 2, 18, 4, 16, 6, 10],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5876,
+       "len": [334, 204, 384, 310, 475, 354, 456, 190, 375, 347, 317, 159, 497, 143, 386, 153, 491, 301]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 5570,
+       "len": [316, 189, 367, 300, 455, 342, 433, 182, 363, 333, 303, 151, 488, 132, 342, 148, 436, 290]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5009,
+       "len": [291, 166, 333, 252, 415, 300, 414, 166, 343, 292, 257, 139, 412, 120, 301, 138, 395, 275]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 4856,
+       "len": [265, 142, 326, 230, 415, 292, 409, 160, 343, 285, 247, 137, 411, 115, 292, 135, 382, 270]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/a9d4186c-2139-4265-aefd-e879986a5c40",
+     "note": "CR/slope non publiés par la source."
+    }
+   ]
+  },
+  {
+   "id": "fontenailles",
+   "name": "Golf de Fontenailles",
+   "city": "Fontenailles (77)",
+   "aliases": [
+    "fontenailles"
+   ],
+   "courses": [],
+   "pending": [
+    "Blanc (9 trous)",
+    "Bleu (9 trous)",
+    "Jaune (9 trous)"
+   ]
+  },
+  {
+   "id": "paris-international",
+   "name": "Paris International Golf Club",
+   "city": "Baillet-en-France (95)",
+   "aliases": [
+    "paris international",
+    "pigc",
+    "baillet",
+    "bouffemont"
+   ],
+   "courses": [
+    {
+     "id": "pigc-18",
+     "name": "18 trous",
+     "par": [4, 3, 5, 4, 4, 3, 4, 5, 4, 5, 4, 4, 3, 4, 3, 4, 4, 5],
+     "si": [15, 17, 9, 5, 1, 11, 7, 13, 3, 14, 2, 6, 18, 12, 10, 8, 4, 16],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": 73.6,
+       "slope": 143,
+       "total": 6252,
+       "len": [338, 165, 499, 380, 410, 173, 365, 480, 369, 443, 354, 400, 140, 295, 189, 384, 391, 477]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72.1,
+       "slope": 142,
+       "total": 5985,
+       "len": [338, 140, 499, 358, 379, 161, 331, 468, 369, 443, 328, 384, 131, 295, 171, 369, 359, 462]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 70.4,
+       "slope": 137,
+       "total": 5581,
+       "len": [314, 140, 463, 328, 359, 143, 312, 433, 326, 418, 318, 350, 117, 271, 165, 350, 330, 444]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": 73.3,
+       "slope": 135,
+       "total": 5123,
+       "len": [289, 123, 429, 306, 311, 120, 302, 397, 298, 380, 291, 310, 106, 252, 154, 325, 304, 426]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": 70.9,
+       "slope": 134,
+       "total": 4780,
+       "len": [259, 101, 405, 306, 311, 105, 274, 360, 249, 353, 291, 310, 95, 231, 129, 325, 277, 399]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/09feb4b4-49e4-44a0-aef3-2d0736caf7c7"
+    }
+   ]
+  },
+  {
+   "id": "forteresse",
+   "name": "Golf de la Forteresse",
+   "city": "Thoury-Férottes / Voulx (77)",
+   "aliases": [
+    "forteresse",
+    "la forteresse",
+    "thoury ferottes",
+    "voulx"
+   ],
+   "courses": [
+    {
+     "id": "forteresse-18",
+     "name": "18 trous",
+     "par": [4, 5, 3, 5, 3, 4, 4, 5, 4, 4, 4, 5, 4, 3, 4, 3, 4, 4],
+     "si": [16, 4, 14, 2, 8, 6, 12, 10, 18, 5, 1, 15, 17, 9, 11, 3, 13, 7],
+     "tees": [
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": 72,
+       "slope": 130,
+       "total": 6431,
+       "len": [319, 501, 150, 515, 182, 340, 349, 485, 281, 409, 460, 529, 347, 226, 346, 188, 380, 424]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": 71,
+       "slope": 125,
+       "total": 6062,
+       "len": [319, 489, 145, 488, 175, 326, 339, 439, 273, 397, 406, 451, 335, 201, 335, 164, 369, 411]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5559,
+       "len": [284, 453, 131, 450, 128, 290, 298, 439, 255, 357, 336, 445, 315, 198, 322, 151, 324, 383]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 5266,
+       "len": [277, 428, 116, 442, 121, 278, 293, 398, 225, 349, 330, 417, 292, 180, 312, 120, 315, 373]
+      }
+     ],
+     "source": "https://www.golfingrecord.com/golf-scorecard/7dbf6125-1201-427f-9ced-ca8f6699c36c",
+     "note": "Bleu/Rouge : CR/slope publiés identiques aux repères messieurs, non repris."
+    }
+   ]
+  },
+  {
+   "id": "bellefontaine",
+   "name": "Golf Bluegreen de Bellefontaine",
+   "city": "Bellefontaine (95)",
+   "aliases": [
+    "bellefontaine",
+    "plessis bellefontaine",
+    "bluegreen bellefontaine"
+   ],
+   "courses": [
+    {
+     "id": "bellefontaine-blanc",
+     "name": "Blanc (9 trous)",
+     "par": [4, 4, 4, 3, 4, 5, 3, 4, 5],
+     "si": [9, 7, 4, 3, 2, 8, 5, 1, 6],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3107,
+       "len": [304, 347, 387, 179, 373, 463, 196, 369, 490]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3018,
+       "len": [304, 301, 387, 179, 373, 463, 170, 369, 473]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2774,
+       "len": [294, 288, 334, 167, 361, 416, 150, 326, 437]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2532,
+       "len": [272, 277, 301, 134, 322, 384, 130, 315, 398]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2301,
+       "len": [235, 244, 274, 125, 294, 353, 119, 289, 367]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/24495-golf-bluegreen-bellefontaine-white-nine/scorecard-and-layout",
+     "note": "SI ramenés de 18 à 9 (ordre publié conservé) ; longueurs GolfPass (yards convertis)."
+    },
+    {
+     "id": "bellefontaine-jaune",
+     "name": "Jaune (9 trous)",
+     "par": [4, 4, 5, 4, 3, 4, 3, 5, 4],
+     "si": [9, 1, 4, 2, 5, 6, 8, 7, 3],
+     "tees": [
+      {
+       "name": "Noir",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3155,
+       "len": [335, 390, 486, 415, 158, 380, 163, 452, 376]
+      },
+      {
+       "name": "Blanc",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 3103,
+       "len": [335, 369, 477, 402, 158, 380, 163, 452, 366]
+      },
+      {
+       "name": "Jaune",
+       "gender": "M",
+       "cr": null,
+       "slope": null,
+       "total": 2896,
+       "len": [325, 329, 451, 360, 146, 364, 154, 418, 349]
+      },
+      {
+       "name": "Bleu",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2633,
+       "len": [302, 311, 403, 335, 141, 315, 134, 390, 302]
+      },
+      {
+       "name": "Rouge",
+       "gender": "F",
+       "cr": null,
+       "slope": null,
+       "total": 2384,
+       "len": [254, 296, 368, 305, 115, 280, 116, 367, 283]
+      }
+     ],
+     "source": "https://www.golfpass.com/courses/39847-golf-bluegreen-bellefontaine-yellow-nine/scorecard-and-layout",
+     "note": "SI ramenés de 18 à 9 (ordre publié conservé) ; longueurs GolfPass (yards convertis)."
+    }
+   ],
+   "pending": [
+    "Rouge (9 trous)"
+   ]
+  },
+  {
+   "id": "saint-cloud",
+   "name": "Golf de Saint-Cloud",
+   "city": "Garches (92)",
+   "aliases": [
+    "saint cloud",
+    "st cloud",
+    "garches"
+   ],
+   "courses": [],
+   "pending": [
+    "Vert",
+    "Jaune"
+   ]
+  },
+  {
+   "id": "greenparc",
+   "name": "UGolf Greenparc (Sénart)",
+   "city": "Saint-Pierre-du-Perray (91)",
+   "aliases": [
+    "greenparc",
+    "senart",
+    "sénart"
+   ],
+   "courses": [],
+   "pending": [
+    "18 trous"
    ]
   }
  ]

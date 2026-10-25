@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.7.1";
+const APP_VERSION = "1.8.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -950,7 +950,9 @@ document.addEventListener("click", async e => {
     case "h-next": case "h-finish": { const h = d.holes[S.hole]; if (h.score == null) h.score = h.par || 4; if (h.putts == null) h.putts = 2; if (a === "h-next") S.hole++; else d.stage = "finish"; saveDraft(); render(); window.scrollTo(0, 0); break; }
   }
 });
-function refreshPicker() { const el = document.getElementById("setup-picker"); if (el) el.innerHTML = setupPicker(); }
+function refreshPicker() { const el = document.getElementById("setup-picker"); if (el) el.innerHTML = setupPicker();
+  const f = S.setup.course && findCourse(S.setup.course), seg = document.querySelector('[data-seg="holesCount"]');
+  if (f && seg && f.course.par.length === 9 && S.setup._nine !== f.course.id) { S.setup._nine = f.course.id; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.v === "9"))); } }
 function defaultTee() { const f = findCourse(S.setup.course); if (!f) return; const saved = lsGet("golf-tee-" + f.course.id, null);
   const t = f.course.tees.find(x => x.name === saved) || f.course.tees.find(x => x.name === "Blanc" && x.gender === "M") || f.course.tees.find(x => x.gender === "M") || f.course.tees[0]; S.setup.tee = t ? t.name : null; }
 document.addEventListener("input", e => { if (e.target.id === "ed-search") { S.setup.q = e.target.value; S.setup.newName = null; const el = document.getElementById("course-sugg"); if (el) el.innerHTML = suggList(S.setup.q); } });
