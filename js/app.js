@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.8.0";
+const APP_VERSION = "1.8.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -484,7 +484,14 @@ function videosBlock(ref) {
 }
 function videoForm(ref, k) {
   return `<form class="stack" data-form="video" data-ref="${esc(ref)}" style="margin-top:6px">
-    <div class="f"><label for="vf-${k}">Filmer ou choisir une vidéo</label><input id="vf-${k}" name="file" type="file" accept="video/*" capture="environment" required></div>
+    <div class="f"><span class="lbl">Vidéo</span>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <label class="btn ghost sm" for="vf-${k}" style="cursor:pointer">Choisir dans la galerie</label>
+        <label class="btn ghost sm" for="vk-${k}" style="cursor:pointer">Filmer</label>
+      </div>
+      <input id="vf-${k}" name="file" type="file" accept="video/*" hidden onchange="this.form.querySelector('.vname').textContent=this.files[0]?this.files[0].name:'';this.form.fileCam.value=''">
+      <input id="vk-${k}" name="fileCam" type="file" accept="video/*" capture="environment" hidden onchange="this.form.querySelector('.vname').textContent=this.files[0]?this.files[0].name:'';this.form.file.value=''">
+      <span class="vname xs muted" style="overflow-wrap:anywhere"></span></div>
     <div class="grid">
       <div class="f"><label for="va-${k}">Angle</label><select id="va-${k}" name="angle"><option>Down-the-line</option><option>De face</option><option>Autre</option></select></div>
       <div class="f"><label for="vc-${k}">Club</label><input id="vc-${k}" name="club" data-keep placeholder="Ex. fer 7"></div>
@@ -887,7 +894,7 @@ async function submitNote(form) {
   btn.disabled = false; pg.hidden = true;
 }
 async function submitVideo(form) {
-  const f = form.file.files[0]; if (!f) { toast("Choisis une vidéo."); return; }
+  const f = form.file.files[0] || form.fileCam.files[0]; if (!f) { toast("Choisis une vidéo."); return; }
   if (f.size > 500 * 1048576) { toast("La vidéo dépasse 500 Mo : coupe-la ou exporte-la en 1080p."); return; }
   const btn = form.querySelector("button[type=submit]"); btn.disabled = true; const pg = form.querySelector(".progress"); pg.hidden = false;
   try {
