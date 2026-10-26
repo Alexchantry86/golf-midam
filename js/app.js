@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.11.0";
+const APP_VERSION = "1.11.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -312,23 +312,26 @@ function sessionsChart() {
   rows.forEach((r, i) => { const x = cx(i);
     if (r.plan > r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.plan)}" width="${bw}" height="${B - Y(r.plan)}" rx="2" fill="none" stroke="#c9b48c" stroke-width="1.2" stroke-dasharray="3 2"/>`;
     if (r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.due)}" width="${bw}" height="${B - Y(r.due)}" rx="2" fill="#c9b48c"/>`;
+    if (r.plan) g += `<text x="${x - bw / 2 - 1}" y="${Y(r.plan) - 4}" text-anchor="middle" font-size="9" fill="#a0612f" font-weight="700">${r.plan}</text>`;
+    if (r.done) g += `<text x="${x + bw / 2 + 1}" y="${Y(r.done) - 4}" text-anchor="middle" font-size="9" fill="#0f2340" font-weight="700">${nf(r.done)}</text>`;
     if (r.done) g += `<rect x="${x + 1}" y="${Y(r.done)}" width="${bw}" height="${B - Y(r.done)}" rx="2" fill="#0f2340"/>`;
     g += `<text x="${x}" y="${H - 16}" text-anchor="middle" font-size="9" fill="${r.w === cur ? "#0f2340" : "#7d7462"}" font-weight="${r.w === cur ? 700 : 400}">${D(r.w).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</text>`; });
   const pts = rows.map((r, i) => r.gap == null ? null : [cx(i), YG(r.gap)]).filter(Boolean);
-  if (pts.length) { g += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#c8372d" stroke-width="2"/>`;
+  if (pts.length && dueAll) { g += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#c8372d" stroke-width="2"/>`;
     pts.forEach((p, k) => g += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#c8372d"/>`);
     const lp = pts[pts.length - 1]; g += `<text x="${lp[0]}" y="${lp[1] - 7}" text-anchor="middle" font-size="9" fill="#c8372d" font-weight="700">${nf(rows.filter(r => r.gap != null).pop().gap)}</text>`; }
   g += `<text x="${L}" y="${H - 3}" font-size="8.5" fill="#7d7462">semaine du</text>`;
   const rate = dueAll ? Math.round(doneAll / dueAll * 100) : null;
+  const wk = (() => { const ws = ss.filter(s => mon(s.date) === cur); return { plan: ws.length, done: ws.reduce((a, s) => a + credit(s), 0) }; })();
   return `<div class="card"><h2>Séances · réalisées vs planifiées</h2>
   <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
-    <div class="kpi"><div class="l">Réalisées</div><div class="v">${nf(doneAll)}</div><div class="s">sur ${dueAll} prévue${dueAll > 1 ? "s" : ""} à date</div></div>
-    <div class="kpi"><div class="l">Assiduité</div><div class="v">${rate == null ? "—" : rate + " %"}</div><div class="s">${ss.length - dueAll} à venir</div></div>
-    <div class="kpi"><div class="l">Retard cumulé</div><div class="v" style="color:${late ? "#c8372d" : "inherit"}">${ahead ? "+" + nf(ahead) : nf(late)}</div><div class="s">${ahead ? "séances d'avance" : "séance" + (late > 1 ? "s" : "")}</div></div>
+    <div class="kpi"><div class="l">Cette semaine</div><div class="v">${nf(wk.done)} / ${wk.plan}</div><div class="s">séance${wk.plan > 1 ? "s" : ""} réalisée${wk.plan > 1 ? "s" : ""}</div></div>
+    <div class="kpi"><div class="l">Plan complet</div><div class="v">${nf(doneAll)} / ${ss.length}</div><div class="s">${rate == null ? "1re séance " + fmtDs(ss.find(s => s.date >= today)?.date || ss[0].date) : "assiduité " + rate + " %"}</div></div>
+    <div class="kpi"><div class="l">Retard cumulé</div><div class="v" style="color:${late ? "#c8372d" : "inherit"}">${ahead ? "+" + nf(ahead) : nf(late)}</div><div class="s">${ahead ? "séances d'avance" : dueAll ? "séance" + (late > 1 ? "s" : "") + " sur " + dueAll + " passée" + (dueAll > 1 ? "s" : "") : "aucune séance passée"}</div></div>
   </div>
   <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Séances planifiées, réalisées et retard cumulé par semaine">${g}</svg>
-  <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> prévues à date</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (échelle de droite)</span></div>
-  <p class="xs muted" style="margin-top:6px">Une séance partielle compte pour ½. Le retard cumulé = séances prévues jusqu'à aujourd'hui − séances réalisées. Pointillés : séances planifiées pas encore passées.</p></div>`;
+  <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> planifiées (pointillés : à venir)</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (échelle de droite)</span></div>
+  <p class="xs muted" style="margin-top:6px">Une séance partielle compte pour ½. Le retard cumulé = séances prévues jusqu'à aujourd'hui − séances réalisées.</p></div>`;
 }
 function activityChart() {
   const months = []; const now = new Date(); for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
