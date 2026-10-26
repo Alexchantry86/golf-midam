@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.8.3";
+const APP_VERSION = "1.9.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -467,6 +467,21 @@ function notesBlock(ref) {
     <div class="progress" hidden><span></span></div>
     <div><button class="btn navy sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
 }
+function coachEye(a) {
+  if (a.status === "requested") return `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">en attente</span></div><p class="small muted">Analyse demandée le ${fmtD(a.requestedAt)}. Elle apparaîtra ici : positions clés, points forts, points à corriger et exercices.</p></section>`;
+  if (a.status !== "done") return "";
+  const structured = a.summary || (a.fix || []).length || (a.frames || []).length;
+  if (!structured) return a.text ? `<section class="eye"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">${fmtD(a.at)}</span></div><div class="pre small">${esc(a.text)}</div></section>` : "";
+  const fr = (a.frames || []).filter(f => f.url);
+  return `<section class="eye"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">${fmtD(a.at)}${a.angle ? " · " + esc(a.angle) : ""}</span></div>
+    ${a.summary ? `<p class="eye-sum">${esc(a.summary)}</p>` : ""}
+    ${fr.length ? `<div class="eye-frames">${fr.map((f, i) => `<figure><a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.label)}" loading="lazy"></a><figcaption><b>${i + 1}. ${esc(f.label)}</b>${f.note ? `<span>${esc(f.note)}</span>` : ""}</figcaption></figure>`).join("")}</div>` : ""}
+    ${(a.good || []).length ? `<div class="eye-b"><span class="lbl">Ce qui va bien</span><ul class="eye-good">${a.good.map(g => `<li>${esc(g)}</li>`).join("")}</ul></div>` : ""}
+    ${(a.fix || []).length ? `<div class="eye-b"><span class="lbl">À corriger · par priorité</span><ol class="eye-fix">${a.fix.map(f => `<li><b>${esc(f.title)}</b>${f.what ? `<span>${esc(f.what)}</span>` : ""}${f.why ? `<span class="muted">${esc(f.why)}</span>` : ""}</li>`).join("")}</ol></div>` : ""}
+    ${(a.drills || []).length ? `<div class="eye-b"><span class="lbl">Exercices</span><div class="eye-drills">${a.drills.map(d => { const x = S.drills[d.id]; return `<a href="${x ? "#/exercice/" + d.id : "#"}"><b>${esc(x ? x.name : d.title || d.id)}</b>${d.cue ? `<span>${esc(d.cue)}</span>` : ""}<i>›</i></a>`; }).join("")}</div></div>` : ""}
+    ${a.next ? `<p class="eye-next small"><span class="lbl">Prochaine vidéo</span><br>${esc(a.next)}</p>` : ""}
+  </section>`;
+}
 function videoItem(v, showRef) {
   const a = v.analysis || {}; let refLink = "";
   if (showRef && v.ref) { const [t, id] = v.ref.split(":"); if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); refLink = s ? `<a class="small" href="#/seance/${id}">${esc(s.title)}</a>` : ""; } else if (t === "free" && id !== "none") { refLink = `<a class="small" href="#/entrainement/${id}">Entraînement</a>`; } }
@@ -475,7 +490,7 @@ function videoItem(v, showRef) {
   ${refLink}
   <video class="player" src="${esc(v.url)}" controls preload="metadata" playsinline></video>
   ${v.comment ? `<p class="small pre">${esc(v.comment)}</p>` : ""}
-  ${a.status === "done" && a.text ? `<div class="analysis"><p class="xs muted" style="margin-bottom:6px">Analyse de Claude · ${fmtD(a.at)}</p><div class="pre">${esc(a.text)}</div></div>` : ""}
+  ${coachEye(a)}
   ${canEdit() ? `<div class="row">${a.status !== "requested" ? `<button class="btn ghost sm" data-act="ask-analysis" data-id="${v._id}">${a.status === "done" ? "Redemander une analyse" : "Demander l'analyse à Claude"}</button>` : ""}<button class="btn ghost sm" data-act="del-video" data-id="${v._id}">Supprimer</button></div>` : ""}</div>`;
 }
 function videosBlock(ref) {

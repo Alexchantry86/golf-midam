@@ -274,3 +274,30 @@ details.vids summary::-webkit-details-marker{display:none}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.02em;padding:2px 8px;border-radius:20px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap}
 .tagchips button[aria-pressed="true"][style]{background:var(--c);border-color:var(--c);color:#fff}
 .tagchips button[style]{border-color:color-mix(in srgb,var(--c) 40%,var(--line));color:var(--c)}
+
+/* L'œil du coach : analyse vidéo structurée */
+.eye{margin-top:10px;border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:12px;background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.eye.wait{border-top-color:var(--gold)}
+.eye-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.eye-t{font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--navy)}
+.eye-sum{margin:0;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.eye-frames{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -14px;padding:0 14px 4px}
+.eye-frames figure{flex:0 0 46%;max-width:180px;margin:0;scroll-snap-align:start}
+.eye-frames img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block;background:var(--line2)}
+.eye-frames figcaption{font-size:11.5px;line-height:1.35;margin-top:4px;color:var(--muted)}
+.eye-frames figcaption b{display:block;color:var(--ink);font-weight:600}
+.eye-b{display:flex;flex-direction:column;gap:6px}
+.eye-good,.eye-fix{margin:0;padding-left:20px;font-size:13.5px;line-height:1.45}
+.eye-good{list-style:none;padding-left:0}
+.eye-good li{padding-left:22px;position:relative;margin-bottom:4px}
+.eye-good li::before{content:"✓";position:absolute;left:2px;color:var(--ok);font-weight:700}
+.eye-fix li{margin-bottom:8px}
+.eye-fix li::marker{color:var(--red);font-weight:700}
+.eye-fix b{display:block;font-weight:600}
+.eye-fix span{display:block}
+.eye-drills{display:flex;flex-direction:column;gap:6px}
+.eye-drills a{display:grid;grid-template-columns:1fr auto;gap:2px 8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;text-decoration:none;color:var(--ink)}
+.eye-drills a b{font-weight:600;font-size:13.5px}
+.eye-drills a span{grid-column:1;font-size:12.5px;color:var(--muted);line-height:1.35}
+.eye-drills a i{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;color:var(--muted);font-size:18px}
+.eye-next{margin:0;background:var(--card);border-radius:10px;padding:9px 12px;border:1px dashed var(--line)}
