@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.10.1";
+const APP_VERSION = "1.11.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -279,6 +279,7 @@ function vTableau() {
   ${pend ? `<p class="note"><a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a></p>` : ""}
   <div class="card"><h2>Le parcours jusqu'au Mid-Am</h2><div class="path">${(plan.phases || []).map(x => { const c = x.to < iso() ? "past" : (x.from <= iso() && iso() <= x.to ? "now" : "");
     return `<div class="ms ${c}"><b>${esc(x.name)}</b>${x.indexTarget != null ? ` · index ${n1(x.indexTarget)}` : ""}${x === plan.phases[plan.phases.length - 2] ? '<span class="flag"></span>' : ""}<div class="s">${c === "now" ? "maintenant · " : ""}${fmtD(x.from)} → ${fmtD(x.to)}</div></div>`; }).join("")}</div></div>
+  ${sessionsChart()}
   ${activityChart()}
   <div class="card"><h2>Trajectoire d'index</h2><div class="chart">${indexChart(target, plan.targetDate)}</div></div>
   </section>`;
@@ -286,6 +287,49 @@ function vTableau() {
 }
 
 /* Activité : trous joués, parties de 18 trous, score moyen (12 derniers mois) */
+function sessionsChart() {
+  const ss = (S.plan.sessions || []).slice().sort((a, b) => a.date.localeCompare(b.date)); if (!ss.length) return "";
+  const today = iso(), mon = d => { const x = D(d); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return iso(x); };
+  const credit = s => { const v = valOf(s.id); return !v ? 0 : v.status === "Faite" ? 1 : v.status === "Partielle" ? 0.5 : 0; };
+  // semaines : toutes celles du plan, fenêtre de 12 autour d'aujourd'hui
+  const all = [...new Set(ss.map(s => mon(s.date)))].sort(); const cur = mon(today);
+  let i0 = Math.max(0, all.findIndex(w => w >= cur) - 8); if (all[all.length - 1] < cur) i0 = Math.max(0, all.length - 12);
+  const weeks = all.slice(i0, i0 + 12);
+  const before = ss.filter(s => mon(s.date) < weeks[0]);
+  let cumDue = before.filter(s => s.date <= today).length, cumDone = before.reduce((a, s) => a + credit(s), 0);
+  const rows = weeks.map(w => { const ws = ss.filter(s => mon(s.date) === w), due = ws.filter(s => s.date <= today);
+    const done = ws.reduce((a, s) => a + credit(s), 0); cumDue += due.length; cumDone += done;
+    return { w, plan: ws.length, due: due.length, done, past: w <= cur, gap: w <= cur ? Math.max(0, cumDue - cumDone) : null }; });
+  const dueAll = ss.filter(s => s.date <= today).length, doneAll = ss.reduce((a, s) => a + credit(s), 0), late = Math.max(0, dueAll - doneAll), ahead = Math.max(0, doneAll - dueAll);
+  const nf = v => v.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+  const W = 360, L = 24, R = 24, H = 210, T = 18, B = 178, cw = (W - L - R) / weeks.length, bw = Math.min(14, cw * 0.32);
+  const maxP = Math.max(4, ...rows.map(r => r.plan)), maxG = Math.max(2, ...rows.map(r => r.gap || 0));
+  const Y = v => B - v / maxP * (B - T), YG = v => B - v / maxG * (B - T), cx = i => L + i * cw + cw / 2;
+  let g = "";
+  for (let v = 0; v <= maxP; v += maxP > 8 ? 2 : 1) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
+  for (let v = 0; v <= maxG; v += maxG > 8 ? 2 : 1) g += `<text x="${W - R + 4}" y="${YG(v) + 3}" font-size="9" fill="#c8372d">${v}</text>`;
+  const ci = rows.findIndex(r => r.w === cur); if (ci >= 0) g += `<rect x="${L + ci * cw}" y="${T - 6}" width="${cw}" height="${B - T + 6}" fill="#f3ead8" opacity=".7"/>`;
+  rows.forEach((r, i) => { const x = cx(i);
+    if (r.plan > r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.plan)}" width="${bw}" height="${B - Y(r.plan)}" rx="2" fill="none" stroke="#c9b48c" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+    if (r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.due)}" width="${bw}" height="${B - Y(r.due)}" rx="2" fill="#c9b48c"/>`;
+    if (r.done) g += `<rect x="${x + 1}" y="${Y(r.done)}" width="${bw}" height="${B - Y(r.done)}" rx="2" fill="#0f2340"/>`;
+    g += `<text x="${x}" y="${H - 16}" text-anchor="middle" font-size="9" fill="${r.w === cur ? "#0f2340" : "#7d7462"}" font-weight="${r.w === cur ? 700 : 400}">${D(r.w).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</text>`; });
+  const pts = rows.map((r, i) => r.gap == null ? null : [cx(i), YG(r.gap)]).filter(Boolean);
+  if (pts.length) { g += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#c8372d" stroke-width="2"/>`;
+    pts.forEach((p, k) => g += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#c8372d"/>`);
+    const lp = pts[pts.length - 1]; g += `<text x="${lp[0]}" y="${lp[1] - 7}" text-anchor="middle" font-size="9" fill="#c8372d" font-weight="700">${nf(rows.filter(r => r.gap != null).pop().gap)}</text>`; }
+  g += `<text x="${L}" y="${H - 3}" font-size="8.5" fill="#7d7462">semaine du</text>`;
+  const rate = dueAll ? Math.round(doneAll / dueAll * 100) : null;
+  return `<div class="card"><h2>Séances · réalisées vs planifiées</h2>
+  <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
+    <div class="kpi"><div class="l">Réalisées</div><div class="v">${nf(doneAll)}</div><div class="s">sur ${dueAll} prévue${dueAll > 1 ? "s" : ""} à date</div></div>
+    <div class="kpi"><div class="l">Assiduité</div><div class="v">${rate == null ? "—" : rate + " %"}</div><div class="s">${ss.length - dueAll} à venir</div></div>
+    <div class="kpi"><div class="l">Retard cumulé</div><div class="v" style="color:${late ? "#c8372d" : "inherit"}">${ahead ? "+" + nf(ahead) : nf(late)}</div><div class="s">${ahead ? "séances d'avance" : "séance" + (late > 1 ? "s" : "")}</div></div>
+  </div>
+  <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Séances planifiées, réalisées et retard cumulé par semaine">${g}</svg>
+  <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> prévues à date</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (échelle de droite)</span></div>
+  <p class="xs muted" style="margin-top:6px">Une séance partielle compte pour ½. Le retard cumulé = séances prévues jusqu'à aujourd'hui − séances réalisées. Pointillés : séances planifiées pas encore passées.</p></div>`;
+}
 function activityChart() {
   const months = []; const now = new Date(); for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
   const by = Object.fromEntries(months.map(m => [m, { holes: 0, r18: 0, sc: [], tp: [] }]));
