@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.9.0";
+const APP_VERSION = "1.10.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -69,7 +69,7 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
-  data: { courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
+  data: { messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
   catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
@@ -97,7 +97,7 @@ function firebaseStore() {
   };
 }
 function demoStore() {
-  const mem = { courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
+  const mem = { messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
   const L = {}; let seq = 1;
   const emit = col => (L[col] || []).forEach(cb => cb(mem[col].map(x => ({ ...x }))));
   const api = {
@@ -123,7 +123,7 @@ function demoStore() {
 }
 function startData() {
   if (S.subs.length) return;
-  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
+  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests", "messages"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
   S.subs.push(Store.listenDoc("profile/main", d => { S.profile = d; render(); }));
 }
 
@@ -467,7 +467,7 @@ function notesBlock(ref) {
     <div class="progress" hidden><span></span></div>
     <div><button class="btn navy sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
 }
-function coachEye(a) {
+function coachEye(a, vid) {
   if (a.status === "requested") return `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">en attente</span></div><p class="small muted">Analyse demandée le ${fmtD(a.requestedAt)}. Elle apparaîtra ici : positions clés, points forts, points à corriger et exercices.</p></section>`;
   if (a.status !== "done") return "";
   const structured = a.summary || (a.fix || []).length || (a.frames || []).length;
@@ -477,9 +477,23 @@ function coachEye(a) {
     ${a.summary ? `<p class="eye-sum">${esc(a.summary)}</p>` : ""}
     ${fr.length ? `<div class="eye-frames">${fr.map((f, i) => `<figure><a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.label)}" loading="lazy"></a><figcaption><b>${i + 1}. ${esc(f.label)}</b>${f.note ? `<span>${esc(f.note)}</span>` : ""}</figcaption></figure>`).join("")}</div>` : ""}
     ${(a.good || []).length ? `<div class="eye-b"><span class="lbl">Ce qui va bien</span><ul class="eye-good">${a.good.map(g => `<li>${esc(g)}</li>`).join("")}</ul></div>` : ""}
-    ${(a.fix || []).length ? `<div class="eye-b"><span class="lbl">À corriger · par priorité</span><ol class="eye-fix">${a.fix.map(f => `<li><b>${esc(f.title)}</b>${f.what ? `<span>${esc(f.what)}</span>` : ""}${f.why ? `<span class="muted">${esc(f.why)}</span>` : ""}</li>`).join("")}</ol></div>` : ""}
+    ${(a.fix || []).length ? `<div class="eye-b"><span class="lbl">À corriger · par priorité</span><ol class="eye-fix">${a.fix.map(f => `<li><b>${esc(f.title)}</b>${f.what ? `<span>${esc(f.what)}</span>` : ""}${f.why ? `<span class="muted">${esc(f.why)}</span>` : ""}${vid && canEdit() ? `<button type="button" class="eye-ask" data-act="chat-about" data-id="${vid}" data-t="${esc(f.title)}">Une question sur ce point ?</button>` : ""}</li>`).join("")}</ol></div>` : ""}
     ${(a.drills || []).length ? `<div class="eye-b"><span class="lbl">Exercices</span><div class="eye-drills">${a.drills.map(d => { const x = S.drills[d.id]; return `<a href="${x ? "#/exercice/" + d.id : "#"}"><b>${esc(x ? x.name : d.title || d.id)}</b>${d.cue ? `<span>${esc(d.cue)}</span>` : ""}<i>›</i></a>`; }).join("")}</div></div>` : ""}
     ${a.next ? `<p class="eye-next small"><span class="lbl">Prochaine vidéo</span><br>${esc(a.next)}</p>` : ""}
+  </section>`;
+}
+function coachChat(v) {
+  const a = v.analysis || {}; if (a.status !== "done") return "";
+  const ms = S.data.messages.filter(m => m.ref === "video:" + v._id).sort((x, y) => (x.at || "").localeCompare(y.at || ""));
+  const waiting = ms.filter(m => m.role === "user" && m.status !== "answered").length;
+  const k = "cq-" + v._id;
+  const sugg = ["Explique-moi autrement le point 1", "Par quel exercice commencer ?", "Comment sentir si je le fais bien ?"];
+  return `<section class="chat"><div class="eye-h"><span class="chat-t">Questions au coach</span>${waiting ? `<span class="pill warn">${waiting} en attente</span>` : ms.length ? `<span class="xs muted">${ms.length} message${ms.length > 1 ? "s" : ""}</span>` : ""}</div>
+    ${ms.length ? `<div class="chat-list">${ms.map(m => `<div class="msg ${m.role === "coach" ? "coach" : "me"}"><div class="pre">${esc(m.text)}</div><span class="xs muted">${m.role === "coach" ? "Coach" : "Toi"} · ${fmtD((m.at || "").slice(0, 10))}${m.role === "user" && m.status !== "answered" ? " · en attente de réponse" : ""}</span></div>`).join("")}</div>` : `<p class="small muted" style="margin:0">Une remarque pas claire ? Pose ta question : la réponse s'affiche ici.</p>`}
+    ${canEdit() ? `<form class="chat-form" data-form="chat" data-id="${v._id}">
+      ${ms.length ? "" : `<div class="chat-sugg">${sugg.map(q => `<button type="button" data-act="chat-sugg" data-id="${v._id}" data-t="${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
+      <div class="chat-in"><textarea id="${k}" name="text" data-keep rows="2" placeholder="Ta question…"></textarea><button class="btn navy sm" type="submit">Envoyer</button></div>
+      <p class="xs muted" style="margin:0">Le coach répond quand tu écris « réponds à mes questions » dans le projet Coach de Golf.</p></form>` : ""}
   </section>`;
 }
 function videoItem(v, showRef) {
@@ -490,7 +504,8 @@ function videoItem(v, showRef) {
   ${refLink}
   <video class="player" src="${esc(v.url)}" controls preload="metadata" playsinline></video>
   ${v.comment ? `<p class="small pre">${esc(v.comment)}</p>` : ""}
-  ${coachEye(a)}
+  ${coachEye(a, v._id)}
+  ${coachChat(v)}
   ${canEdit() ? `<div class="row">${a.status !== "requested" ? `<button class="btn ghost sm" data-act="ask-analysis" data-id="${v._id}">${a.status === "done" ? "Redemander une analyse" : "Demander l'analyse à Claude"}</button>` : ""}<button class="btn ghost sm" data-act="del-video" data-id="${v._id}">Supprimer</button></div>` : ""}</div>`;
 }
 function videosBlock(ref) {
@@ -970,6 +985,7 @@ document.addEventListener("click", async e => {
       const doc = S.data[col].find(x => x._id === id);
       try { if (doc && doc.path) await Store.removeFile(doc.path); if (doc && doc.files) for (const f of doc.files) await Store.removeFile(f.path); await Store.del(col, id); toast("Supprimé"); if (a === "del-round") location.hash = "#/parties"; } catch (x) { toast("Suppression impossible."); }
       break; }
+    case "chat-sugg": case "chat-about": { const ta = document.getElementById("cq-" + id); if (ta) { ta.value = a === "chat-about" ? `À propos de « ${b.dataset.t} » : ` : b.dataset.t; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.scrollIntoView({ block: "center", behavior: "smooth" }); } break; }
     case "ask-analysis": await Store.set("videos", id, { analysis: { status: "requested", requestedAt: iso() } }, true); toast("Analyse demandée"); break;
     case "draft-finish": if (!d) break; if (!d.holes.some(h => h.score != null)) { toast("Aucun trou saisi."); break; } d.stage = "finish"; saveDraft(); if (location.hash !== "#/partie/new") location.hash = "#/partie/new"; else render(); window.scrollTo(0, 0); break;
     case "draft-new": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer : abandonner la carte en cours"; break; } S.draft = null; saveDraft(); S.setup = { q: "", club: null, course: null, tee: null }; location.hash = "#/partie/new"; render(); break;
@@ -1002,6 +1018,10 @@ document.addEventListener("submit", async e => {
   if (t === "finish") { S.draft.cost = form.cost.value; S.draft.notes = form.notes.value; saveDraft(); return saveRound(); }
   if (t === "note") return submitNote(form);
   if (t === "video") return submitVideo(form);
+  if (t === "chat") { const text = form.text.value.trim(); if (!text) { toast("Écris ta question."); return; } const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
+    const ta = form.text; ta.value = "";
+    try { await Store.add("messages", { ref: "video:" + form.dataset.id, role: "user", text, at: new Date().toISOString(), status: "open" }); toast("Question envoyée"); } catch (x) { console.error(x); const t2 = document.getElementById(ta.id); if (t2) t2.value = text; toast("Envoi impossible" + (x.code ? " · " + x.code : "")); }
+    btn.disabled = false; return; }
   if (t === "link") { const url = form.url.value.trim(); if (!/^https?:\/\//.test(url)) { toast("Colle un lien complet (https://…)."); return; } await Store.add("drillLinks", { drill: form.dataset.drill, url, label: form.label.value.trim() }); form.reset(); toast("Vidéo ajoutée"); return; }
   if (t === "validate") {
     const st = form.querySelector('[data-seg="status"] [aria-pressed="true"]')?.dataset.v || "Faite";

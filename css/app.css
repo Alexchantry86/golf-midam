@@ -301,3 +301,20 @@ details.vids summary::-webkit-details-marker{display:none}
 .eye-drills a span{grid-column:1;font-size:12.5px;color:var(--muted);line-height:1.35}
 .eye-drills a i{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;color:var(--muted);font-size:18px}
 .eye-next{margin:0;background:var(--card);border-radius:10px;padding:9px 12px;border:1px dashed var(--line)}
+
+/* Questions au coach (fil par vidéo) */
+.eye-ask{display:inline-block;margin-top:4px;background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--blue);text-decoration:underline;cursor:pointer}
+.chat{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.chat-t{font-family:var(--f-serif);font-size:16px;font-weight:700;color:var(--navy)}
+.chat-list{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:3px}
+.msg .pre{font-size:13.5px;line-height:1.45;padding:8px 11px;border-radius:12px}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .pre{background:var(--navy);color:var(--sand);border-bottom-right-radius:4px}
+.msg.coach{align-self:flex-start}
+.msg.coach .pre{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-form{display:flex;flex-direction:column;gap:6px}
+.chat-sugg{display:flex;flex-wrap:wrap;gap:6px}
+.chat-sugg button{font:inherit;font-size:12.5px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:5px 10px;color:var(--ink);cursor:pointer}
+.chat-in{display:flex;gap:8px;align-items:flex-end}
+.chat-in textarea{flex:1;min-height:44px;resize:vertical}
