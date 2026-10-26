@@ -7,7 +7,8 @@
   Exercices : `data/drills.json` ; toute séance ne référence que des `drill` existants.
 - Données et vidéos : pas d'accès réseau direct à Firebase depuis la session. Passer par le dépôt privé
   `Alexchantry86/golf-midam-data` : pousser `requests/<date>.json` → l'Action exporte `export/data.json` et
-  `export/videos/<id>/` ; pousser `analyses/<id>.md` → l'analyse s'affiche sous la vidéo.
+  `export/videos/<id>/` ; pousser `analyses/<id>.json` (summary, frames[{label,file,note}], good[], fix[{title,what,why}], drills[{id,cue}], next, text)
+  + images `analyses/<id>/<file>.jpg` → section « L'œil du coach » sous la vidéo (`analyses/<id>.md` reste accepté en texte simple).
 - Style : palette gris/noir, IBM Plex, pas de gras inutile. Texte en français, tutoiement.
 - Parcours : `data/courses.json` (club → parcours → par, si, repères avec longueurs en m, cr/slope ou null, source).
   Vérifier par total, 18 SI distincts, longueurs = totaux publiés. Parcours absents saisis par Alexandre →
