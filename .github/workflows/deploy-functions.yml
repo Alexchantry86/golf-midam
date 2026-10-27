@@ -1,0 +1,30 @@
+name: Déployer le coach en direct (Cloud Functions)
+on:
+  push:
+    branches: [main]
+    paths: [functions/**, .github/workflows/deploy-functions.yml]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --no-audit --no-fund --prefix functions
+      - name: Secret Anthropic puis déploiement
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$SA" ]; then echo "::error::Secret FIREBASE_SERVICE_ACCOUNT absent"; exit 1; fi
+          if [ -z "$KEY" ]; then echo "::error::Secret ANTHROPIC_API_KEY absent : ajoute-le dans Settings > Secrets and variables > Actions du dépôt golf-midam"; exit 1; fi
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          PROJECT=$(node -e "console.log(require(process.env.GOOGLE_APPLICATION_CREDENTIALS).project_id)")
+          printf '%s' "$KEY" > "$RUNNER_TEMP/k.txt"
+          npx -y firebase-tools@13 functions:secrets:set ANTHROPIC_API_KEY --data-file "$RUNNER_TEMP/k.txt" --project "$PROJECT" --non-interactive --force
+          rm -f "$RUNNER_TEMP/k.txt"
+          npx -y firebase-tools@13 deploy --only functions --project "$PROJECT" --non-interactive --force
+          rm -f "$RUNNER_TEMP/sa.json"

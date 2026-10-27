@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.11.2";
+const APP_VERSION = "1.12.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -103,7 +103,11 @@ function demoStore() {
   const api = {
     listen(col, cb) { (L[col] = L[col] || []).push(cb); setTimeout(() => cb(mem[col].map(x => ({ ...x }))), 0); return () => {}; },
     listenDoc(path, cb) { const [c, id] = path.split("/"); api.listen(c, a => cb((a.find(x => x._id === id) || null))); return () => {}; },
-    async add(col, data) { const id = "d" + (seq++); mem[col].push({ ...clean(data), _id: id }); emit(col); return id; },
+    async add(col, data) { const id = "d" + (seq++); mem[col].push({ ...clean(data), _id: id }); emit(col);
+      if (col === "messages" && data.role === "user") {   // démo : simule la réponse du coach en direct
+        setTimeout(() => api.set("messages", id, { status: "thinking" }, true), 300);
+        setTimeout(() => { api.add("messages", { ref: data.ref, role: "coach", text: "(Démo) Réponse du coach à : « " + data.text + " »", at: new Date().toISOString() }); api.set("messages", id, { status: "answered" }, true); }, 1800); }
+      return id; },
     async set(col, id, data, merge) { const i = mem[col].findIndex(x => x._id === id); const v = { ...(merge && i >= 0 ? mem[col][i] : {}), ...clean(data), _id: id }; if (i >= 0) mem[col][i] = v; else mem[col].push(v); emit(col); },
     async del(col, id) { mem[col] = mem[col].filter(x => x._id !== id); emit(col); },
     async upload(path, file, onProg) { for (let i = 1; i <= 4; i++) { await new Promise(r => setTimeout(r, 150)); onProg && onProg(i / 4, file.size * i / 4, file.size); } return { path, url: URL.createObjectURL(file) }; },
@@ -532,15 +536,15 @@ function coachEye(a, vid) {
 function coachChat(v) {
   const a = v.analysis || {}; if (a.status !== "done") return "";
   const ms = S.data.messages.filter(m => m.ref === "video:" + v._id).sort((x, y) => (x.at || "").localeCompare(y.at || ""));
-  const waiting = ms.filter(m => m.role === "user" && m.status !== "answered").length;
+  const waiting = ms.filter(m => m.role === "user" && m.status !== "answered" && m.status !== "thinking").length;
   const k = "cq-" + v._id;
   const sugg = ["Explique-moi autrement le point 1", "Par quel exercice commencer ?", "Comment sentir si je le fais bien ?"];
   return `<section class="chat"><div class="eye-h"><span class="chat-t">Questions au coach</span>${waiting ? `<span class="pill warn">${waiting} en attente</span>` : ms.length ? `<span class="xs muted">${ms.length} message${ms.length > 1 ? "s" : ""}</span>` : ""}</div>
-    ${ms.length ? `<div class="chat-list">${ms.map(m => `<div class="msg ${m.role === "coach" ? "coach" : "me"}"><div class="pre">${esc(m.text)}</div><span class="xs muted">${m.role === "coach" ? "Coach" : "Toi"} · ${fmtD((m.at || "").slice(0, 10))}${m.role === "user" && m.status !== "answered" ? " · en attente de réponse" : ""}</span></div>`).join("")}</div>` : `<p class="small muted" style="margin:0">Une remarque pas claire ? Pose ta question : la réponse s'affiche ici.</p>`}
+    ${ms.length ? `<div class="chat-list">${ms.map(m => `<div class="msg ${m.role === "coach" ? "coach" : "me"}"><div class="pre">${esc(m.text)}</div><span class="xs muted">${m.role === "coach" ? "Coach" : "Toi"} · ${fmtD((m.at || "").slice(0, 10))}${m.role === "user" && m.status === "error" ? ` · réponse impossible <button type="button" class="eye-ask" data-act="chat-retry" data-id="${m._id}">Réessayer</button>` : m.role === "user" && m.status !== "answered" && m.status !== "thinking" ? " · en attente de réponse" : ""}</span></div>`).join("")}${ms.some(m => m.role === "user" && m.status === "thinking") ? `<div class="msg coach"><div class="pre typing"><i></i><i></i><i></i></div><span class="xs muted">Le coach écrit…</span></div>` : ""}</div>` : `<p class="small muted" style="margin:0">Une remarque pas claire ? Pose ta question : la réponse s'affiche ici.</p>`}
     ${canEdit() ? `<form class="chat-form" data-form="chat" data-id="${v._id}">
       ${ms.length ? "" : `<div class="chat-sugg">${sugg.map(q => `<button type="button" data-act="chat-sugg" data-id="${v._id}" data-t="${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
       <div class="chat-in"><textarea id="${k}" name="text" data-keep rows="2" placeholder="Ta question…"></textarea><button class="btn navy sm" type="submit">Envoyer</button></div>
-      <p class="xs muted" style="margin:0">Réponse chaque soir vers 19 h.</p></form>` : ""}
+      <p class="xs muted" style="margin:0">Réponse en quelques secondes. Si le service est indisponible, réponse le soir vers 19 h.</p></form>` : ""}
   </section>`;
 }
 function videoItem(v, showRef) {
@@ -1032,6 +1036,8 @@ document.addEventListener("click", async e => {
       const doc = S.data[col].find(x => x._id === id);
       try { if (doc && doc.path) await Store.removeFile(doc.path); if (doc && doc.files) for (const f of doc.files) await Store.removeFile(f.path); await Store.del(col, id); toast("Supprimé"); if (a === "del-round") location.hash = "#/parties"; } catch (x) { toast("Suppression impossible."); }
       break; }
+    case "chat-retry": { const m = S.data.messages.find(x => x._id === id); if (!m) break; b.disabled = true;
+      try { await Store.del("messages", id); await Store.add("messages", { ref: m.ref, role: "user", text: m.text, at: new Date().toISOString(), status: "open" }); } catch (x) { console.error(x); toast("Nouvel essai impossible"); } break; }
     case "chat-sugg": case "chat-about": { const ta = document.getElementById("cq-" + id); if (ta) { ta.value = a === "chat-about" ? `À propos de « ${b.dataset.t} » : ` : b.dataset.t; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.scrollIntoView({ block: "center", behavior: "smooth" }); } break; }
     case "ask-analysis": await Store.set("videos", id, { analysis: { status: "requested", requestedAt: iso() } }, true); toast("Analyse demandée"); break;
     case "draft-finish": if (!d) break; if (!d.holes.some(h => h.score != null)) { toast("Aucun trou saisi."); break; } d.stage = "finish"; saveDraft(); if (location.hash !== "#/partie/new") location.hash = "#/partie/new"; else render(); window.scrollTo(0, 0); break;
