@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.11.1";
+const APP_VERSION = "1.11.2";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -515,7 +515,7 @@ function notesBlock(ref) {
     <div><button class="btn navy sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
 }
 function coachEye(a, vid) {
-  if (a.status === "requested") return `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">en attente</span></div><p class="small muted">Analyse demandée le ${fmtD(a.requestedAt)}, en général prête dans l'heure (7 h–23 h). Elle apparaîtra ici : positions clés, points forts, points à corriger et exercices.</p></section>`;
+  if (a.status === "requested") return `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">en attente</span></div><p class="small muted">Analyse demandée le ${fmtD(a.requestedAt)}, prête le soir même vers 19 h. Elle apparaîtra ici : positions clés, points forts, points à corriger et exercices.</p></section>`;
   if (a.status !== "done") return "";
   const structured = a.summary || (a.fix || []).length || (a.frames || []).length;
   if (!structured) return a.text ? `<section class="eye"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">${fmtD(a.at)}</span></div><div class="pre small">${esc(a.text)}</div></section>` : "";
@@ -540,7 +540,7 @@ function coachChat(v) {
     ${canEdit() ? `<form class="chat-form" data-form="chat" data-id="${v._id}">
       ${ms.length ? "" : `<div class="chat-sugg">${sugg.map(q => `<button type="button" data-act="chat-sugg" data-id="${v._id}" data-t="${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
       <div class="chat-in"><textarea id="${k}" name="text" data-keep rows="2" placeholder="Ta question…"></textarea><button class="btn navy sm" type="submit">Envoyer</button></div>
-      <p class="xs muted" style="margin:0">Réponse en général dans l'heure, entre 7 h et 23 h.</p></form>` : ""}
+      <p class="xs muted" style="margin:0">Réponse chaque soir vers 19 h.</p></form>` : ""}
   </section>`;
 }
 function videoItem(v, showRef) {
