@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.12.0";
+const APP_VERSION = "1.13.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -69,7 +69,7 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
-  data: { messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
+  data: { drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
   catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
@@ -97,7 +97,7 @@ function firebaseStore() {
   };
 }
 function demoStore() {
-  const mem = { messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
+  const mem = { drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
   const L = {}; let seq = 1;
   const emit = col => (L[col] || []).forEach(cb => cb(mem[col].map(x => ({ ...x }))));
   const api = {
@@ -127,7 +127,7 @@ function demoStore() {
 }
 function startData() {
   if (S.subs.length) return;
-  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests", "messages"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
+  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests", "messages", "drillResults"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
   S.subs.push(Store.listenDoc("profile/main", d => { S.profile = d; render(); }));
 }
 
@@ -432,7 +432,7 @@ function exRows(s) {
   const done = doneOf(s), locked = !!valOf(s.id) || !canEdit();
   return `<div class="exlist">${s.blocks.map((b, i) => { const d = S.drills[b.drill] || { name: b.drill };
     return `<div class="exrow ${done[i] ? "on" : ""}"><button class="chk" data-act="ex-toggle" data-sid="${s.id}" data-i="${i}" aria-pressed="${done[i]}" aria-label="Exercice fait" ${locked ? "disabled" : ""}>${done[i] ? "✓" : ""}</button>
-      <a href="#/exercice/${b.drill}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${(d.tags || []).length ? " · " + d.tags.map(esc).join(", ") : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}</span></a><a class="go" href="#/exercice/${b.drill}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
+      <a href="#/exercice/${b.drill}/${s.id}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${(d.tags || []).length ? " · " + d.tags.map(esc).join(", ") : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}${(() => { const r = resultsOf(b.drill).filter(x => x.session === s.id).pop(); return r ? ` · <b class="res">${esc(resultLine(d, r, true))}</b>` : ""; })()}</span></a><a class="go" href="#/exercice/${b.drill}/${s.id}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
 }
 function tagFilter() { return `<div class="chips tagchips" role="group" aria-label="Type d'entraînement"><span class="lbl" style="align-self:center;margin-right:2px">Type</span><button data-act="tf" data-f="" aria-pressed="${!S.tagFilter}">Tous</button>${TAGS.map(t => `<button data-act="tf" data-f="${t}" aria-pressed="${S.tagFilter === t}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
 function cardSession(s) {
@@ -480,6 +480,45 @@ const ytFrame = (id, title) => `<div class="video-frame"><iframe src="https://ww
 function proVideo(v) { return `<div class="stack" style="gap:6px">${ytFrame(v.yt, v.title)}<div class="small"><b>${esc(v.pro)}</b> · ${esc(v.title)} <a href="https://www.youtube.com/watch?v=${v.yt}" target="_blank" rel="noopener">↗</a></div></div>`; }
 
 /* ---------- Exercice ---------- */
+/* ---------- Résultats des exercices ---------- */
+function resultsOf(id) { return S.data.drillResults.filter(r => r.drill === id).sort((a, b) => (a.date || "").localeCompare(b.date || "") || String(a.at || "").localeCompare(String(b.at || ""))); }
+const nfr = v => v == null || v === "" ? "—" : Number(v).toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+function metVal(m, v) { return v == null ? "—" : nfr(v) + (m.max ? "/" + m.max : m.unit ? " " + m.unit : ""); }
+function metOk(m, v) { return m.target == null || v == null ? null : m.lower ? v <= m.target : v >= m.target; }
+function resultLine(d, r, short) { const ms = d.measure || []; const parts = ms.filter(m => r.values && r.values[m.key] != null).map(m => (ms.length > 1 && !short ? m.label + " : " : ms.length > 1 ? m.label.split(/[:·(]/)[0].replace(/^(Réussis|Putts réussis) /, "").trim() + " " : "") + metVal(m, r.values[m.key])); return parts.join(" · ") || (r.note ? "note" : ""); }
+function metChart(m, rs) {
+  const pts = rs.filter(r => r.values && r.values[m.key] != null).map(r => ({ d: r.date, v: Number(r.values[m.key]) })); if (!pts.length) return "";
+  const W = 320, H = 84, L = 26, R = 34, T = 10, B = 66;
+  const vals = pts.map(p => p.v).concat(m.target != null ? [m.target] : []);
+  let lo = m.max ? 0 : Math.min(...vals), hi = m.max || Math.max(...vals); if (!m.max) { const pad = Math.max(1, (hi - lo) * 0.15); lo = Math.max(0, lo - pad); hi = hi + pad; } if (hi === lo) hi = lo + 1;
+  const X = i => pts.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (pts.length - 1), Y = v => B - (v - lo) / (hi - lo) * (B - T);
+  let g = `<line x1="${L}" x2="${W - R}" y1="${B}" y2="${B}" stroke="#eadfc8"/><text x="${L - 4}" y="${B + 3}" text-anchor="end" font-size="9" fill="#7d7462">${nfr(lo)}</text><text x="${L - 4}" y="${T + 3}" text-anchor="end" font-size="9" fill="#7d7462">${nfr(hi)}</text>`;
+  if (m.target != null) g += `<line x1="${L}" x2="${W - R}" y1="${Y(m.target)}" y2="${Y(m.target)}" stroke="#2f6b45" stroke-dasharray="4 3"/><text x="${W - R + 4}" y="${Y(m.target) + 3}" font-size="9" fill="#2f6b45">obj. ${nfr(m.target)}</text>`;
+  if (pts.length > 1) g += `<polyline points="${pts.map((p, i) => X(i) + "," + Y(p.v)).join(" ")}" fill="none" stroke="#0f2340" stroke-width="1.6"/>`;
+  pts.forEach((p, i) => { const ok = metOk(m, p.v); g += `<circle cx="${X(i)}" cy="${Y(p.v)}" r="3.4" fill="${ok == null ? "#0f2340" : ok ? "#2f6b45" : "#c8372d"}" stroke="#fff" stroke-width="1"/>`; });
+  const lp = pts[pts.length - 1]; g += `<text x="${X(pts.length - 1)}" y="${Y(lp.v) - 7}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f2340">${nfr(lp.v)}</text>`;
+  g += `<text x="${L}" y="${H - 3}" font-size="8.5" fill="#7d7462">${fmtD(pts[0].d)}</text>${pts.length > 1 ? `<text x="${W - R}" y="${H - 3}" text-anchor="end" font-size="8.5" fill="#7d7462">${fmtD(lp.d)}</text>` : ""}`;
+  const best = m.lower ? Math.min(...pts.map(p => p.v)) : Math.max(...pts.map(p => p.v));
+  return `<div class="met"><div class="row between small"><span>${esc(m.label)}</span><span class="muted xs">dernier ${metVal(m, lp.v)} · meilleur ${metVal(m, best)}${m.target != null ? " · objectif " + (m.lower ? "≤ " : "") + nfr(m.target) : ""}</span></div>
+    <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Évolution : ${esc(m.label)}">${g}</svg></div>`;
+}
+function resultsCard(d, sid) {
+  const ms = d.measure || [], rs = resultsOf(d.id), sess = sid && S.plan.sessions.find(x => x.id === sid);
+  const form = canEdit() ? `<form class="stack" data-form="result" data-drill="${d.id}" data-sid="${sess ? sess.id : ""}" style="gap:10px">
+    <div class="grid">${ms.map(m => `<div class="f"><label for="rv-${m.key}">${esc(m.label)}</label><div class="inunit"><input id="rv-${m.key}" name="v_${m.key}" type="number" inputmode="decimal" step="any" min="0" ${m.max ? `max="${m.max}"` : ""} data-keep placeholder="${m.target != null ? "obj. " + nfr(m.target) : ""}"><span>${m.max ? "/ " + m.max : esc(m.unit || "")}</span></div></div>`).join("")}
+      <div class="f"><label for="rv-date">Date</label><input id="rv-date" name="date" type="date" value="${sess && sess.date <= iso() ? sess.date : iso()}" max="${iso()}"></div>
+      <div class="f full"><label for="rv-note">Note (sensations, conditions)</label><input id="rv-note" name="note" data-keep placeholder="Facultatif"></div></div>
+    ${sess ? `<p class="xs muted" style="margin:0">Rattaché à la séance « ${esc(sess.title)} » du ${fmtDs(sess.date).replace(/\.$/, "")}.</p>` : ""}
+    <div><button class="btn navy sm" type="submit">Enregistrer le résultat</button></div></form>` : "";
+  const charts = ms.map(m => metChart(m, rs)).filter(Boolean).join("");
+  const hist = rs.slice().reverse().slice(0, 10).map(r => { const ss = r.session && S.plan.sessions.find(x => x.id === r.session);
+    return `<div class="item"><div class="head"><span class="small"><b style="font-weight:600">${fmtD(r.date)}</b>${ss ? ` · <a href="#/seance/${ss.id}">séance</a>` : ""}</span>${canEdit() ? `<button class="btn ghost sm" data-act="del-result" data-id="${r._id}">Supprimer</button>` : ""}</div>
+      <div class="small">${esc(resultLine(d, r)) || "—"}</div>${r.note ? `<div class="xs muted">${esc(r.note)}</div>` : ""}</div>`; }).join("");
+  return `<div class="card"><h2>Mes résultats${rs.length ? ` · ${rs.length} saisie${rs.length > 1 ? "s" : ""}` : ""}</h2>
+    ${form}
+    ${charts ? `<div class="stack" style="margin-top:14px;gap:12px">${charts}</div>` : rs.length ? "" : `<p class="small muted" style="margin:10px 0 0">Chaque résultat enregistré s'ajoute à la courbe de progression de l'exercice.</p>`}
+    ${hist ? `<details class="hist" style="margin-top:10px"><summary class="small">Historique</summary><div class="list" style="margin-top:6px">${hist}</div></details>` : ""}</div>`;
+}
 function vExercice(p) {
   const d = S.drills[p[1]]; if (!d) return emptyBox("Exercice introuvable", "", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
   const used = S.plan.sessions.filter(s => (s.blocks || []).some(b => b.drill === d.id));
@@ -489,6 +528,7 @@ function vExercice(p) {
   <div class="row">${tagsHtml(d.tags)}<span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
   <p>${esc(d.objective)}</p>
   <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
+  ${resultsCard(d, p[2])}
   <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
   <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
   <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
@@ -1030,9 +1070,9 @@ document.addEventListener("click", async e => {
     case "tag-pick": b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); break;
     case "vf": S.vidFilter = b.dataset.f; render(); break;
     case "unvalidate": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; } await Store.del("validations", id); toast("Validation annulée"); break;
-    case "del-note": case "del-video": case "del-link": case "del-round": {
+    case "del-note": case "del-video": case "del-link": case "del-round": case "del-result": {
       if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; }
-      const col = { "del-note": "notes", "del-video": "videos", "del-link": "drillLinks", "del-round": "rounds" }[a];
+      const col = { "del-note": "notes", "del-video": "videos", "del-link": "drillLinks", "del-round": "rounds", "del-result": "drillResults" }[a];
       const doc = S.data[col].find(x => x._id === id);
       try { if (doc && doc.path) await Store.removeFile(doc.path); if (doc && doc.files) for (const f of doc.files) await Store.removeFile(f.path); await Store.del(col, id); toast("Supprimé"); if (a === "del-round") location.hash = "#/parties"; } catch (x) { toast("Suppression impossible."); }
       break; }
@@ -1071,6 +1111,16 @@ document.addEventListener("submit", async e => {
   if (t === "finish") { S.draft.cost = form.cost.value; S.draft.notes = form.notes.value; saveDraft(); return saveRound(); }
   if (t === "note") return submitNote(form);
   if (t === "video") return submitVideo(form);
+  if (t === "result") { const d = S.drills[form.dataset.drill]; const values = {}; let bad = null;
+    for (const m of d.measure || []) { const raw = form["v_" + m.key].value.trim().replace(",", "."); if (raw === "") continue; const v = Number(raw);
+      if (!isFinite(v) || v < 0 || (m.max && v > m.max)) { bad = m; break; } values[m.key] = v; }
+    if (bad) { toast(`${bad.label} : valeur entre 0 et ${bad.max || "…"}`); return; }
+    const note = form.note.value.trim(); if (!Object.keys(values).length && !note) { toast("Saisis au moins un résultat."); return; }
+    const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
+    const date = form.date.value || iso(), kept = [...form.querySelectorAll("[data-keep]")].map(el => [el.id, el.value]); kept.forEach(([id]) => document.getElementById(id).value = "");
+    try { await Store.add("drillResults", { drill: d.id, date, session: form.dataset.sid || null, values, note, at: new Date().toISOString() }); toast("Résultat enregistré"); }
+    catch (x) { console.error(x); kept.forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; }); toast("Enregistrement impossible" + (x.code ? " · " + x.code : "")); }
+    btn.disabled = false; return; }
   if (t === "chat") { const text = form.text.value.trim(); if (!text) { toast("Écris ta question."); return; } const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
     const ta = form.text; ta.value = "";
     try { await Store.add("messages", { ref: "video:" + form.dataset.id, role: "user", text, at: new Date().toISOString(), status: "open" }); toast("Question envoyée"); } catch (x) { console.error(x); const t2 = document.getElementById(ta.id); if (t2) t2.value = text; toast("Envoi impossible" + (x.code ? " · " + x.code : "")); }
