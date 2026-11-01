@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.13.0";
+const APP_VERSION = "1.14.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -51,6 +51,7 @@ const METRICS = {
   pen: { label: "Pénalités /18", t: 0.3, dir: "low", short: "Pénalités /18" }
 };
 const IC = {
+  doc: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M12 11v7M9 15l3 3 3-3"/>',
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -505,7 +506,7 @@ function metChart(m, rs) {
 function resultsCard(d, sid) {
   const ms = d.measure || [], rs = resultsOf(d.id), sess = sid && S.plan.sessions.find(x => x.id === sid);
   const form = canEdit() ? `<form class="stack" data-form="result" data-drill="${d.id}" data-sid="${sess ? sess.id : ""}" style="gap:10px">
-    <div class="grid">${ms.map(m => `<div class="f"><label for="rv-${m.key}">${esc(m.label)}</label><div class="inunit"><input id="rv-${m.key}" name="v_${m.key}" type="number" inputmode="decimal" step="any" min="0" ${m.max ? `max="${m.max}"` : ""} data-keep placeholder="${m.target != null ? "obj. " + nfr(m.target) : ""}"><span>${m.max ? "/ " + m.max : esc(m.unit || "")}</span></div></div>`).join("")}
+    <div class="grid">${ms.map(m => `<div class="f"><label for="rv-${m.key}">${esc(m.label)}</label><div class="inunit"><input id="rv-${m.key}" name="v_${m.key}" type="number" inputmode="decimal" step="any" min="0" ${m.max ? `max="${m.max}"` : ""} data-keep placeholder="${m.target != null ? "obj. " + (m.lower ? "≤ " : "") + nfr(m.target) : ""}"><span>${m.max ? "/ " + m.max : esc(m.unit || "")}</span></div></div>`).join("")}
       <div class="f"><label for="rv-date">Date</label><input id="rv-date" name="date" type="date" value="${sess && sess.date <= iso() ? sess.date : iso()}" max="${iso()}"></div>
       <div class="f full"><label for="rv-note">Note (sensations, conditions)</label><input id="rv-note" name="note" data-keep placeholder="Facultatif"></div></div>
     ${sess ? `<p class="xs muted" style="margin:0">Rattaché à la séance « ${esc(sess.title)} » du ${fmtDs(sess.date).replace(/\.$/, "")}.</p>` : ""}
@@ -523,13 +524,15 @@ function vExercice(p) {
   const d = S.drills[p[1]]; if (!d) return emptyBox("Exercice introuvable", "", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
   const used = S.plan.sessions.filter(s => (s.blocks || []).some(b => b.drill === d.id));
   const links = S.data.drillLinks.filter(l => l.drill === d.id);
-  const li = a => a && a.length ? `<ul class="plain small">${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="small muted">—</p>`;
+  const lk = x => S.drillList.filter(o => o.id !== d.id).reduce((t, o) => t.split(esc(o.name)).join(`<a href="#/exercice/${o.id}">${esc(o.name)}</a>`), esc(x));
+  const li = a => a && a.length ? `<ul class="plain small">${a.map(x => `<li>${lk(x)}</li>`).join("")}</ul>` : `<p class="small muted">—</p>`;
   const body = `<section class="view">
   <div class="row">${tagsHtml(d.tags)}<span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
   <p>${esc(d.objective)}</p>
   <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
+  <div class="dl"><a class="btn ghost sm" href="data/fiches/${d.id}.pdf" download="Fiche - ${esc(d.name)}.pdf">${icon("doc", "flex:none")} Fiche terrain à imprimer (PDF)</a><a class="xs" href="data/fiches/classeur-exercices.pdf" download="Classeur des exercices.pdf">Classeur des ${S.drillList.length} fiches</a></div>
   ${resultsCard(d, p[2])}
-  <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+  <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${lk(x)}</li>`).join("")}</ol></div>
   <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
   <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
   <div class="card"><h2>Vidéos et démonstrations</h2><div class="stack">

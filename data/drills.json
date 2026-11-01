@@ -1047,7 +1047,7 @@
    "errors": [
     "Faire le test à froid"
    ],
-   "success": "Valeurs notées dans le champ « mesure » de la séance",
+   "success": "Valeurs saisies dans « Mes résultats » : elles servent de référence pour mesurer les progrès.",
    "refs": [],
    "yt": "golf baseline test driver dispersion practice",
    "tags": [
@@ -1089,7 +1089,7 @@
     "Tees"
    ],
    "setup": [
-    "Utilise les fiches Up & down 9 positions, Échelle de wedges et Cercle de putting."
+    "Reprend 3 exercices du plan, avec leur mise en place : Up & down : 9 positions, Échelle de wedges 30–90 m et Cercle de putting 1–2 m."
    ],
    "steps": [
     "Up & down 9 positions : x/9.",
@@ -1100,7 +1100,7 @@
     "Une balle par essai, pas de rattrapage"
    ],
    "errors": [],
-   "success": "Valeurs notées dans le champ « mesure »",
+   "success": "Valeurs saisies dans « Mes résultats » : elles servent de référence pour mesurer les progrès.",
    "refs": [],
    "yt": "short game test golf practice scoring",
    "tags": [

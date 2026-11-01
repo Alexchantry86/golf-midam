@@ -331,3 +331,5 @@ details.vids summary::-webkit-details-marker{display:none}
 .met .row{gap:8px;flex-wrap:wrap}
 .exrow .res{font-weight:600;color:var(--navy)}
 details.hist summary{cursor:pointer;color:var(--blue)}
+.dl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dl .btn{display:inline-flex;align-items:center;gap:6px}
