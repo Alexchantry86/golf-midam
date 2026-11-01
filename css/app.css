@@ -246,7 +246,8 @@ input[type=file]{padding:7px;font-size:14px}
 .dot{display:inline-block;width:10px;height:10px;border:1.5px solid var(--gold);border-radius:50%}
 .dot.on{background:var(--navy);border-color:var(--navy)}
 .miss{color:var(--red);font-weight:700}
-.holestrip{overflow-x:auto;border-radius:12px;border:1px solid var(--line);max-width:100%;overscroll-behavior-x:contain}
+.holestrip{overflow-x:auto;border-radius:12px;border:1px solid var(--line);max-width:100%;overscroll-behavior-x:contain;padding-bottom:10px;background:var(--card);scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.holestrip::-webkit-scrollbar{height:4px}.holestrip::-webkit-scrollbar-thumb{background:var(--gold);border-radius:4px}.holestrip::-webkit-scrollbar-track{background:transparent;margin:0 12px}
 .holestrip table{border-collapse:collapse;font-size:12.5px;width:100%}
 .holestrip th,.holestrip td{border-right:1px solid var(--line);text-align:center;padding:5px 0;min-width:30px}
 .holestrip th{background:var(--navy);color:var(--sand);font-weight:500;cursor:pointer}
