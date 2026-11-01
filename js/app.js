@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.14.2";
+const APP_VERSION = "1.15.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -532,6 +532,7 @@ function vExercice(p) {
   <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
   <div class="dl"><a class="btn ghost sm" href="data/fiches/${d.id}.pdf" download="Fiche - ${esc(d.name)}.pdf">${icon("doc", "flex:none")} Fiche terrain à imprimer (PDF)</a><a class="xs" href="data/fiches/classeur-exercices.pdf" download="Classeur des exercices.pdf">Classeur des ${S.drillList.length} fiches</a></div>
   ${resultsCard(d, p[2])}
+  ${notesBlock("drill:" + d.id, { title: "Mes documents et notes", intro: "Photos (schéma, réglage, carte de score du practice), PDF (fiche de ton pro, protocole) ou simple note : tout reste attaché à cet exercice.", fileLabel: "Ajouter des photos ou des PDF (20 Mo max. par fichier)", btn: "Enregistrer" })}
   <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${lk(x)}</li>`).join("")}</ol></div>
   <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
   <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
@@ -548,18 +549,18 @@ function vExercice(p) {
 }
 
 /* ---------- Notes & vidéos ---------- */
-function notesBlock(ref) {
+function notesBlock(ref, o = {}) {
   const notes = S.data.notes.filter(n => n.ref === ref).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   const k = ref.replace(/[^\w]/g, "_");
-  return `<div class="card"><h2>Notes</h2>
+  return `<div class="card"><h2>${o.title || "Notes"}</h2>${o.intro && !notes.length ? `<p class="small muted" style="margin:0 0 8px">${o.intro}</p>` : ""}
   ${notes.length ? `<div class="list">${notes.map(n => `<div class="item"><div class="head"><span class="small muted">${fmtD(n.date)}</span>${canEdit() ? `<button class="btn ghost sm" data-act="del-note" data-id="${n._id}">Supprimer</button>` : ""}</div>
     ${n.text ? `<p class="pre small">${esc(n.text)}</p>` : ""}
-    ${(n.files || []).map(f => /^image\//.test(f.type) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" style="max-height:220px;border-radius:10px"></a>` : `<a class="small" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)} (${sizeTxt(f.size || 0)}) ↗</a>`).join("")}</div>`).join("")}</div>` : ""}
+    ${(n.files || []).map(f => /^image\//.test(f.type) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" style="max-height:220px;max-width:100%;object-fit:contain;border-radius:10px;display:block"></a>` : `<a class="small" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)} (${sizeTxt(f.size || 0)}) ↗</a>`).join("")}</div>`).join("")}</div>` : ""}
   ${canEdit() ? `<form class="stack" data-form="note" data-ref="${esc(ref)}" style="margin-top:6px">
     <div class="f"><label for="nt-${k}">Écrire une note</label><textarea id="nt-${k}" name="text" data-keep placeholder="Sensations, chiffres, consignes à retenir…"></textarea></div>
-    <div class="f"><label for="nf-${k}">Joindre une photo ou un fichier</label><input id="nf-${k}" name="files" type="file" multiple accept="image/*,application/pdf,.txt,.md,.doc,.docx"></div>
+    <div class="f"><label for="nf-${k}">${o.fileLabel || "Joindre une photo ou un fichier"}</label><input id="nf-${k}" name="files" type="file" multiple accept="image/*,application/pdf,.txt,.md,.doc,.docx"></div>
     <div class="progress" hidden><span></span></div>
-    <div><button class="btn navy sm" type="submit">Ajouter la note</button></div></form>` : ""}</div>`;
+    <div><button class="btn navy sm" type="submit">${o.btn || "Ajouter la note"}</button></div></form>` : ""}</div>`;
 }
 function coachEye(a, vid) {
   if (a.status === "requested") return `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span><span class="xs muted">en attente</span></div><p class="small muted">Analyse demandée le ${fmtD(a.requestedAt)}, prête le soir même vers 19 h. Elle apparaîtra ici : positions clés, points forts, points à corriger et exercices.</p></section>`;
@@ -1015,8 +1016,9 @@ async function submitNote(form) {
   try {
     const out = []; let i = 0;
     for (const f of files) { const r = await Store.upload(`notes/${ref.replace(":", "_")}/${Date.now()}-${safeName(f.name)}`, f, x => pg.firstElementChild.style.width = ((i + x) / files.length * 100) + "%"); out.push({ name: f.name, type: f.type, size: f.size, path: r.path, url: r.url }); i++; }
-    await Store.add("notes", { ref, date: iso(), text, files: out }); form.reset(); form.querySelectorAll("[data-keep]").forEach(el => el.value = ""); toast("Note ajoutée");
-  } catch (e) { console.error(e); toast(upErr(e)); }
+    const ta = document.getElementById(form.text.id); if (ta) ta.value = ""; form.files.value = "";
+    await Store.add("notes", { ref, date: iso(), text, files: out }); toast("Enregistré");
+  } catch (e) { console.error(e); const ta = document.getElementById(form.text.id); if (ta && !ta.value) ta.value = text; toast(upErr(e)); }
   btn.disabled = false; pg.hidden = true;
 }
 function upErr(e) { const c = (e && e.code) || "";
