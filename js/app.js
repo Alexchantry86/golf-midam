@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.16.0";
+const APP_VERSION = "1.16.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -973,7 +973,7 @@ const FORMS = {
   session: { title: "Entraînement libre", col: "sessions", fields: [
     { k: "date", label: "Date", type: "date", req: 1 }, { k: "duration", label: "Durée (min)", type: "number", req: 1 },
     { k: "tags", label: "Type d'entraînement (un ou plusieurs)", type: "tags", full: 1 },
-    { k: "content", label: "Contenu", type: "textarea", full: 1, req: 1 },
+    { k: "content", label: "Contenu (facultatif)", type: "textarea", full: 1, ph: "Ex. 30 balles fer 7 avec headcover, puis 20 putts à 2 m" },
     { k: "result", label: "Mesure / résultat", type: "text", full: 1, ph: "Ex. 14/20 putts à 2 m" },
     { k: "rating", label: "Qualité (1 à 5)", type: "select", opts: ["", "1", "2", "3", "4", "5"] },
     { k: "notes", label: "Sensations / remarques", type: "textarea", full: 1 }] },
@@ -1020,6 +1020,7 @@ async function submitSheet(e) {
   for (const f of F.fields) {
     if (f.type === "tags") { data[f.k] = [...e.target.querySelectorAll(`[data-tags="${f.k}"] [aria-pressed="true"]`)].map(b => b.dataset.v); if (!data[f.k].length) return sheetErr("Choisis au moins un type d'entraînement."); continue; }
     const v = String(fd.get(f.k) ?? "").trim(); if (f.req && !v) return sheetErr("Champ obligatoire : " + f.label); data[f.k] = NUMERIC.has(f.k) ? num(v) : v; }
+  if (kind === "session" && !data.content) data.content = data.tags.join(" · ") + (data.notes ? " — " + data.notes.split("\n")[0].slice(0, 80) : "");
   try {
     if (kind === "index") { const h = ((S.profile && S.profile.indexHistory) || []).filter(x => x.date !== data.date); h.push({ date: data.date, value: data.value }); h.sort((a, b) => a.date.localeCompare(b.date)); await Store.set("profile", "main", { indexHistory: h }, true); }
     else if (id) await Store.set(F.col, id, data, true); else await Store.add(F.col, data);
