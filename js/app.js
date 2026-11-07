@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.15.0";
+const APP_VERSION = "1.15.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -620,7 +620,7 @@ function videoForm(ref, k) {
       <input id="vk-${k}" name="fileCam" type="file" accept="video/*" capture="environment" hidden onchange="this.form.querySelector('.vname').textContent=this.files[0]?this.files[0].name:'';this.form.file.value=''">
       <span class="vname xs muted" style="overflow-wrap:anywhere"></span></div>
     <div class="grid">
-      <div class="f"><label for="va-${k}">Angle</label><select id="va-${k}" name="angle"><option>Down-the-line</option><option>De face</option><option>Autre</option></select></div>
+      <div class="f"><label for="va-${k}">Angle</label><select id="va-${k}" name="angle" required><option value="" selected disabled>Choisir…</option><option value="De face">De face (face à toi)</option><option value="Down-the-line">Dans l'axe (derrière toi)</option><option>Autre</option></select></div>
       <div class="f"><label for="vc-${k}">Club</label><input id="vc-${k}" name="club" data-keep placeholder="Ex. fer 7"></div>
       <div class="f full"><label for="vm-${k}">Ce que tu veux qu'on regarde</label><textarea id="vm-${k}" name="comment" data-keep placeholder="Ex. chemin de club à la transition"></textarea></div>
     </div>
