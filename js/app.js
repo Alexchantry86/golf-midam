@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.16.1";
+const APP_VERSION = "1.17.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -32,9 +32,10 @@ let tt; function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden =
 async function fetchJSON(p) { const r = await fetch(p + "?v=" + Date.now()); if (!r.ok) throw new Error(p); return r.json(); }
 
 const DOMAINS = ["Long jeu", "Fers", "Wedges", "Petit jeu", "Bunker", "Putting", "Parcours", "Physique / vitesse", "Mental / routine"];
-const TAGS = ["Physique", "Long jeu", "Petit jeu", "Putting"];
-const TAG_COLOR = { "Physique": "#c8372d", "Long jeu": "#0f2340", "Petit jeu": "#a0612f", "Putting": "#2f6b45" };
-const DOMAIN_TAG = { "Physique / vitesse": "Physique", "Physique": "Physique", "Long jeu": "Long jeu", "Fers": "Long jeu", "Wedges": "Petit jeu", "Petit jeu": "Petit jeu", "Bunker": "Petit jeu", "Putting": "Putting" };
+const TAGS = ["Physique", "Long jeu", "Wedging", "Chipping", "Bunker", "Putting"];
+const TAG_COLOR = { "Physique": "#c8372d", "Long jeu": "#0f2340", "Wedging": "#a0612f", "Chipping": "#6d4c8f", "Bunker": "#9c7a2c", "Putting": "#2f6b45", "Petit jeu": "#7d7462" };
+const LEGACY_TAG = { "Petit jeu": ["Wedging", "Chipping", "Bunker"] };   // ancienne catégorie, conservée à l'affichage
+const DOMAIN_TAG = { "Physique / vitesse": "Physique", "Physique": "Physique", "Long jeu": "Long jeu", "Fers": "Long jeu", "Wedges": "Wedging", "Petit jeu": "Chipping", "Bunker": "Bunker", "Putting": "Putting" };
 const tagPill = t => `<span class="tag" style="--c:${TAG_COLOR[t] || "#7d7462"}">${esc(t)}</span>`;
 const tagsHtml = a => a && a.length ? `<span class="tags">${a.map(tagPill).join("")}</span>` : "";
 function sessionTags(s) { const set = new Set(); for (const b of s.blocks || []) for (const t of ((S.drills[b.drill] || {}).tags || [])) set.add(t); return TAGS.filter(t => set.has(t)); }
@@ -678,7 +679,7 @@ function domainBars() {
   return `<div class="card"><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%;background:${TAG_COLOR[k] || "#7d7462"}"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
 }
 function vEntrainements() {
-  let l = [...S.data.sessions].sort(byDateDesc); if (S.tagFilter) l = l.filter(s => freeTags(s).includes(S.tagFilter));
+  let l = [...S.data.sessions].sort(byDateDesc); if (S.tagFilter) l = l.filter(s => freeTags(s).some(t => t === S.tagFilter || (LEGACY_TAG[t] || []).includes(S.tagFilter)));
   const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="session">+ Entraînement libre</button>` : ""}
   ${tagFilter()}
   ${l.length ? `<div class="card"><div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><span class="small muted">${fmtD(s.date)} · ${n0(s.duration)} min${s.rating ? ` · ${s.rating}/5` : ""}</span>${tagsHtml(freeTags(s))}</div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div></div>`
