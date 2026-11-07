@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.20.0";
+const APP_VERSION = "1.20.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -458,25 +458,27 @@ function indexChart(target, tDate) {
 /* ---------- Plan & séances ---------- */
 function doneJournal() {   // séances du plan faites + entraînements libres, du plus récent au plus ancien
   const a = completions().filter(c => !c.legacy || true).map(c => {
-    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, min: f.duration, tags: freeTags(f), part: false } : null; }
+    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, min: f.duration, free: true, tags: freeTags(f), part: false } : null; }
     const x = S.plan.sessions.find(y => y.id === c.session); return x ? { date: c.date, href: "#/seance/" + x.id, title: x.title, meta: `Séance du plan · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, min: c.actualMin ?? x.duration, tags: sessionTags(x), part: c.status === "Partielle" } : null; }).filter(Boolean);
   return a.filter(e => tagMatch(e.tags)).reverse();
 }
 function vPlan() {
   const st = S.statusSel.length ? S.statusSel : ["todo", "done"];
   const list = S.plan.sessions.filter(x => tagMatch(sessionTags(x)));
-  const ord = sessionOrder(list), todo = ord.filter(r => !r.last && !doneToday(r.s.id)), j = doneJournal();
+  const ord = sessionOrder(list).sort((a, b) => (a.s.n || 0) - (b.s.n || 0)), j = doneJournal();   // ordre fixe du programme : une séance cochée reste à sa place
+  const todo = ord.filter(r => !r.last || doneToday(r.s.id)), doneLib = ord.filter(r => r.last), freeJ = j.filter(e => e.free);
   const dur = m => `<span class="du">${icon("clock")}${n0(m || 0)}'</span>`;
-  const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id), tg = sessionTags(x);
-    return `<div class="srow c ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
-      <a href="#/seance/${x.id}" title="${esc(x.title)}${last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}"><span class="num">${x.n}</span><span class="nm">${esc(x.title)}</span>${tagIcons(tg)}${dur(x.duration)}</a></div>`; };
-  const doneRows = j.map(e => `<a class="srow c done" href="${e.href}" title="${esc(e.meta)}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="row0"><span class="num dt">${D(e.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</span><span class="nm">${esc(e.title)}</span>${tagIcons(e.tags)}${dur(e.min)}</span></a>`).join("");
+  const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id), tg = sessionTags(x), was = !dt && last;
+    return `<div class="srow c ${dt ? "on" : ""}">${canEdit() ? `<button class="chk${was ? " was" : ""}" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : was ? "Déjà faite : la refaire aujourd'hui" : "Marquer faite aujourd'hui"}">${dt || was ? "✓" : ""}</button>` : `<span class="chk${last ? " on" : ""}">${last ? "✓" : ""}</span>`}
+      <a href="#/seance/${x.id}" title="${esc(x.title)}${last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}"><span class="num">${x.n}</span><span class="nm">${esc(x.title)}</span>${n > 1 ? `<span class="rep">${nf1(n)}×</span>` : ""}${tagIcons(tg)}${dur(x.duration)}</a></div>`; };
+  const doneRows = freeJ.map(e => `<a class="srow c done" href="${e.href}" title="${esc(e.meta)}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="row0"><span class="num dt">${D(e.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</span><span class="nm">${esc(e.title)}</span>${tagIcons(e.tags)}${dur(e.min)}</span></a>`).join("");
   const showTodo = st.includes("todo"), showDone = st.includes("done"), both = showTodo && showDone;
   const body = `<section class="view">
   ${goalGauge()}
-  <div class="ddrow">${dd("status", "Statut", [["todo", "À faire", todo.length], ["done", "Faites", j.length]], S.statusSel)}${typeDD()}</div>
-  ${showTodo ? `${both ? `<div class="sec"><span>À faire · ${todo.length}</span></div>` : ""}${todo.length ? `<div class="slist">${todo.map(srow).join("")}</div>` : `<p class="small muted">Toutes les séances de ce type ont été faites.</p>`}` : ""}
-  ${showDone ? `${both ? `<div class="sec"><span>Faites · ${j.length}</span></div>` : ""}${j.length ? `<div class="slist">${doneRows}</div>` : `<p class="small muted">Aucune séance faite pour l'instant.</p>`}` : ""}
+  <div class="ddrow">${dd("status", "Statut", [["todo", "À faire", ord.filter(r => !r.last).length], ["done", "Faites", doneLib.length + freeJ.length]], S.statusSel)}${typeDD()}</div>
+  ${(() => { const rows = both ? ord : showTodo ? todo : doneLib;
+    return rows.length ? `<div class="slist">${rows.map(srow).join("")}</div>` : `<p class="small muted">${showTodo ? "Toutes les séances de ce type ont été faites." : "Aucune séance du programme faite pour l'instant."}</p>`; })()}
+  ${showDone && freeJ.length ? `<div class="sec"><span>Entraînements libres · ${freeJ.length}</span></div><div class="slist">${doneRows}</div>` : ""}
   ${canEdit() ? `<button class="btn ghost wide" data-act="form" data-kind="session">+ Entraînement libre (hors plan)</button>` : ""}
   <details class="fold"><summary>${icon("note", "flex:none")} Préconisations du coach<span class="xs muted">${(S.plan.recos || []).length}</span></summary>
     <p class="small" style="margin:8px 0 10px">${esc(S.plan.objective)}</p>
