@@ -3,7 +3,9 @@
 - Déploiement : push sur `main` (GitHub Pages). Jamais de clé ni de mot de passe dans le dépôt.
 - Avant chaque push : `node --check js/app.js`, JSON valides, vérification en mode `?demo=1` (playwright), pas de débordement horizontal à 390 px.
 - Incrémenter `APP_VERSION` (js/app.js) et les `?v=` d'index.html à chaque livraison.
-- Plan et séances : `data/plan.json` (identifiants de séance stables : les validations Firestore y sont rattachées).
+- Plan et séances : `data/plan.json` = bibliothèque de séances (identifiants stables) + `practiceGoal` (objectif de séances, date butoir).
+  Chaque séance faite = un document de la collection `completions` (session, date, status Faite/Partielle, blocksDone, rating, feedback) ;
+  une séance se refait autant de fois que voulu. Les entraînements libres (`sessions`) comptent aussi dans l'objectif. `validations` = ancien modèle, lu en lecture seule.
   Exercices : `data/drills.json` ; toute séance ne référence que des `drill` existants. `measure` = champs de « Mes résultats »
   (collection `drillResults`). Après toute modification d'exercice, régénérer les fiches PDF : `node tools/fiches.mjs <node_modules avec @fontsource/fraunces et @fontsource/dm-sans>` → `data/fiches/`.
 - Données et vidéos : pas d'accès réseau direct à Firebase depuis la session. Passer par le dépôt privé

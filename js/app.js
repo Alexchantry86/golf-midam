@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.17.0";
+const APP_VERSION = "1.18.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -52,6 +52,12 @@ const METRICS = {
   pen: { label: "Pénalités /18", t: 0.3, dir: "low", short: "Pénalités /18" }
 };
 const IC = {
+  play: '<path d="M8 5.5v13l10.5-6.5z"/>',
+  chart: '<path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/>',
+  clip: '<path d="M20 11.5l-8.3 8.3a5 5 0 0 1-7-7L13 4.5a3.3 3.3 0 0 1 4.7 4.7L9.4 17.5a1.7 1.7 0 0 1-2.4-2.4l7.6-7.6"/>',
+  hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
+  note: '<path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4M8 9h8M8 13h5"/>',
+  cam: '<path d="M3 7h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="13" r="3.5"/>',
   doc: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M12 11v7M9 15l3 3 3-3"/>',
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -71,7 +77,7 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
-  data: { drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
+  data: { completions: [], drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
   catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
@@ -99,7 +105,7 @@ function firebaseStore() {
   };
 }
 function demoStore() {
-  const mem = { drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
+  const mem = { completions: [], drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [], profile: [] };
   const L = {}; let seq = 1;
   const emit = col => (L[col] || []).forEach(cb => cb(mem[col].map(x => ({ ...x }))));
   const api = {
@@ -129,7 +135,7 @@ function demoStore() {
 }
 function startData() {
   if (S.subs.length) return;
-  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests", "messages", "drillResults"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
+  for (const col of ["rounds", "courses", "lessons", "sessions", "validations", "notes", "videos", "drillLinks", "courseRequests", "messages", "drillResults", "completions"]) S.subs.push(Store.listen(col, arr => { S.data[col] = arr; S.loaded = true; render(); }));
   S.subs.push(Store.listenDoc("profile/main", d => { S.profile = d; render(); }));
 }
 
@@ -234,9 +240,46 @@ function gaps(st) {
 }
 const gapCls = g => g == null ? "" : g <= 0 ? "ok" : g < 0.15 ? "warn" : "bad";
 const gapCol = g => g == null ? "#c9b48c" : g <= 0 ? "#2f6b45" : g < 0.15 ? "#c9a227" : "#c8372d";
+/* ---------- Pratique : séances choisies et réalisées (bibliothèque + objectif) ---------- */
+const nf1 = v => Number(v).toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+function completions() {
+  const a = S.data.completions.map(c => ({ ...c }));
+  for (const v of S.data.validations) if ((v.status === "Faite" || v.status === "Partielle") && !a.some(c => c.legacyOf === v._id)) {
+    const ss = S.plan.sessions.find(x => x.id === v._id); a.push({ _id: "legacy:" + v._id, legacy: true, session: v._id, date: v.validatedAt || (ss && ss.date), status: v.status, actualMin: v.actualMin, rating: v.rating, feedback: [v.measure, v.feedback].filter(Boolean).join(" · ") }); }
+  for (const f of S.data.sessions) a.push({ _id: "free:" + f._id, free: true, session: null, date: f.date, status: "Faite", actualMin: f.duration });   // entraînements libres : comptent dans l'objectif
+  return a.filter(c => c.date).sort((x, y) => x.date.localeCompare(y.date) || String(x.at || "").localeCompare(String(y.at || "")));
+}
+const credit = c => c.status === "Partielle" ? 0.5 : 1;
+const compsOf = id => completions().filter(c => c.session === id);
+const doneToday = id => S.data.completions.find(c => c.session === id && c.date === iso()) || null;
+function goal() {
+  const g = Object.assign({ start: "2026-10-27", until: "2027-03-31", target: 66 }, S.plan.practiceGoal || {});
+  const done = completions().filter(c => c.date >= g.start && c.date <= g.until).reduce((a, c) => a + credit(c), 0);
+  const total = daysBetween(g.start, g.until), el = Math.max(0, Math.min(total, daysBetween(g.start, iso()) + 1));
+  const expected = g.target * el / total, diff = done - expected, weeksLeft = Math.max(1 / 7, (total - el) / 7);
+  return { ...g, done, expected, diff, need: Math.max(0, g.target - done) / weeksLeft, perWeek: g.target / (total / 7), total, el };
+}
+function paceOf(g) {
+  if (g.done >= g.target) return ["ok", "Objectif atteint"];
+  if (g.diff >= 1) return ["ok", `En avance de ${nf1(Math.floor(g.diff))} séance${Math.floor(g.diff) > 1 ? "s" : ""}`];
+  if (g.diff > -1) return ["ok", "Dans le rythme"];
+  const r = Math.ceil(-g.diff); return [r <= 3 ? "warn" : "bad", `En retard de ${r} séance${r > 1 ? "s" : ""}`];
+}
+function goalGauge() {
+  const g = goal(), [cls, lab] = paceOf(g), p = Math.min(100, g.done / g.target * 100), pe = Math.min(100, g.expected / g.target * 100);
+  return `<div class="goal"><div class="row between"><span class="lbl">Objectif · ${g.target} séances d'ici le ${fmtD(g.until)}</span><span class="pill ${cls}">${lab}</span></div>
+    <div class="gv"><b>${nf1(g.done)}</b><span> / ${g.target} séances</span></div>
+    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, rythme attendu ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div>
+    <div class="xs muted">Séances du plan et entraînements libres comptent. Repère : ${nf1(g.expected)} attendue${g.expected >= 2 ? "s" : ""} aujourd'hui · il te faut ${nf1(g.need)} séance${g.need >= 2 ? "s" : ""} par semaine jusqu'au ${fmtD(g.until)} (rythme de départ ${nf1(g.perWeek)}).</div></div>`;
+}
+function sessionOrder(list) {   // les moins pratiquées d'abord, puis les plus anciennes
+  const idx = new Map(S.plan.sessions.map((x, i) => [x.id, i]));
+  return list.map(x => { const cs = compsOf(x.id); return { s: x, n: cs.reduce((a, c) => a + credit(c), 0), last: cs.length ? cs[cs.length - 1].date : "" }; })
+    .sort((a, b) => (a.last || "").localeCompare(b.last || "") || a.n - b.n || idx.get(a.s.id) - idx.get(b.s.id));
+}
 function practiceLog() {
   const a = S.data.sessions.map(s => ({ date: s.date, min: s.duration || 0, domain: s.domain, tags: freeTags(s) }));
-  for (const s of S.plan.sessions) { const v = valOf(s.id); if (v && (v.status === "Faite" || v.status === "Partielle")) a.push({ date: s.date, min: v.actualMin ?? s.duration ?? 0, domain: s.domain, tags: sessionTags(s) }); }
+  for (const c of completions()) { const s = S.plan.sessions.find(x => x.id === c.session); if (s) a.push({ date: c.date, min: c.actualMin ?? s.duration ?? 0, domain: s.domain, tags: sessionTags(s) }); }
   return a;
 }
 const currentIndex = () => { const h = (S.profile && S.profile.indexHistory) || []; return h.length ? h[h.length - 1] : null; };
@@ -257,10 +300,9 @@ function vTableau() {
   const startIdx = h.length ? h[0].value : null;
   const pIdx = ci && startIdx != null && startIdx !== target ? (startIdx - ci.value) / (startIdx - target) : 0;
   const left = daysBetween(iso(), plan.entryDeadline);
-  const past = plan.sessions.filter(s => s.date <= iso()); const doneAll = plan.sessions.filter(s => (valOf(s.id) || {}).status === "Faite").length;
-  const pPlan = plan.sessions.length ? doneAll / plan.sessions.length : 0;
-  const today = plan.sessions.filter(s => !valOf(s.id)).sort((a, b) => a.date.localeCompare(b.date)).find(s => s.date >= iso()) || plan.sessions.filter(s => !valOf(s.id) && s.date < iso()).pop();
-  const late = plan.sessions.filter(s => !valOf(s.id) && s.date < iso()).length;
+  const G0 = goal(), pPlan = Math.min(1, G0.done / G0.target), [paceCls, paceLab] = paceOf(G0);
+  const todayDone = plan.sessions.filter(x => doneToday(x.id));
+  const today = todayDone[0] || (sessionOrder(plan.sessions)[0] || {}).s;
   const since = iso(new Date(Date.now() - 30 * 864e5)); const mins = practiceLog().filter(p => p.date >= since && p.date <= iso()).reduce((s, p) => s + (p.min || 0), 0);
   const st = statsOf(S.data.rounds); const G = st ? gaps(st).filter(g => g.v != null).slice(0, 3) : [];
   const ph = currentPhase(); const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
@@ -268,19 +310,16 @@ function vTableau() {
   const body = `<section class="view">
   <div class="ringcard">${ring(pIdx, pPlan, ci ? n1(ci.value) : "—")}
     <div><div class="sm">Index actuel → cible</div><div class="big">${ci ? n1(ci.value) : "—"} → <span class="red">${n1(target)}</span></div>
-    <div class="sm">${ci ? `${n1(ci.value - target)} coups à gagner · ` : ""}<b style="color:var(--red)">${n0(left)} jours</b> avant la clôture des inscriptions · plan ${pc(pPlan * 100)} réalisé</div>
+    <div class="sm">${ci ? `${n1(ci.value - target)} coups à gagner · ` : ""}<b style="color:var(--red)">${n0(left)} jours</b> avant la clôture des inscriptions · ${nf1(G0.done)}/${G0.target} séances</div>
     ${canEdit() ? `<button class="btn ghost sm" style="margin-top:6px" data-act="form" data-kind="index">Mettre à jour l'index</button>` : ""}</div></div>
-  ${today ? `<a class="hero" href="#/seance/${today.id}"><span class="lb">${today.date === iso() ? "Séance du jour" : today.date < iso() ? "Séance en retard" : "Prochaine séance · " + fmtDs(today.date)} · ${n0(today.duration)} min</span>
-    <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span>${sessionTags(today).map(t => `<span>${t}</span>`).join("")}${late > 1 ? `<span>${late} séances à valider</span>` : ""}</span>
+  ${today ? `<a class="hero" href="#/seance/${today.id}"><span class="lb">${doneToday(today.id) ? "Faite aujourd'hui" : "Suggestion : la moins pratiquée"} · ${n0(today.duration)} min</span>
+    <span class="t">${esc(today.title)}</span><span class="ch"><span>${today.blocks.length} exercice${today.blocks.length > 1 ? "s" : ""}</span>${sessionTags(today).map(t => `<span>${t}</span>`).join("")}<span>${paceLab}</span></span>
     ${doneBlocks ? `<span class="pg"><i style="width:${doneBlocks / today.blocks.length * 100}%"></i></span>` : ""}
-    <span class="cta">${doneBlocks ? "Continuer la séance" : "Voir la séance"}</span></a>` : `<div class="empty"><b>Toutes les séances du plan sont validées</b>Demande-moi les 4 semaines suivantes dans le projet Coach de Golf.</div>`}
+    <span class="cta">${doneToday(today.id) ? "Voir la séance" : doneBlocks ? "Continuer la séance" : "Commencer la séance"}</span></a>` : ""}
   <div class="sec"><span>Ce qu'il faut travailler</span><a href="#/parties/perf">Détail</a></div>
   <div class="tiles">${G.map(g => `<a class="tile" href="#/parties/perf"><div class="l">${esc(g.short)}</div><div class="v">${fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`).join("")}
-    ${(() => { const due = past.filter(s => s.date >= since), doneN = due.filter(s => ["Faite", "Partielle"].includes((valOf(s.id) || {}).status)).length;
-      const upcoming = plan.sessions.filter(s => s.date > iso() && !valOf(s.id)); const nxt = upcoming.sort((a, b) => a.date.localeCompare(b.date))[0];
-      const sub = due.length ? `${doneN}/${due.length} séance${due.length > 1 ? "s" : ""} prévue${due.length > 1 ? "s" : ""} faite${doneN > 1 ? "s" : ""}` : `${upcoming.length} programmées · 1re ${nxt ? fmtDs(nxt.date) : "—"}`;
-      const cls = !due.length ? "" : doneN === due.length ? "ok" : doneN / due.length >= 0.5 ? "warn" : "bad";
-      return `<a class="tile" href="#/plan"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${cls}">${sub}</div><div class="tb"><i style="width:${due.length ? doneN / due.length * 100 : 0}%;background:#0f2340"></i></div></a>`; })()}</div>
+    ${(() => { const n30 = completions().filter(c => c.date >= since && c.date <= iso()).reduce((a, c) => a + credit(c), 0);
+      return `<a class="tile" href="#/plan"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${paceCls}">${nf1(n30)} séance${n30 >= 2 ? "s" : ""} · ${paceLab.toLowerCase()}</div><div class="tb"><i style="width:${pPlan * 100}%;background:#0f2340"></i></div></a>`; })()}</div>
   ${!st ? emptyBox("Pas encore de carte saisie", "Saisis ta prochaine partie trou par trou : les tuiles ci-dessus se rempliront avec tes écarts au niveau +2.", canEdit() ? `<a class="btn sm" href="#/partie/new">Saisir une carte</a>` : "") : ""}
   ${pend ? `<p class="note"><a href="#/videos">${pend} vidéo${pend > 1 ? "s" : ""} en attente d'analyse</a></p>` : ""}
   <div class="card"><h2>Le parcours jusqu'au Mid-Am</h2><div class="path">${(plan.phases || []).map(x => { const c = x.to < iso() ? "past" : (x.from <= iso() && iso() <= x.to ? "now" : "");
@@ -294,50 +333,36 @@ function vTableau() {
 
 /* Activité : trous joués, parties de 18 trous, score moyen (12 derniers mois) */
 function sessionsChart() {
-  const ss = (S.plan.sessions || []).slice().sort((a, b) => a.date.localeCompare(b.date)); if (!ss.length) return "";
-  const today = iso(), mon = d => { const x = D(d); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return iso(x); };
-  const credit = s => { const v = valOf(s.id); return !v ? 0 : v.status === "Faite" ? 1 : v.status === "Partielle" ? 0.5 : 0; };
-  // semaines : toutes celles du plan, fenêtre de 12 autour d'aujourd'hui
-  const all = [...new Set(ss.map(s => mon(s.date)))].sort(); const cur = mon(today);
-  let i0 = Math.max(0, all.findIndex(w => w >= cur) - 8); if (all[all.length - 1] < cur) i0 = Math.max(0, all.length - 12);
-  const weeks = all.slice(i0, i0 + 12);
-  const before = ss.filter(s => mon(s.date) < weeks[0]);
-  let cumDue = before.filter(s => s.date <= today).length, cumDone = before.reduce((a, s) => a + credit(s), 0);
-  const rows = weeks.map(w => { const ws = ss.filter(s => mon(s.date) === w), due = ws.filter(s => s.date <= today);
-    const done = ws.reduce((a, s) => a + credit(s), 0); cumDue += due.length; cumDone += done;
-    return { w, plan: ws.length, due: due.length, done, past: w <= cur, gap: w <= cur ? Math.max(0, cumDue - cumDone) : null }; });
-  const dueAll = ss.filter(s => s.date <= today).length, doneAll = ss.reduce((a, s) => a + credit(s), 0), late = Math.max(0, dueAll - doneAll), ahead = Math.max(0, doneAll - dueAll);
+  const g = goal(), mon = d => mondayOf(d), cur = mon(iso()), cs = completions().filter(c => c.date >= g.start && c.date <= iso());
+  const weeks = []; for (let w = mon(g.start); w <= cur; w = iso(new Date(D(w).getTime() + 7 * 864e5))) weeks.push(w);
+  const shown = weeks.slice(-12); if (!shown.length) return "";
+  const perWeek = g.perWeek, [cls, lab] = paceOf(g);
+  let cum = 0; const rows = weeks.map(w => { const n = cs.filter(c => mon(c.date) === w).reduce((a, c) => a + credit(c), 0); cum += n;
+    const end = w === cur ? iso() : iso(new Date(D(w).getTime() + 6 * 864e5)); const exp = g.target * Math.max(0, Math.min(g.total, daysBetween(g.start, end) + 1)) / g.total;
+    return { w, n, gap: exp - cum }; }).slice(-12);
   const nf = v => v.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
-  const W = 360, L = 24, R = 24, H = 210, T = 18, B = 178, cw = (W - L - R) / weeks.length, bw = Math.min(14, cw * 0.32);
-  const maxP = Math.max(4, ...rows.map(r => r.plan)), maxG = Math.max(2, ...rows.map(r => r.gap || 0));
-  const Y = v => B - v / maxP * (B - T), YG = v => B - v / maxG * (B - T), cx = i => L + i * cw + cw / 2;
-  let g = "";
-  for (let v = 0; v <= maxP; v += maxP > 8 ? 2 : 1) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
-  for (let v = 0; v <= maxG; v += maxG > 8 ? 2 : 1) g += `<text x="${W - R + 4}" y="${YG(v) + 3}" font-size="9" fill="#c8372d">${v}</text>`;
-  const ci = rows.findIndex(r => r.w === cur); if (ci >= 0) g += `<rect x="${L + ci * cw}" y="${T - 6}" width="${cw}" height="${B - T + 6}" fill="#f3ead8" opacity=".7"/>`;
+  const W = 360, L = 24, R = 40, H = 200, T = 16, B = 168, cw = (W - L - R) / rows.length, bw = Math.min(18, cw * 0.5);
+  const maxP = Math.max(4, Math.ceil(perWeek) + 1, ...rows.map(r => r.n), ...rows.map(r => Math.ceil(Math.max(0, r.gap)))), gs = rows.map(r => r.gap), maxG = Math.max(2, ...gs.map(Math.abs));
+  const Y = v => B - v / maxP * (B - T), YG = v => (T + B) / 2 - v / maxG * (B - T) / 2, cx = i => L + i * cw + cw / 2;
+  let o = "";
+  for (let v = 0; v <= maxP; v += maxP > 8 ? 2 : 1) o += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
+  o += `<line x1="${L}" x2="${W - R}" y1="${Y(perWeek)}" y2="${Y(perWeek)}" stroke="#2f6b45" stroke-dasharray="4 3"/><text x="${W - R + 3}" y="${Y(perWeek) + 3}" font-size="9" fill="#2f6b45">${nf(perWeek)}/sem.</text>`;
   rows.forEach((r, i) => { const x = cx(i);
-    if (r.plan > r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.plan)}" width="${bw}" height="${B - Y(r.plan)}" rx="2" fill="none" stroke="#c9b48c" stroke-width="1.2" stroke-dasharray="3 2"/>`;
-    if (r.due) g += `<rect x="${x - bw - 1}" y="${Y(r.due)}" width="${bw}" height="${B - Y(r.due)}" rx="2" fill="#c9b48c"/>`;
-    if (r.plan) g += `<text x="${x - bw / 2 - 1}" y="${Y(r.plan) - 4}" text-anchor="middle" font-size="9" fill="#a0612f" font-weight="700">${r.plan}</text>`;
-    if (r.done) g += `<text x="${x + bw / 2 + 1}" y="${Y(r.done) - 4}" text-anchor="middle" font-size="9" fill="#0f2340" font-weight="700">${nf(r.done)}</text>`;
-    if (r.done) g += `<rect x="${x + 1}" y="${Y(r.done)}" width="${bw}" height="${B - Y(r.done)}" rx="2" fill="#0f2340"/>`;
-    g += `<text x="${x}" y="${H - 16}" text-anchor="middle" font-size="9" fill="${r.w === cur ? "#0f2340" : "#7d7462"}" font-weight="${r.w === cur ? 700 : 400}">${D(r.w).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</text>`; });
-  const pts = rows.map((r, i) => r.gap == null ? null : [cx(i), YG(r.gap)]).filter(Boolean);
-  if (pts.length && dueAll) { g += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#c8372d" stroke-width="2"/>`;
-    pts.forEach((p, k) => g += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#c8372d"/>`);
-    const lp = pts[pts.length - 1]; g += `<text x="${lp[0]}" y="${lp[1] - 7}" text-anchor="middle" font-size="9" fill="#c8372d" font-weight="700">${nf(rows.filter(r => r.gap != null).pop().gap)}</text>`; }
-  g += `<text x="${L}" y="${H - 3}" font-size="8.5" fill="#7d7462">semaine du</text>`;
-  const rate = dueAll ? Math.round(doneAll / dueAll * 100) : null;
-  const wk = (() => { const ws = ss.filter(s => mon(s.date) === cur); return { plan: ws.length, done: ws.reduce((a, s) => a + credit(s), 0) }; })();
-  return `<div class="card"><h2>Séances · réalisées vs planifiées</h2>
+    if (r.w === cur) o += `<rect x="${L + i * cw}" y="${T - 6}" width="${cw}" height="${B - T + 6}" fill="#f3ead8" opacity=".7"/>`;
+    if (r.n) o += `<rect x="${x - bw / 2}" y="${Y(r.n)}" width="${bw}" height="${B - Y(r.n)}" rx="2" fill="#0f2340"/><text x="${x}" y="${Y(r.n) - 4}" text-anchor="middle" font-size="9" font-weight="700" fill="#0f2340">${nf(r.n)}</text>`;
+    o += `<text x="${x}" y="${H - 14}" text-anchor="middle" font-size="9" fill="${r.w === cur ? "#0f2340" : "#7d7462"}" font-weight="${r.w === cur ? 700 : 400}">${D(r.w).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</text>`; });
+  const pts = rows.map((r, i) => [cx(i), Math.max(0, r.gap)]);
+  o += `<polyline points="${pts.map(p => p[0] + "," + Y(p[1])).join(" ")}" fill="none" stroke="#c8372d" stroke-width="2"/>`;
+  pts.forEach(p => o += `<circle cx="${p[0]}" cy="${Y(p[1])}" r="2.6" fill="#c8372d"/>`);
+  const lp = pts[pts.length - 1]; if (lp[1] >= 0.5) o += `<text x="${lp[0]}" y="${Y(lp[1]) - 6}" text-anchor="middle" font-size="9" font-weight="700" fill="#c8372d">−${Math.ceil(lp[1] - 0.001)}</text>`;
+  o += `<text x="${L}" y="${H - 2}" font-size="8.5" fill="#7d7462">semaine du</text>`;
+  return `<div class="card"><h2>Séances · rythme vers l'objectif</h2>
   <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
-    <div class="kpi"><div class="l">Cette semaine</div><div class="v">${nf(wk.done)} / ${wk.plan}</div><div class="s">séance${wk.plan > 1 ? "s" : ""} réalisée${wk.plan > 1 ? "s" : ""}</div></div>
-    <div class="kpi"><div class="l">Plan complet</div><div class="v">${nf(doneAll)} / ${ss.length}</div><div class="s">${rate == null ? "1re séance " + fmtDs(ss.find(s => s.date >= today)?.date || ss[0].date) : "assiduité " + rate + " %"}</div></div>
-    <div class="kpi"><div class="l">Retard cumulé</div><div class="v" style="color:${late ? "#c8372d" : "inherit"}">${ahead ? "+" + nf(ahead) : nf(late)}</div><div class="s">${ahead ? "séances d'avance" : dueAll ? "séance" + (late > 1 ? "s" : "") + " sur " + dueAll + " passée" + (dueAll > 1 ? "s" : "") : "aucune séance passée"}</div></div>
-  </div>
-  <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Séances planifiées, réalisées et retard cumulé par semaine">${g}</svg>
-  <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> planifiées (pointillés : à venir)</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (échelle de droite)</span></div>
-  <p class="xs muted" style="margin-top:6px">Une séance partielle compte pour ½. Le retard cumulé = séances prévues jusqu'à aujourd'hui − séances réalisées.</p></div>`;
+    <div class="kpi"><div class="l">Cette semaine</div><div class="v">${nf(rows[rows.length - 1].n)}</div><div class="s">objectif ${nf(perWeek)}</div></div>
+    <div class="kpi"><div class="l">Total</div><div class="v">${nf(g.done)} / ${g.target}</div><div class="s">d'ici le ${fmtD(g.until)}</div></div>
+    <div class="kpi"><div class="l">Rythme</div><div class="v" style="font-family:var(--f-sans);font-size:14px;font-weight:600;line-height:1.3;color:${cls === "ok" ? "#2f6b45" : "#c8372d"}">${lab}</div><div class="s">${nf(g.need)} / sem. à tenir</div></div></div>
+  <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Séances réalisées par semaine et retard cumulé">${o}</svg>
+  <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:0;border-top:2px dashed #2f6b45;vertical-align:3px"></i> rythme visé</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (séances)</span></div></div>`;
 }
 function activityChart() {
   const months = []; const now = new Date(); for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
@@ -402,79 +427,66 @@ function indexChart(target, tDate) {
 }
 
 /* ---------- Plan & séances ---------- */
-function statusOf(s) {
-  const v = valOf(s.id), t = iso();
-  if (v) return { cls: v.status === "Faite" ? "ok" : v.status === "Partielle" ? "warn" : "bad", lab: v.status, v };
-  return { cls: s.date < t ? "warn" : s.date === t ? "acc" : "", lab: s.date < t ? "à valider" : s.date === t ? "aujourd'hui" : "prévue", v: null };
-}
 function vPlan() {
-  const p = S.plan, t = iso(), f = S.planFilter;
-  let list = [...p.sessions];
-  if (f === "todo") list = list.filter(s => !valOf(s.id)); if (f === "done") list = list.filter(s => valOf(s.id));
-  if (S.tagFilter) list = list.filter(s => sessionTags(s).includes(S.tagFilter));
-  list.sort((a, b) => f === "done" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
-  const toVal = p.sessions.filter(s => !valOf(s.id) && s.date <= t).length;
-  const weeks = {}; for (const s of list) (weeks[mondayOf(s.date)] = weeks[mondayOf(s.date)] || []).push(s);
-  const wk = Object.keys(weeks).sort((a, b) => f === "done" ? b.localeCompare(a) : a.localeCompare(b));
+  let list = [...S.plan.sessions]; if (S.tagFilter) list = list.filter(x => sessionTags(x).includes(S.tagFilter));
+  const rows = sessionOrder(list);
   const body = `<section class="view">
-  <div class="chips" role="group" aria-label="Filtre">${[["todo", "À faire"], ["done", "Validées"], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
+  ${goalGauge()}
   ${tagFilter()}
-  ${toVal ? `<p class="note">${toVal} séance${toVal > 1 ? "s" : ""} à valider</p>` : ""}
-  <div>${wk.length ? wk.map(w => `<div class="week"><div class="wl">Semaine du ${D(w).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div>${weeks[w].map(cardSession).join("")}</div>`).join("") : `<p class="small muted">Aucune séance dans ce filtre.</p>`}</div>
-  <div class="card"><h2>Objectif</h2><p class="small">${esc(p.objective)}</p><p class="xs muted" style="margin-top:6px">Plan du ${fmtD(p.version)} · ${esc(p.note || "")}</p></div>
-  <div class="card"><h2>Préconisations</h2>${(p.recos || []).map((r, i) => `<div class="reco"><div class="p">${i + 1}</div><div><div class="row between"><h3>${esc(r.title)}</h3>${r.area ? `<span class="pill">${esc(r.area)}</span>` : ""}</div>
-    ${r.why ? `<p class="small muted" style="margin-top:4px">${esc(r.why)}</p>` : ""}${r.how ? `<p class="small" style="margin-top:6px">${esc(r.how)}</p>` : ""}
-    ${r.kpi ? `<p class="small" style="margin-top:6px"><span class="muted">Indicateur : </span>${esc(r.kpi)}</p>` : ""}
-    ${(r.drills || []).length ? `<p class="small" style="margin-top:6px">${r.drills.map(d => S.drills[d] ? `<a href="#/exercice/${d}">${esc(S.drills[d].name)}</a>` : "").filter(Boolean).join(" · ")}</p>` : ""}</div></div>`).join("")}</div>
+  ${rows.length ? `<div class="slist">${rows.map(({ s: x, n, last }) => { const dt = doneToday(x.id);
+    return `<div class="srow ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
+      <a href="#/seance/${x.id}"><span class="nm">${esc(x.title)}</span><span class="mt">${n0(x.duration)} min · ${sessionTags(x).join(", ")}</span><span class="mt">${dt ? "faite aujourd'hui" : last ? `faite ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : "jamais faite"}</span></a>
+      <a class="go" href="#/seance/${x.id}" aria-label="Ouvrir">›</a></div>`; }).join("")}</div>
+    <p class="xs muted">Les séances les moins pratiquées apparaissent en premier. Coche une séance quand tu l'as faite.</p>` : `<p class="small muted">Aucune séance de ce type.</p>`}
+  <details class="fold"><summary>${icon("note", "flex:none")} Préconisations du coach<span class="xs muted">${(S.plan.recos || []).length}</span></summary>
+    <p class="small" style="margin:8px 0 10px">${esc(S.plan.objective)}</p>
+    ${(S.plan.recos || []).map((r, i) => `<div class="reco"><div class="p">${i + 1}</div><div><h3>${esc(r.title)}</h3>${r.why ? `<p class="small muted" style="margin-top:4px">${esc(r.why)}</p>` : ""}${r.how ? `<p class="small" style="margin-top:6px">${esc(r.how)}</p>` : ""}${r.kpi ? `<p class="small" style="margin-top:6px"><span class="muted">Indicateur : </span>${esc(r.kpi)}</p>` : ""}</div></div>`).join("")}</details>
   </section>`;
   return { kicker: "Plan d'entraînement", title: "Séances", body };
 }
-function doneOf(s) { const v = valOf(s.id); let d = v && Array.isArray(v.blocksDone) ? v.blocksDone : lsGet("golf-done-" + s.id, null); if (!Array.isArray(d) || d.length !== s.blocks.length) d = s.blocks.map(() => false); return d; }
+// cases cochées des exercices : valables pour la journée en cours
+function doneOf(s) { const dt = doneToday(s.id); if (dt && Array.isArray(dt.blocksDone) && dt.blocksDone.length === s.blocks.length) return dt.blocksDone;
+  const st = lsGet("golf-done-" + s.id, null); return st && st.date === iso() && Array.isArray(st.d) && st.d.length === s.blocks.length ? st.d : s.blocks.map(() => false); }
+function exIcons(id) {
+  const d = S.drills[id] || {}, nv = (d.videos || []).length + S.data.drillLinks.filter(l => l.drill === id).length, nr = resultsOf(id).length, nd = S.data.notes.filter(x => x.ref === "drill:" + id).length;
+  const ic = (k, n, t) => `<span class="ico" title="${t}">${icon(k)}${n != null ? `<b>${n}</b>` : ""}</span>`;
+  return `<span class="icos">${nv ? ic("play", nv, "Vidéos") : ""}${ic("doc", null, "Fiche PDF")}${nr ? ic("chart", nr, "Résultats") : ""}${nd ? ic("clip", nd, "Documents") : ""}</span>`;
+}
 function exRows(s) {
-  const done = doneOf(s), locked = !!valOf(s.id) || !canEdit();
+  const done = doneOf(s), locked = !canEdit();
   return `<div class="exlist">${s.blocks.map((b, i) => { const d = S.drills[b.drill] || { name: b.drill };
     return `<div class="exrow ${done[i] ? "on" : ""}"><button class="chk" data-act="ex-toggle" data-sid="${s.id}" data-i="${i}" aria-pressed="${done[i]}" aria-label="Exercice fait" ${locked ? "disabled" : ""}>${done[i] ? "✓" : ""}</button>
-      <a href="#/exercice/${b.drill}/${s.id}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min${(d.tags || []).length ? " · " + d.tags.map(esc).join(", ") : ""}${(d.videos || []).length ? " · ▶ vidéo" : ""}${(() => { const r = resultsOf(b.drill).filter(x => x.session === s.id).pop(); return r ? ` · <b class="res">${esc(resultLine(d, r, true))}</b>` : ""; })()}</span></a><a class="go" href="#/exercice/${b.drill}/${s.id}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
+      <a href="#/exercice/${b.drill}/${s.id}"><span class="nm">${esc(d.name)}</span><span class="mt">${b.min} min ${exIcons(b.drill)}</span></a><a class="go" href="#/exercice/${b.drill}/${s.id}" aria-label="Détail">›</a></div>`; }).join("")}</div>`;
 }
 function tagFilter() { return `<div class="chips tagchips" role="group" aria-label="Type d'entraînement"><span class="lbl" style="align-self:center;margin-right:2px">Type</span><button data-act="tf" data-f="" aria-pressed="${!S.tagFilter}">Tous</button>${TAGS.map(t => `<button data-act="tf" data-f="${t}" aria-pressed="${S.tagFilter === t}" style="--c:${TAG_COLOR[t]}">${t}</button>`).join("")}</div>`; }
-function cardSession(s) {
-  const st = statusOf(s), done = doneOf(s), n = done.filter(Boolean).length;
-  return `<div class="card ${st.v ? "done" : ""}" style="gap:8px;display:flex;flex-direction:column">
-  <a href="#/seance/${s.id}" style="text-decoration:none;color:inherit"><div class="row between"><h3>${esc(s.title)}</h3><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="meta"><span>${fmtDs(s.date)}</span><span>·</span><span>${n0(s.duration)} min</span>${tagsHtml(sessionTags(s))}</div><p class="xs muted" style="margin-top:2px">Objectif : ${esc(s.kpi)}</p></a>
-  ${exRows(s)}
-  ${st.v ? `${st.v.measure || st.v.feedback ? `<p class="small muted">${esc([st.v.measure, st.v.feedback].filter(Boolean).join(" · "))}</p>` : ""}<div class="row"><a class="btn ghost sm" href="#/seance/${s.id}">Notes, vidéos, modifier</a></div>`
-    : canEdit() ? `<div class="row between"><a class="small" href="#/seance/${s.id}">Note, vidéo, ressenti ›</a><button class="btn sm" data-act="quick-validate" data-sid="${s.id}">${n && n < s.blocks.length ? `Valider (${n}/${s.blocks.length})` : "Valider la séance"}</button></div>` : ""}
-  </div>`;
-}
-async function quickValidate(s) {
-  let done = doneOf(s); const n = done.filter(Boolean).length;
-  if (!n) done = done.map(() => true);
-  const all = done.every(Boolean);
-  const mins = s.blocks.reduce((a, b, i) => a + (done[i] ? b.min : 0), 0);
-  try { await Store.set("validations", s.id, { status: all ? "Faite" : "Partielle", blocksDone: done, actualMin: mins, rating: null, measure: "", feedback: "", validatedAt: iso() }); lsSet("golf-done-" + s.id, null); toast(all ? "Séance validée" : "Séance validée (partielle)"); }
-  catch (e) { console.error(e); toast("Enregistrement impossible (" + ((e && e.code) || "réseau") + ")."); }
+async function markSession(s) {
+  const dt = doneToday(s.id);
+  if (dt) { await Store.del("completions", dt._id); toast("Séance retirée d'aujourd'hui"); return; }
+  const d = doneOf(s), n = d.filter(Boolean).length, part = n > 0 && n < s.blocks.length;
+  const mins = part ? s.blocks.reduce((a, b, i) => a + (d[i] ? b.min : 0), 0) : s.duration;
+  await Store.add("completions", { session: s.id, date: iso(), status: part ? "Partielle" : "Faite", blocksDone: n ? d : s.blocks.map(() => true), actualMin: mins, rating: null, feedback: "", at: new Date().toISOString() });
+  lsSet("golf-done-" + s.id, null); const g = goal(); toast(`${part ? "Séance partielle" : "Séance faite"} · ${nf1(g.done)}/${g.target}`);
 }
 function vSeance(p) {
-  const s = S.plan.sessions.find(x => x.id === p[1]); if (!s) return emptyBox("Séance introuvable", "Elle a peut-être été retirée du plan.", `<a class="btn ghost sm" href="#/plan">Retour aux séances</a>`);
-  const st = statusOf(s), v = st.v || {}, done = doneOf(s), nDone = done.filter(Boolean).length;
-  const mins = s.blocks.reduce((a, b, i) => a + (done[i] ? b.min : 0), 0);
+  const s = S.plan.sessions.find(x => x.id === p[1]); if (!s) return { back: ["#/plan", "Séances"], title: "Séance", body: `<section class="view">${emptyBox("Séance introuvable", "Elle a peut-être été retirée du plan.")}</section>` };
+  const cs = compsOf(s.id), n = cs.reduce((a, c) => a + credit(c), 0), dt = doneToday(s.id), done = doneOf(s), nd = done.filter(Boolean).length;
+  const nNotes = S.data.notes.filter(x => x.ref === "plan:" + s.id).length, nVid = S.data.videos.filter(v => v.ref === "plan:" + s.id).length;
   const body = `<section class="view">
-  <div class="row between"><span class="pill" style="background:${areaColor(s.domain)}1a;color:${areaColor(s.domain)}">${esc(s.domain)} · ${s.blocks.length} exercice${s.blocks.length > 1 ? "s" : ""}</span><span class="pill ${st.cls}">${esc(st.lab)}</span></div>
-  <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(s.kpi)}</p></div>
-  <div><h2>Exercices · touche une ligne pour le détail</h2>${exRows(s)}</div>
-  ${canEdit() ? `<div class="card"><h2>${st.v ? "Validation" : "Valider la séance"}</h2><form class="stack" data-form="validate" data-id="${s.id}">
-    <div class="f"><span class="lbl">Résultat</span><div class="seg" data-seg="status">${["Faite", "Partielle", "Non faite"].map(o => `<button type="button" data-v="${o}" aria-pressed="${(v.status || (nDone && nDone < s.blocks.length ? "Partielle" : "Faite")) === o}">${o}</button>`).join("")}</div></div>
-    <div class="f"><span class="lbl">Qualité ressentie</span><div class="seg" data-seg="rating">${[1, 2, 3, 4, 5].map(o => `<button type="button" data-v="${o}" aria-pressed="${v.rating === o}">${o}</button>`).join("")}</div></div>
-    <div class="grid"><div class="f"><label for="v-min">Durée réelle (min)</label><input id="v-min" name="actualMin" inputmode="numeric" value="${esc(v.actualMin ?? (nDone ? mins : s.duration))}"></div>
-      <div class="f"><label for="v-measure">Mesure obtenue</label><input id="v-measure" name="measure" value="${esc(v.measure || "")}" placeholder="Ex. 8/10 dans la porte"></div>
-      <div class="f full"><label for="v-fb">Retour : ce qui a marché, ce qui coince</label><textarea id="v-fb" name="feedback" data-keep>${esc(v.feedback || "")}</textarea></div></div>
-    <div class="row"><button class="btn" type="submit">${st.v ? "Mettre à jour" : "Valider la séance"}</button>${st.v ? `<button class="btn ghost sm" type="button" data-act="unvalidate" data-id="${s.id}">Annuler la validation</button>` : ""}</div>
-  </form></div>` : ""}
-  ${notesBlock("plan:" + s.id)}
-  ${videosBlock("plan:" + s.id)}
+  <div class="meta">${tagsHtml(sessionTags(s))}<span>${n0(s.duration)} min</span><span>·</span><span>${cs.length ? `faite ${nf1(n)}× · dernière ${fmtDs(cs[cs.length - 1].date).replace(/\.$/, "")}` : "jamais faite"}</span></div>
+  <p class="small" style="margin:0"><span class="muted">Objectif · </span>${esc(s.kpi)}</p>
+  <div><div class="row between" style="margin-bottom:4px"><h2 style="margin:0">Exercices</h2><span class="xs muted">${nd}/${s.blocks.length} cochés</span></div>${exRows(s)}
+    <p class="xs muted icolegend">${icon("play")} vidéos · ${icon("doc")} fiche PDF · ${icon("chart")} résultats · ${icon("clip")} documents</p></div>
+  ${canEdit() ? (dt ? `<div class="card donebox"><div class="row between"><b>✓ ${dt.status === "Partielle" ? "Faite en partie" : "Faite"} aujourd'hui</b><button class="btn ghost sm" data-act="sess-check" data-sid="${s.id}">Annuler</button></div>
+      <form class="stack" data-form="completion" data-id="${dt._id}" style="gap:8px;margin-top:8px">
+        <div class="f"><span class="lbl">Ressenti</span><div class="seg" data-seg="rating">${[1, 2, 3, 4, 5].map(o => `<button type="button" data-v="${o}" aria-pressed="${dt.rating === o}">${o}</button>`).join("")}</div></div>
+        <div class="f"><label for="c-fb">Ce qui a marché, ce qui coince</label><textarea id="c-fb" name="feedback" data-keep rows="2">${esc(dt.feedback || "")}</textarea></div>
+        <div><button class="btn navy sm" type="submit">Enregistrer le ressenti</button></div></form></div>`
+    : `<button class="btn wide" data-act="sess-check" data-sid="${s.id}">${nd && nd < s.blocks.length ? `Marquer faite en partie (${nd}/${s.blocks.length})` : "Marquer la séance faite aujourd'hui"}</button>`) : ""}
+  <details class="fold"><summary>${icon("hist", "flex:none")} Historique<span class="xs muted">${cs.length}</span></summary>${cs.length ? `<div class="list" style="margin-top:8px">${cs.slice().reverse().map(c => `<div class="item"><div class="head"><span class="small">${fmtD(c.date)} · ${c.status === "Partielle" ? "partielle" : "faite"}${c.rating ? ` · ressenti ${c.rating}/5` : ""}</span>${canEdit() && !c.legacy && c.date !== iso() ? `<button class="btn ghost sm" data-act="del-completion" data-id="${c._id}">Supprimer</button>` : ""}</div>${c.feedback ? `<div class="small muted">${esc(c.feedback)}</div>` : ""}</div>`).join("")}</div>` : `<p class="small muted" style="margin:8px 0 0">Pas encore réalisée.</p>`}</details>
+  <details class="fold"><summary>${icon("note", "flex:none")} Notes et documents<span class="xs muted">${nNotes}</span></summary><div style="margin-top:8px">${notesBlock("plan:" + s.id)}</div></details>
+  <details class="fold"><summary>${icon("cam", "flex:none")} Vidéos<span class="xs muted">${nVid}</span></summary><div style="margin-top:8px">${videosBlock("plan:" + s.id)}</div></details>
   </section>`;
-  return { back: ["#/plan", "Séances"], title: esc(s.title), body, right: `<span class="xs muted" style="white-space:nowrap">${fmtDs(s.date)}<br>${n0(s.duration)} min</span>` };
+  return { back: ["#/plan", "Séances"], title: esc(s.title), body };
 }
 
 /* ---------- Vidéos des pros ---------- */
@@ -1079,8 +1091,10 @@ document.addEventListener("click", async e => {
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
-    case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s || valOf(s.id)) break; const d = doneOf(s); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; lsSet("golf-done-" + s.id, d); render(); break; }
-    case "quick-validate": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (s) { b.disabled = true; await quickValidate(s); } break; }
+    case "sess-check": { const x = S.plan.sessions.find(y => y.id === b.dataset.sid); if (x) { b.disabled = true; try { await markSession(x); } catch (e) { console.error(e); toast("Enregistrement impossible" + (e.code ? " · " + e.code : "")); b.disabled = false; } } break; }
+    case "del-completion": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; } await Store.del("completions", id); toast("Supprimée"); break;
+    case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s) break; const d = doneOf(s).slice(); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; const dt = doneToday(s.id);
+      if (dt) { const n = d.filter(Boolean).length; await Store.set("completions", dt._id, { blocksDone: d, status: n && n < s.blocks.length ? "Partielle" : "Faite" }, true); } else { lsSet("golf-done-" + s.id, { date: iso(), d }); render(); } break; }
     case "setup-club": { const c = S.catalog.find(x => x.id === b.dataset.v); S.setup.club = c.id; S.setup.course = c.courses.length === 1 ? c.courses[0].id : null; S.setup.tee = null; if (S.setup.course) defaultTee(); refreshPicker(); break; }
     case "setup-course": S.setup.course = b.dataset.v; S.setup.tee = null; defaultTee(); refreshPicker(); break;
     case "setup-tee": S.setup.tee = b.dataset.v; refreshPicker(); break;
@@ -1154,6 +1168,8 @@ document.addEventListener("submit", async e => {
     try { await Store.add("messages", { ref: "video:" + form.dataset.id, role: "user", text, at: new Date().toISOString(), status: "open" }); toast("Question envoyée"); } catch (x) { console.error(x); const t2 = document.getElementById(ta.id); if (t2) t2.value = text; toast("Envoi impossible" + (x.code ? " · " + x.code : "")); }
     btn.disabled = false; return; }
   if (t === "link") { const url = form.url.value.trim(); if (!/^https?:\/\//.test(url)) { toast("Colle un lien complet (https://…)."); return; } await Store.add("drillLinks", { drill: form.dataset.drill, url, label: form.label.value.trim() }); form.reset(); toast("Vidéo ajoutée"); return; }
+  if (t === "completion") { const rt = form.querySelector('[data-seg="rating"] [aria-pressed="true"]')?.dataset.v;
+    try { await Store.set("completions", form.dataset.id, { rating: rt ? Number(rt) : null, feedback: form.feedback.value.trim() }, true); toast("Ressenti enregistré"); } catch (x) { console.error(x); toast("Enregistrement impossible."); } return; }
   if (t === "validate") {
     const st = form.querySelector('[data-seg="status"] [aria-pressed="true"]')?.dataset.v || "Faite";
     const rt = form.querySelector('[data-seg="rating"] [aria-pressed="true"]')?.dataset.v;
