@@ -387,3 +387,22 @@ details.fold .card{border:0;padding:0;background:none}
 a.srow{text-decoration:none;color:inherit}
 .srow .txt{display:flex;flex-direction:column;min-width:0}
 .srow .chk.on{display:flex;align-items:center;justify-content:center;background:var(--ok);border-color:var(--ok);font-size:14px}
+/* Filtres en liste déroulante à choix multiples */
+.ddrow{display:flex;gap:8px;flex-wrap:wrap}
+details.dd{position:relative}
+details.dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:8px 14px;font-size:14px;user-select:none}
+details.dd>summary::-webkit-details-marker{display:none}
+details.dd>summary .l{color:var(--muted)}
+details.dd>summary .v{font-weight:600;color:var(--navy);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.dd>summary .car{color:var(--muted);font-size:11px}
+details.dd[open]>summary{border-color:var(--navy)}
+.ddm{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:210px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(15,35,64,.14);padding:6px;display:flex;flex-direction:column}
+.ddm button{display:flex;align-items:center;gap:10px;background:none;border:0;padding:10px 8px;font:inherit;font-size:14.5px;color:var(--ink);cursor:pointer;text-align:left;border-radius:8px}
+.ddm button:hover{background:var(--paper)}
+.ddm .cb{width:20px;height:20px;border:2px solid var(--gold);border-radius:5px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+.ddm button[aria-pressed="true"] .cb{background:var(--navy);border-color:var(--navy)}
+.ddm button[aria-pressed="true"] .cb::after{content:"✓"}
+.ddm .t{flex:1}.ddm .c{font-size:12.5px;color:var(--muted)}
+.ddm .ddall{justify-content:center;color:var(--blue);font-size:13px;border-top:1px solid var(--line2);border-radius:0;margin-top:4px}
+.goal .gv{font-size:14px;color:var(--muted)}.goal .gv b{font-family:var(--f-serif);font-size:26px;color:var(--navy);margin-right:2px}.goal .gv small{display:block;font-size:12px}
+.srow .num{display:inline-block;min-width:22px;font-size:11.5px;font-weight:600;color:var(--muted);margin-right:6px}

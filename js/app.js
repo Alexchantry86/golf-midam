@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.18.1";
+const APP_VERSION = "1.19.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -78,7 +78,7 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
   data: { completions: [], drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
-  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
+  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", statusSel: ["todo"], tagSel: [], ddOpen: null, vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
 const valOf = id => S.data.validations.find(v => v._id === id) || null;
@@ -245,7 +245,7 @@ const nf1 = v => Number(v).toLocaleString("fr-FR", { maximumFractionDigits: 1 })
 function completions() {
   const a = S.data.completions.map(c => ({ ...c }));
   for (const v of S.data.validations) if ((v.status === "Faite" || v.status === "Partielle") && !a.some(c => c.legacyOf === v._id)) {
-    const ss = S.plan.sessions.find(x => x.id === v._id); a.push({ _id: "legacy:" + v._id, legacy: true, session: v._id, date: v.validatedAt || (ss && ss.date), status: v.status, actualMin: v.actualMin, rating: v.rating, feedback: [v.measure, v.feedback].filter(Boolean).join(" · ") }); }
+    const ss = S.plan.sessions.find(x => x.id === v._id); a.push({ _id: "legacy:" + v._id, legacy: true, session: v._id, date: v.validatedAt || (ss && ss.date) || null, status: v.status, actualMin: v.actualMin, rating: v.rating, feedback: [v.measure, v.feedback].filter(Boolean).join(" · ") }); }
   for (const f of S.data.sessions) a.push({ _id: "free:" + f._id, free: true, session: null, date: f.date, status: "Faite", actualMin: f.duration });   // entraînements libres : comptent dans l'objectif
   return a.filter(c => c.date).sort((x, y) => x.date.localeCompare(y.date) || String(x.at || "").localeCompare(String(y.at || "")));
 }
@@ -267,15 +267,18 @@ function paceOf(g) {
 }
 function goalGauge() {
   const g = goal(), [cls, lab] = paceOf(g), p = Math.min(100, g.done / g.target * 100), pe = Math.min(100, g.expected / g.target * 100);
-  const wk = completions().filter(c => c.date >= mondayOf(iso()) && c.date <= iso()).reduce((a, c) => a + credit(c), 0), wkT = Math.round(g.perWeek);
-  const lab2 = cls === "ok" ? (g.diff >= 1 ? "En avance" : "Dans le rythme") : "En retard", sub2 = g.diff >= 1 ? `+${Math.floor(g.diff)} séance${Math.floor(g.diff) > 1 ? "s" : ""}` : g.diff > -1 ? "repère " + nf1(g.expected) : `−${Math.ceil(-g.diff)} séance${Math.ceil(-g.diff) > 1 ? "s" : ""}`;
-  return `<div class="goal">
-    <div class="gk"><div><span class="l">Faites</span><span class="v">${nf1(g.done)}<small> / ${g.target}</small></span><span class="s">d'ici le ${D(g.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</span></div>
-      <div><span class="l">Cette semaine</span><span class="v">${nf1(wk)}<small> / ${wkT}</small></span><span class="s">${wk >= wkT ? "objectif atteint" : `encore ${nf1(wkT - wk)}`}</span></div>
-      <div class="${cls}"><span class="l">Rythme</span><span class="v r">${lab2}</span><span class="s">${sub2}</span></div></div>
-    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, repère du jour ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div>
-  </div>`;
+  return `<div class="goal"><div class="row between"><span class="gv"><b>${nf1(g.done)}</b> / ${g.target} séances <small>d'ici le ${D(g.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</small></span><span class="pill ${cls}">${lab}</span></div>
+    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, repère du jour ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div></div>`;
 }
+/* Liste déroulante à choix multiples (filtres) */
+function dd(key, label, opts, sel) {
+  const on = opts.filter(o => sel.includes(o[0])), txt = !on.length || on.length === opts.length ? "Tous" : on.length > 2 ? `${on.length} choisis` : on.map(o => o[1]).join(", ");
+  return `<details class="dd" data-dd="${key}"${S.ddOpen === key ? " open" : ""}><summary><span class="l">${label}</span><span class="v">${esc(txt)}</span><span class="car">▾</span></summary>
+    <div class="ddm">${opts.map(([v, lab, c]) => `<button type="button" data-act="dd" data-k="${key}" data-v="${esc(v)}" aria-pressed="${sel.includes(v)}"><span class="cb"></span><span class="t">${esc(lab)}</span>${c != null ? `<span class="c">${c}</span>` : ""}</button>`).join("")}
+    <button type="button" class="ddall" data-act="dd-all" data-k="${key}">${on.length && on.length < opts.length ? "Tout afficher" : "Fermer"}</button></div></details>`;
+}
+const tagMatch = tags => !S.tagSel.length || tags.some(t => S.tagSel.includes(t) || (LEGACY_TAG[t] || []).some(x => S.tagSel.includes(x)));
+const typeDD = () => dd("type", "Type", TAGS.map(t => [t, t]), S.tagSel);
 function sessionOrder(list) {   // les moins pratiquées d'abord, puis les plus anciennes
   const idx = new Map(S.plan.sessions.map((x, i) => [x.id, i]));
   return list.map(x => { const cs = compsOf(x.id); return { s: x, n: cs.reduce((a, c) => a + credit(c), 0), last: cs.length ? cs[cs.length - 1].date : "" }; })
@@ -435,23 +438,23 @@ function doneJournal() {   // séances du plan faites + entraînements libres, d
   const a = completions().filter(c => !c.legacy || true).map(c => {
     if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, tags: freeTags(f), part: false } : null; }
     const x = S.plan.sessions.find(y => y.id === c.session); return x ? { date: c.date, href: "#/seance/" + x.id, title: x.title, meta: `Séance du plan · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, tags: sessionTags(x), part: c.status === "Partielle" } : null; }).filter(Boolean);
-  return (S.tagFilter ? a.filter(e => e.tags.some(t => t === S.tagFilter || (LEGACY_TAG[t] || []).includes(S.tagFilter))) : a).reverse();
+  return a.filter(e => tagMatch(e.tags)).reverse();
 }
 function vPlan() {
-  const f = S.planFilter === "all" || S.planFilter === "done" ? S.planFilter : "todo";
-  let list = [...S.plan.sessions]; if (S.tagFilter) list = list.filter(x => sessionTags(x).includes(S.tagFilter));
-  const ord = sessionOrder(list), todo = ord.filter(r => !r.last), j = doneJournal();
-  const rows = f === "todo" ? todo : ord;
+  const st = S.statusSel.length ? S.statusSel : ["todo", "done"];
+  const list = S.plan.sessions.filter(x => tagMatch(sessionTags(x)));
+  const ord = sessionOrder(list), todo = ord.filter(r => !r.last && !doneToday(r.s.id)), j = doneJournal();
   const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id);
     return `<div class="srow ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
-      <a href="#/seance/${x.id}"><span class="nm">${esc(x.title)}</span><span class="mt">${n0(x.duration)} min · ${sessionTags(x).join(", ")}${dt ? " · faite aujourd'hui" : last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}</span></a>
+      <a href="#/seance/${x.id}"><span class="nm"><span class="num">${x.n}</span>${esc(x.title)}</span><span class="mt">${n0(x.duration)} min${sessionTags(x).length ? " · " + sessionTags(x).join(", ") : ""}${dt ? " · faite aujourd'hui" : last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}</span></a>
       <a class="go" href="#/seance/${x.id}" aria-label="Ouvrir">›</a></div>`; };
+  const doneRows = j.map(e => `<a class="srow done" href="${e.href}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="txt"><span class="nm">${esc(e.title)}</span><span class="mt">${fmtDs(e.date).replace(/\.$/, "")} · ${esc(e.meta)}</span></span><span class="go">›</span></a>`).join("");
+  const showTodo = st.includes("todo"), showDone = st.includes("done"), both = showTodo && showDone;
   const body = `<section class="view">
   ${goalGauge()}
-  <div class="chips" role="group" aria-label="Statut">${[["todo", `À faire · ${todo.length}`], ["done", `Faites · ${j.length}`], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
-  ${tagFilter()}
-  ${f === "done" ? (j.length ? `<div class="slist">${j.map(e => `<a class="srow done" href="${e.href}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="txt"><span class="nm">${esc(e.title)}</span><span class="mt">${fmtDs(e.date).replace(/\.$/, "")} · ${esc(e.meta)}</span></span><span class="go">›</span></a>`).join("")}</div>` : `<p class="small muted">Aucune séance faite pour l'instant.</p>`)
-    : rows.length ? `<div class="slist">${rows.map(srow).join("")}</div>` : `<p class="small muted">${f === "todo" ? "Toutes les séances de ce type ont déjà été faites au moins une fois." : "Aucune séance de ce type."}</p>`}
+  <div class="ddrow">${dd("status", "Statut", [["todo", "À faire", todo.length], ["done", "Faites", j.length]], S.statusSel)}${typeDD()}</div>
+  ${showTodo ? `${both ? `<div class="sec"><span>À faire · ${todo.length}</span></div>` : ""}${todo.length ? `<div class="slist">${todo.map(srow).join("")}</div>` : `<p class="small muted">Toutes les séances de ce type ont été faites.</p>`}` : ""}
+  ${showDone ? `${both ? `<div class="sec"><span>Faites · ${j.length}</span></div>` : ""}${j.length ? `<div class="slist">${doneRows}</div>` : `<p class="small muted">Aucune séance faite pour l'instant.</p>`}` : ""}
   ${canEdit() ? `<button class="btn ghost wide" data-act="form" data-kind="session">+ Entraînement libre (hors plan)</button>` : ""}
   <details class="fold"><summary>${icon("note", "flex:none")} Préconisations du coach<span class="xs muted">${(S.plan.recos || []).length}</span></summary>
     <p class="small" style="margin:8px 0 10px">${esc(S.plan.objective)}</p>
@@ -535,9 +538,9 @@ function resultsCard(d, sid) {
   const ms = d.measure || [], rs = resultsOf(d.id), sess = sid && S.plan.sessions.find(x => x.id === sid);
   const form = canEdit() ? `<form class="stack" data-form="result" data-drill="${d.id}" data-sid="${sess ? sess.id : ""}" style="gap:10px">
     <div class="grid">${ms.map(m => `<div class="f"><label for="rv-${m.key}">${esc(m.label)}</label><div class="inunit"><input id="rv-${m.key}" name="v_${m.key}" type="number" inputmode="decimal" step="any" min="0" ${m.max ? `max="${m.max}"` : ""} data-keep placeholder="${m.target != null ? "obj. " + (m.lower ? "≤ " : "") + nfr(m.target) : ""}"><span>${m.max ? "/ " + m.max : esc(m.unit || "")}</span></div></div>`).join("")}
-      <div class="f"><label for="rv-date">Date</label><input id="rv-date" name="date" type="date" value="${sess && sess.date <= iso() ? sess.date : iso()}" max="${iso()}"></div>
+      <div class="f"><label for="rv-date">Date</label><input id="rv-date" name="date" type="date" value="${iso()}" max="${iso()}"></div>
       <div class="f full"><label for="rv-note">Note (sensations, conditions)</label><input id="rv-note" name="note" data-keep placeholder="Facultatif"></div></div>
-    ${sess ? `<p class="xs muted" style="margin:0">Rattaché à la séance « ${esc(sess.title)} » du ${fmtDs(sess.date).replace(/\.$/, "")}.</p>` : ""}
+    ${sess ? `<p class="xs muted" style="margin:0">Rattaché à la séance « ${esc(sess.title)} ».</p>` : ""}
     <div><button class="btn navy sm" type="submit">Enregistrer le résultat</button></div></form>` : "";
   const charts = ms.map(m => metChart(m, rs)).filter(Boolean).join("");
   const hist = rs.slice().reverse().slice(0, 10).map(r => { const ss = r.session && S.plan.sessions.find(x => x.id === r.session);
@@ -571,7 +574,7 @@ function vExercice(p) {
     <a class="demo" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt || d.name)}" target="_blank" rel="noopener">${icon("play", "color:#c8372d;flex:none")}<span>Voir les démonstrations sur YouTube ↗</span></a>
     ${canEdit() ? `<form class="stack" data-form="link" data-drill="${d.id}"><div class="grid"><div class="f full"><label for="lk-url">Ajouter une vidéo (lien YouTube ou autre)</label><input id="lk-url" name="url" data-keep placeholder="https://youtu.be/…"></div><div class="f full"><label for="lk-label">Titre</label><input id="lk-label" name="label" data-keep placeholder="Ex. démo du pro"></div></div><div><button class="btn ghost sm" type="submit">Ajouter la vidéo</button></div></form>` : ""}
   </div></div>
-  ${used.length ? `<div class="card"><h2>Séances qui l'utilisent</h2><div class="list">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">${fmtDs(s.date)}</span></div></a>`).join("")}</div></div>` : ""}
+  ${used.length ? `<div class="card"><h2>Séances qui l'utilisent</h2><div class="list">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">n° ${s.n || ""}</span></div></a>`).join("")}</div></div>` : ""}
   </section>`;
   return { back: ["#", "Retour"], title: esc(d.name), body };
 }
@@ -706,9 +709,9 @@ function domainBars() {
   return `<div class="card"><h2>Répartition 60 jours · ${n1(tot / 60)} h</h2><div class="hbars">${Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="hbar"><span>${esc(k)}</span><div class="bar"><span style="width:${(v / tot * 100).toFixed(1)}%;background:${TAG_COLOR[k] || "#7d7462"}"></span></div><span class="t">${n0(v / tot * 100)} %</span></div>`).join("")}</div></div>`;
 }
 function vEntrainements() {
-  let l = [...S.data.sessions].sort(byDateDesc); if (S.tagFilter) l = l.filter(s => freeTags(s).some(t => t === S.tagFilter || (LEGACY_TAG[t] || []).includes(S.tagFilter)));
+  let l = [...S.data.sessions].sort(byDateDesc).filter(s => tagMatch(freeTags(s)));
   const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="session">+ Entraînement libre</button>` : ""}
-  ${tagFilter()}
+  <div class="ddrow">${typeDD()}</div>
   ${l.length ? `<div class="card"><div class="list">${l.map(s => `<a class="item" href="#/entrainement/${s._id}"><div class="head"><span class="small muted">${fmtD(s.date)} · ${n0(s.duration)} min${s.rating ? ` · ${s.rating}/5` : ""}</span>${tagsHtml(freeTags(s))}</div><p class="small pre">${esc(s.content)}</p>${s.result ? `<p class="small"><span class="muted">Mesure : </span>${esc(s.result)}</p>` : ""}</a>`).join("")}</div></div>`
     : emptyBox("Aucun entraînement libre", "Les séances hors plan (practice improvisé, parcours d'entraînement) se notent ici.")}</section>`;
   return { back: ["#/plus", "Plus"], title: "Entraînements libres", body };
@@ -1106,6 +1109,8 @@ document.addEventListener("click", async e => {
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
+    case "dd": { const k = b.dataset.k, arr = k === "type" ? S.tagSel : S.statusSel, v = b.dataset.v, i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); S.ddOpen = k; render(); break; }
+    case "dd-all": { const k = b.dataset.k; if (k === "type") S.tagSel = []; else S.statusSel = []; S.ddOpen = null; render(); break; }
     case "sess-check": { const x = S.plan.sessions.find(y => y.id === b.dataset.sid); if (x) { b.disabled = true; try { await markSession(x); } catch (e) { console.error(e); toast("Enregistrement impossible" + (e.code ? " · " + e.code : "")); b.disabled = false; } } break; }
     case "del-completion": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; } await Store.del("completions", id); toast("Supprimée"); break;
     case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s) break; const d = doneOf(s).slice(); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; const dt = doneToday(s.id);
@@ -1192,6 +1197,8 @@ document.addEventListener("submit", async e => {
     catch (x) { console.error(x); toast("Enregistrement impossible."); }
   }
 });
+document.addEventListener("toggle", e => { const d = e.target; if (d.classList && d.classList.contains("dd")) { if (d.open) { S.ddOpen = d.dataset.dd; document.querySelectorAll("details.dd[open]").forEach(o => { if (o !== d) o.open = false; }); } else if (S.ddOpen === d.dataset.dd) S.ddOpen = null; } }, true);
+document.addEventListener("click", e => { if (!e.target.closest("details.dd")) document.querySelectorAll("details.dd[open]").forEach(o => { o.open = false; }); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
 boot();
 })();

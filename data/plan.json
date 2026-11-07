@@ -1,5 +1,5 @@
 {
- "version": "2026-10-24",
+ "version": "2026-11-07",
  "objective": "Être à −2,0 d'index à la clôture des inscriptions du Championnat d'Europe Mid-Amateur 2028 (début juin, inscriptions fin avril, date à confirmer). La limite publiée par l'EGA pour les hommes était 3,0 en 2025 et 2026, mais le champ est plafonné à 144 joueurs : le vrai seuil est l'index du dernier admis. −2 te place largement dans le champ et te rend compétitif.",
  "targetIndex": -2,
  "targetDate": "2028-04-24",
@@ -167,7 +167,6 @@
  "sessions": [
   {
    "id": "2026w44-1",
-   "date": "2026-10-27",
    "duration": 45,
    "domain": "Physique / vitesse",
    "title": "Physique : mobilité hanches et gainage",
@@ -185,11 +184,11 @@
      "drill": "medecine-ball",
      "min": 10
     }
-   ]
+   ],
+   "n": 1
   },
   {
    "id": "2026w44-2",
-   "date": "2026-10-29",
    "duration": 75,
    "domain": "Long jeu",
    "title": "Bilan de référence long jeu",
@@ -203,11 +202,11 @@
      "drill": "video-dtl",
      "min": 15
     }
-   ]
+   ],
+   "n": 2
   },
   {
    "id": "2026w44-3",
-   "date": "2026-10-31",
    "duration": 75,
    "domain": "Petit jeu",
    "title": "Bilan de référence petit jeu et putting",
@@ -217,11 +216,11 @@
      "drill": "bilan-petit-jeu",
      "min": 75
     }
-   ]
+   ],
+   "n": 3
   },
   {
    "id": "2026w44-4",
-   "date": "2026-11-01",
    "duration": 45,
    "domain": "Mental / routine",
    "title": "Test œil moteur et routine d'échauffement",
@@ -235,11 +234,11 @@
      "drill": "routine-echauffement",
      "min": 25
     }
-   ]
+   ],
+   "n": 4
   },
   {
    "id": "2026w45-1",
-   "date": "2026-11-03",
    "duration": 45,
    "domain": "Physique / vitesse",
    "title": "Physique : mobilité et vitesse",
@@ -257,11 +256,11 @@
      "drill": "overspeed",
      "min": 15
     }
-   ]
+   ],
+   "n": 5
   },
   {
    "id": "2026w45-2",
-   "date": "2026-11-05",
    "duration": 60,
    "domain": "Long jeu",
    "title": "Technique : hanches puis chemin de club",
@@ -279,11 +278,11 @@
      "drill": "porte-chemin",
      "min": 30
     }
-   ]
+   ],
+   "n": 6
   },
   {
    "id": "2026w45-3",
-   "date": "2026-11-07",
    "duration": 60,
    "domain": "Wedges",
    "title": "Wedges : contrôle de distance 30–90 m",
@@ -293,11 +292,11 @@
      "drill": "echelle-wedges",
      "min": 60
     }
-   ]
+   ],
+   "n": 7
   },
   {
    "id": "2026w45-4",
-   "date": "2026-11-08",
    "duration": 45,
    "domain": "Putting",
    "title": "Putting : conversion 1–2 m et lag",
@@ -311,11 +310,11 @@
      "drill": "lag-zone",
      "min": 20
     }
-   ]
+   ],
+   "n": 8
   },
   {
    "id": "2026w46-1",
-   "date": "2026-11-10",
    "duration": 45,
    "domain": "Physique / vitesse",
    "title": "Physique : mobilité et gainage",
@@ -333,11 +332,11 @@
      "drill": "medecine-ball",
      "min": 15
     }
-   ]
+   ],
+   "n": 9
   },
   {
    "id": "2026w46-2",
-   "date": "2026-11-12",
    "duration": 60,
    "domain": "Long jeu",
    "title": "Technique : release et tête stable",
@@ -359,11 +358,11 @@
      "drill": "video-dtl",
      "min": 10
     }
-   ]
+   ],
+   "n": 10
   },
   {
    "id": "2026w46-3",
-   "date": "2026-11-14",
    "duration": 60,
    "domain": "Petit jeu",
    "title": "Petit jeu : up & down en conditions de jeu",
@@ -373,11 +372,11 @@
      "drill": "up-down-9",
      "min": 60
     }
-   ]
+   ],
+   "n": 11
   },
   {
    "id": "2026w46-4",
-   "date": "2026-11-15",
    "duration": 90,
    "domain": "Parcours",
    "title": "9 trous de transfert avec statistiques",
@@ -391,11 +390,11 @@
      "drill": "parcours-stats",
      "min": 65
     }
-   ]
+   ],
+   "n": 12
   },
   {
    "id": "2026w47-1",
-   "date": "2026-11-17",
    "duration": 45,
    "domain": "Physique / vitesse",
    "title": "Physique : vitesse",
@@ -413,11 +412,11 @@
      "drill": "overspeed",
      "min": 20
     }
-   ]
+   ],
+   "n": 13
   },
   {
    "id": "2026w47-2",
-   "date": "2026-11-19",
    "duration": 60,
    "domain": "Long jeu",
    "title": "Technique combinée : hanches + chemin, contrôle vidéo",
@@ -439,11 +438,11 @@
      "drill": "video-dtl",
      "min": 10
     }
-   ]
+   ],
+   "n": 14
   },
   {
    "id": "2026w47-3",
-   "date": "2026-11-21",
    "duration": 60,
    "domain": "Wedges",
    "title": "Wedges et bunker",
@@ -457,11 +456,11 @@
      "drill": "bunker-distances",
      "min": 30
     }
-   ]
+   ],
+   "n": 15
   },
   {
    "id": "2026w47-4",
-   "date": "2026-11-22",
    "duration": 45,
    "domain": "Putting",
    "title": "Putting : test combiné",
@@ -475,6 +474,1031 @@
      "drill": "lag-zone",
      "min": 20
     }
+   ],
+   "n": 16
+  },
+  {
+   "id": "p017",
+   "n": 17,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · hanches d'abord (1/3)",
+   "kpi": "8/10 swings de chair drill sans toucher la chaise",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 20
+    },
+    {
+     "drill": "elastique-hanches",
+     "min": 20
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p018",
+   "n": 18,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · mobilité et gainage",
+   "kpi": "Séance complète, 90/90 fluide des deux côtés",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 20
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 15
+    },
+    {
+     "drill": "medecine-ball",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p019",
+   "n": 19,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · ligne de départ",
+   "kpi": "16/20 dans la porte",
+   "blocks": [
+    {
+     "drill": "porte-putting",
+     "min": 25
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p020",
+   "n": 20,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · chemin par l'intérieur",
+   "kpi": "8/10 balles dans la porte, headcover jamais touché",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 10
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 20
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 30
+    }
+   ]
+  },
+  {
+   "id": "p021",
+   "n": 21,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · pitchs 15–40 m",
+   "kpi": "9/15 dans les zones",
+   "blocks": [
+    {
+     "drill": "pitchs-zones",
+     "min": 45
+    },
+    {
+     "drill": "echelle-wedges",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p022",
+   "n": 22,
+   "duration": 50,
+   "domain": "Petit jeu",
+   "title": "Chipping · point de chute",
+   "kpi": "5/9 à moins d'1 m",
+   "blocks": [
+    {
+     "drill": "chips-3-clubs",
+     "min": 40
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p023",
+   "n": 23,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · release et face",
+   "kpi": "7/10 contacts propres, crayon aligné",
+   "blocks": [
+    {
+     "drill": "crayon-gant",
+     "min": 20
+    },
+    {
+     "drill": "split-grip",
+     "min": 15
+    },
+    {
+     "drill": "serviette-aisselle",
+     "min": 15
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p024",
+   "n": 24,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · vitesse (1/3)",
+   "kpi": "Vitesse max notée",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 10
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 10
+    },
+    {
+     "drill": "overspeed",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p025",
+   "n": 25,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · conversion 1–2 m",
+   "kpi": "18/20 à 1 m, 8/10 à 2 m",
+   "blocks": [
+    {
+     "drill": "cercle-putting",
+     "min": 30
+    },
+    {
+     "drill": "porte-putting",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p026",
+   "n": 26,
+   "duration": 45,
+   "domain": "Bunker",
+   "title": "Bunker · contact",
+   "kpi": "7/10 entrées sur la ligne",
+   "blocks": [
+    {
+     "drill": "ligne-sable",
+     "min": 30
+    },
+    {
+     "drill": "bunker-distances",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p027",
+   "n": 27,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · tête stable et vidéo",
+   "kpi": "Tête derrière la balle à l'impact sur 3/3 swings filmés",
+   "blocks": [
+    {
+     "drill": "tete-stable",
+     "min": 20
+    },
+    {
+     "drill": "serviette-aisselle",
+     "min": 15
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 15
+    },
+    {
+     "drill": "video-dtl",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p028",
+   "n": 28,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · échelle 30–90 m",
+   "kpi": "Écart moyen ≤ 7 m",
+   "blocks": [
+    {
+     "drill": "echelle-wedges",
+     "min": 45
+    },
+    {
+     "drill": "pitchs-zones",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p029",
+   "n": 29,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · hanches d'abord (2/3)",
+   "kpi": "Élastique : 8/10 swings où le bassin démarre la descente",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 10
+    },
+    {
+     "drill": "chaise-hanches",
+     "min": 15
+    },
+    {
+     "drill": "elastique-hanches",
+     "min": 20
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p030",
+   "n": 30,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · rotation explosive",
+   "kpi": "3 séries de medicine ball complètes",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 15
+    },
+    {
+     "drill": "medecine-ball",
+     "min": 20
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p031",
+   "n": 31,
+   "duration": 60,
+   "domain": "Petit jeu",
+   "title": "Chipping · 10 lies",
+   "kpi": "5/10 up & down",
+   "blocks": [
+    {
+     "drill": "chips-10-lies",
+     "min": 45
+    },
+    {
+     "drill": "chips-3-clubs",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p032",
+   "n": 32,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · lag et dosage",
+   "kpi": "8/10 lags dans la zone",
+   "blocks": [
+    {
+     "drill": "lag-zone",
+     "min": 30
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p033",
+   "n": 33,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · chemin au driver",
+   "kpi": "Headcover jamais touché sur 10 drives",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 10
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 25
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p034",
+   "n": 34,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · pitchs (2)",
+   "kpi": "11/15 dans les zones",
+   "blocks": [
+    {
+     "drill": "pitchs-zones",
+     "min": 40
+    },
+    {
+     "drill": "echelle-wedges",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p035",
+   "n": 35,
+   "duration": 75,
+   "domain": "Long jeu",
+   "title": "Bilan intermédiaire long jeu",
+   "kpi": "Comparer vitesse et dispersion au bilan d'octobre",
+   "blocks": [
+    {
+     "drill": "bilan-long-jeu",
+     "min": 60
+    },
+    {
+     "drill": "video-dtl",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p036",
+   "n": 36,
+   "duration": 75,
+   "domain": "Petit jeu",
+   "title": "Bilan intermédiaire petit jeu et putting",
+   "kpi": "Comparer au bilan d'octobre",
+   "blocks": [
+    {
+     "drill": "bilan-petit-jeu",
+     "min": 75
+    }
+   ]
+  },
+  {
+   "id": "p037",
+   "n": 37,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · release complet",
+   "kpi": "8/10 contacts propres, finish tenu 3 s",
+   "blocks": [
+    {
+     "drill": "crayon-gant",
+     "min": 15
+    },
+    {
+     "drill": "split-grip",
+     "min": 15
+    },
+    {
+     "drill": "serviette-aisselle",
+     "min": 15
+    },
+    {
+     "drill": "tete-stable",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p038",
+   "n": 38,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · vitesse (2/3)",
+   "kpi": "+2 km/h par rapport à la première séance d'overspeed",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 10
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 10
+    },
+    {
+     "drill": "overspeed",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p039",
+   "n": 39,
+   "duration": 50,
+   "domain": "Bunker",
+   "title": "Bunker · distances",
+   "kpi": "6/10 à moins de 2 m à chaque distance",
+   "blocks": [
+    {
+     "drill": "ligne-sable",
+     "min": 15
+    },
+    {
+     "drill": "bunker-distances",
+     "min": 35
+    }
+   ]
+  },
+  {
+   "id": "p040",
+   "n": 40,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · hanches d'abord (3/3)",
+   "kpi": "9/10 balles dans la porte au fer 7",
+   "blocks": [
+    {
+     "drill": "elastique-hanches",
+     "min": 15
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 30
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p041",
+   "n": 41,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · ligne de départ (2)",
+   "kpi": "18/20 dans la porte",
+   "blocks": [
+    {
+     "drill": "porte-putting",
+     "min": 20
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p042",
+   "n": 42,
+   "duration": 60,
+   "domain": "Petit jeu",
+   "title": "Chipping · point de chute (2)",
+   "kpi": "6/9 à moins d'1 m",
+   "blocks": [
+    {
+     "drill": "chips-3-clubs",
+     "min": 35
+    },
+    {
+     "drill": "chips-10-lies",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p043",
+   "n": 43,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · contrôle vidéo du plan",
+   "kpi": "Vidéo dans l'axe : club sur le plan au début de la descente",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 10
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 25
+    },
+    {
+     "drill": "video-dtl",
+     "min": 15
+    },
+    {
+     "drill": "tete-stable",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p044",
+   "n": 44,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · échelle (2)",
+   "kpi": "Écart moyen ≤ 6 m",
+   "blocks": [
+    {
+     "drill": "echelle-wedges",
+     "min": 40
+    },
+    {
+     "drill": "pitchs-zones",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p045",
+   "n": 45,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · mobilité et gainage",
+   "kpi": "Séance complète sans douleur",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 20
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 15
+    },
+    {
+     "drill": "medecine-ball",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p046",
+   "n": 46,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · combiné",
+   "kpi": "18/20 à 1 m et 8/10 lags",
+   "blocks": [
+    {
+     "drill": "cercle-putting",
+     "min": 20
+    },
+    {
+     "drill": "lag-zone",
+     "min": 15
+    },
+    {
+     "drill": "porte-putting",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p047",
+   "n": 47,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · trajectoires",
+   "kpi": "7/10 balles qui démarrent à droite de la cible et reviennent",
+   "blocks": [
+    {
+     "drill": "porte-chemin",
+     "min": 25
+    },
+    {
+     "drill": "split-grip",
+     "min": 15
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p048",
+   "n": 48,
+   "duration": 45,
+   "domain": "Bunker",
+   "title": "Bunker · contact (2)",
+   "kpi": "9/10 entrées sur la ligne",
+   "blocks": [
+    {
+     "drill": "ligne-sable",
+     "min": 25
+    },
+    {
+     "drill": "bunker-distances",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p049",
+   "n": 49,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · enchaînement complet",
+   "kpi": "8/10 balles dans la porte avec tous les repères",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 10
+    },
+    {
+     "drill": "elastique-hanches",
+     "min": 10
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 20
+    },
+    {
+     "drill": "crayon-gant",
+     "min": 10
+    },
+    {
+     "drill": "tete-stable",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p050",
+   "n": 50,
+   "duration": 60,
+   "domain": "Petit jeu",
+   "title": "Chipping · up & down",
+   "kpi": "6/9 up & down",
+   "blocks": [
+    {
+     "drill": "up-down-9",
+     "min": 45
+    },
+    {
+     "drill": "chips-3-clubs",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p051",
+   "n": 51,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · vitesse (3/3)",
+   "kpi": "+4 km/h par rapport à la première séance d'overspeed",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 10
+    },
+    {
+     "drill": "medecine-ball",
+     "min": 10
+    },
+    {
+     "drill": "overspeed",
+     "min": 25
+    }
+   ]
+  },
+  {
+   "id": "p052",
+   "n": 52,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · sous pression",
+   "kpi": "Cercle complet à 1,5 m sans erreur",
+   "blocks": [
+    {
+     "drill": "porte-putting",
+     "min": 15
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 30
+    }
+   ]
+  },
+  {
+   "id": "p053",
+   "n": 53,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · sous pression",
+   "kpi": "Porte : 10 balles d'affilée au fer 7, recommencer à la première erreur",
+   "blocks": [
+    {
+     "drill": "elastique-hanches",
+     "min": 10
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 30
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 10
+    },
+    {
+     "drill": "video-dtl",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p054",
+   "n": 54,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · combiné",
+   "kpi": "Écart moyen ≤ 6 m et 11/15 dans les zones",
+   "blocks": [
+    {
+     "drill": "pitchs-zones",
+     "min": 30
+    },
+    {
+     "drill": "echelle-wedges",
+     "min": 30
+    }
+   ]
+  },
+  {
+   "id": "p055",
+   "n": 55,
+   "duration": 90,
+   "domain": "Parcours",
+   "title": "9 trous de transfert",
+   "kpi": "Carte trou par trou saisie, échauffement tenu",
+   "blocks": [
+    {
+     "drill": "routine-echauffement",
+     "min": 25
+    },
+    {
+     "drill": "parcours-stats",
+     "min": 65
+    }
+   ]
+  },
+  {
+   "id": "p056",
+   "n": 56,
+   "duration": 50,
+   "domain": "Bunker",
+   "title": "Bunker · en jeu",
+   "kpi": "Up & down depuis le bunker : 4/9",
+   "blocks": [
+    {
+     "drill": "ligne-sable",
+     "min": 10
+    },
+    {
+     "drill": "bunker-distances",
+     "min": 20
+    },
+    {
+     "drill": "up-down-9",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p057",
+   "n": 57,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · driver et fers longs",
+   "kpi": "Headcover jamais touché, finish tenu sur 10 drives",
+   "blocks": [
+    {
+     "drill": "chaise-hanches",
+     "min": 10
+    },
+    {
+     "drill": "headcover-exterieur",
+     "min": 20
+    },
+    {
+     "drill": "porte-chemin",
+     "min": 20
+    },
+    {
+     "drill": "serviette-aisselle",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p058",
+   "n": 58,
+   "duration": 45,
+   "domain": "Putting",
+   "title": "Putting · lag et finition",
+   "kpi": "8/10 lags puis 18/20 à 1 m",
+   "blocks": [
+    {
+     "drill": "lag-zone",
+     "min": 25
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p059",
+   "n": 59,
+   "duration": 90,
+   "domain": "Parcours",
+   "title": "9 trous de transfert : scrambling",
+   "kpi": "Scrambling ≥ 50 % sur les 9 trous",
+   "blocks": [
+    {
+     "drill": "routine-echauffement",
+     "min": 25
+    },
+    {
+     "drill": "parcours-stats",
+     "min": 65
+    }
+   ]
+  },
+  {
+   "id": "p060",
+   "n": 60,
+   "duration": 60,
+   "domain": "Petit jeu",
+   "title": "Chipping · 10 lies (2)",
+   "kpi": "6/10 up & down",
+   "blocks": [
+    {
+     "drill": "chips-10-lies",
+     "min": 45
+    },
+    {
+     "drill": "cercle-putting",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p061",
+   "n": 61,
+   "duration": 75,
+   "domain": "Long jeu",
+   "title": "Bilan de fin d'hiver long jeu",
+   "kpi": "Progrès mesurés vs octobre et janvier",
+   "blocks": [
+    {
+     "drill": "bilan-long-jeu",
+     "min": 60
+    },
+    {
+     "drill": "video-dtl",
+     "min": 15
+    }
+   ]
+  },
+  {
+   "id": "p062",
+   "n": 62,
+   "duration": 75,
+   "domain": "Petit jeu",
+   "title": "Bilan de fin d'hiver petit jeu et putting",
+   "kpi": "Progrès mesurés vs octobre et janvier",
+   "blocks": [
+    {
+     "drill": "bilan-petit-jeu",
+     "min": 75
+    }
+   ]
+  },
+  {
+   "id": "p063",
+   "n": 63,
+   "duration": 60,
+   "domain": "Wedges",
+   "title": "Wedging · sous pression",
+   "kpi": "11/15 dans les zones, une seule balle par cible",
+   "blocks": [
+    {
+     "drill": "pitchs-zones",
+     "min": 30
+    },
+    {
+     "drill": "echelle-wedges",
+     "min": 20
+    },
+    {
+     "drill": "up-down-9",
+     "min": 10
+    }
+   ]
+  },
+  {
+   "id": "p064",
+   "n": 64,
+   "duration": 60,
+   "domain": "Long jeu",
+   "title": "Long jeu · révision vidéo",
+   "kpi": "Comparer avec la vidéo du 7 novembre : plan et bassin",
+   "blocks": [
+    {
+     "drill": "porte-chemin",
+     "min": 25
+    },
+    {
+     "drill": "tete-stable",
+     "min": 15
+    },
+    {
+     "drill": "video-dtl",
+     "min": 20
+    }
+   ]
+  },
+  {
+   "id": "p065",
+   "n": 65,
+   "duration": 120,
+   "domain": "Parcours",
+   "title": "18 trous de transfert",
+   "kpi": "Carte saisie, tous les indicateurs remplis",
+   "blocks": [
+    {
+     "drill": "routine-echauffement",
+     "min": 25
+    },
+    {
+     "drill": "parcours-stats",
+     "min": 95
+    }
+   ]
+  },
+  {
+   "id": "p066",
+   "n": 66,
+   "duration": 45,
+   "domain": "Physique / vitesse",
+   "title": "Physique · entretien",
+   "kpi": "Séance complète",
+   "blocks": [
+    {
+     "drill": "mobilite-90-90",
+     "min": 15
+    },
+    {
+     "drill": "gainage-anti-rotation",
+     "min": 15
+    },
+    {
+     "drill": "medecine-ball",
+     "min": 15
+    }
    ]
   }
  ],
@@ -482,6 +1506,6 @@
   "start": "2026-10-27",
   "until": "2027-03-31",
   "target": 66,
-  "note": "3 séances par semaine en moyenne, du 27 oct. 2026 au 31 mars 2027"
+  "note": "66 séances de la bibliothèque, environ 3 par semaine, du 27 oct. 2026 au 31 mars 2027"
  }
 }

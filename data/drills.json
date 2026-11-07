@@ -1251,6 +1251,229 @@
    "refs": [],
    "yt": "on course practice golf transfer",
    "tags": []
+  },
+  {
+   "id": "chips-3-clubs",
+   "name": "Chips : même point de chute, 3 clubs",
+   "area": "Petit jeu",
+   "fault": "Distance de roule mal estimée",
+   "objective": "Apprendre la roule de chaque club pour choisir le bon chip selon la distance au drapeau.",
+   "equipment": [
+    "9 balles",
+    "Sand wedge, pitching wedge, fer 8",
+    "1 serviette ou 1 tee comme cible de chute"
+   ],
+   "setup": [
+    "Balle à 1–2 m du bord du green, lie propre.",
+    "Pose une serviette sur le green, à 1 m dans le green : c'est le point de chute.",
+    "Choisis 3 drapeaux : près (≈ 5 m), moyen (≈ 10 m), loin (≈ 15 m)."
+   ],
+   "steps": [
+    "3 balles au sand wedge, 3 au pitching wedge, 3 au fer 8, toutes visant la serviette.",
+    "Observe où chaque club termine : note la roule moyenne par club.",
+    "Puis 9 balles en choisissant le club selon le drapeau, et compte celles qui finissent à moins d'1 m."
+   ],
+   "cues": [
+    "Même geste pour les 3 clubs : seul le club change",
+    "Poids à gauche, mains devant la balle",
+    "Regarde le point de chute, pas le trou"
+   ],
+   "errors": [
+    "Changer d'amplitude selon le club au lieu de garder le même geste",
+    "Casser les poignets pour lever la balle"
+   ],
+   "success": "5/9 à moins d'1 m, puis 6/9",
+   "tags": [
+    "Chipping"
+   ],
+   "measure": [
+    {
+     "key": "ok",
+     "label": "Chips à moins d'1 m",
+     "max": 9,
+     "target": 6
+    }
+   ],
+   "refs": [],
+   "yt": "chipping same landing spot different clubs drill",
+   "videos": []
+  },
+  {
+   "id": "chips-10-lies",
+   "name": "Chipping : jeu des 10 lies",
+   "area": "Petit jeu",
+   "fault": "Scrambling",
+   "objective": "Chipper juste depuis des lies variés, comme sur le parcours.",
+   "equipment": [
+    "1 balle",
+    "Wedges et putter"
+   ],
+   "setup": [
+    "10 positions autour du green : 3 lies propres, 3 dans le rough, 2 en pente, 2 en bord de green (collier)."
+   ],
+   "steps": [
+    "Une seule balle par position, routine complète.",
+    "Chip puis putt jusqu'au trou.",
+    "Compte les up & down réussis sur 10."
+   ],
+   "cues": [
+    "Lis le lie avant de choisir le club",
+    "Choisis le point de chute avant le coup",
+    "Dans le rough : face un peu plus ouverte, geste plus ferme"
+   ],
+   "errors": [
+    "Jouer le même coup partout",
+    "Rejouer un coup raté"
+   ],
+   "success": "5/10 puis 6/10",
+   "tags": [
+    "Chipping"
+   ],
+   "measure": [
+    {
+     "key": "ok",
+     "label": "Up & down réussis",
+     "max": 10,
+     "target": 6
+    }
+   ],
+   "refs": [],
+   "yt": "chipping different lies practice game",
+   "videos": []
+  },
+  {
+   "id": "pitchs-zones",
+   "name": "Pitchs 15–40 m : zones de 3 m",
+   "area": "Wedges",
+   "fault": "Contrôle de distance des petits wedges",
+   "objective": "Maîtriser les demi-coups et trois-quarts de wedge, la zone qui coûte le plus de coups.",
+   "equipment": [
+    "15 balles",
+    "Sand wedge et lob wedge",
+    "4 repères (tees, cônes)"
+   ],
+   "setup": [
+    "Cibles à 15, 25 et 40 m, chacune entourée d'une zone de 3 m de rayon."
+   ],
+   "steps": [
+    "5 balles par distance, en changeant de cible à chaque balle.",
+    "Compte les balles qui s'arrêtent dans la zone.",
+    "Note pour chaque distance l'amplitude utilisée (horloge : 8 h, 9 h, 10 h)."
+   ],
+   "cues": [
+    "L'amplitude règle la distance, pas la force",
+    "Rythme identique sur toutes les distances",
+    "Rotation du buste jusqu'au finish"
+   ],
+   "errors": [
+    "Freiner à l'impact",
+    "Accélérer brutalement sur les coups courts"
+   ],
+   "success": "9/15 dans les zones, puis 11/15",
+   "tags": [
+    "Wedging"
+   ],
+   "measure": [
+    {
+     "key": "ok",
+     "label": "Balles dans la zone",
+     "max": 15,
+     "target": 11
+    }
+   ],
+   "refs": [],
+   "yt": "pitching distance control clock system drill",
+   "videos": []
+  },
+  {
+   "id": "porte-putting",
+   "name": "Porte de putting : ligne de départ",
+   "area": "Putting",
+   "fault": "Putts manqués < 2 m",
+   "objective": "Faire partir la balle sur la ligne choisie : la base de tous les putts courts.",
+   "equipment": [
+    "10 balles",
+    "2 tees",
+    "1 putter"
+   ],
+   "setup": [
+    "Putt droit de 2 m.",
+    "Plante 2 tees 30 cm devant la balle, espacés d'à peine plus que la largeur d'une balle."
+   ],
+   "steps": [
+    "20 putts : la balle doit passer entre les tees sans les toucher.",
+    "Compte les balles passées proprement.",
+    "Termine par 10 putts de 2 m sans la porte, en gardant la même sensation."
+   ],
+   "cues": [
+    "Face square à l'impact",
+    "Épaules qui pilotent, poignets passifs",
+    "Tête immobile jusqu'au bruit de la balle dans le trou"
+   ],
+   "errors": [
+    "Regarder le trou trop tôt",
+    "Ralentir à l'impact"
+   ],
+   "success": "16/20 puis 18/20",
+   "tags": [
+    "Putting"
+   ],
+   "measure": [
+    {
+     "key": "ok",
+     "label": "Balles passées dans la porte",
+     "max": 20,
+     "target": 18
+    }
+   ],
+   "refs": [],
+   "yt": "putting gate drill start line",
+   "videos": []
+  },
+  {
+   "id": "ligne-sable",
+   "name": "Bunker : la ligne dans le sable",
+   "area": "Bunker",
+   "fault": "Contact dans le bunker",
+   "objective": "Entrer dans le sable toujours au même endroit, quelques centimètres derrière la balle.",
+   "equipment": [
+    "10 balles",
+    "Sand wedge",
+    "Un râteau"
+   ],
+   "setup": [
+    "Trace une ligne dans le sable, perpendiculaire à la cible.",
+    "D'abord sans balle, puis balle posée 5 cm devant la ligne."
+   ],
+   "steps": [
+    "10 swings sans balle : le divot doit commencer sur la ligne.",
+    "10 balles : compte les sorties où le sable est pris sur la ligne ou juste après.",
+    "Refais la ligne entre chaque coup."
+   ],
+   "cues": [
+    "Poids à gauche tout le long",
+    "Face ouverte avant de prendre le grip",
+    "Finir le geste : le sable vole vers la cible"
+   ],
+   "errors": [
+    "Reculer le poids pour soulever la balle",
+    "S'arrêter à l'impact"
+   ],
+   "success": "7/10 entrées sur la ligne, puis 9/10",
+   "tags": [
+    "Bunker"
+   ],
+   "measure": [
+    {
+     "key": "ok",
+     "label": "Entrées dans le sable sur la ligne",
+     "max": 10,
+     "target": 9
+    }
+   ],
+   "refs": [],
+   "yt": "bunker line in the sand drill",
+   "videos": []
   }
  ]
 }
