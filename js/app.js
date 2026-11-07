@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.18.0";
+const APP_VERSION = "1.18.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -267,10 +267,14 @@ function paceOf(g) {
 }
 function goalGauge() {
   const g = goal(), [cls, lab] = paceOf(g), p = Math.min(100, g.done / g.target * 100), pe = Math.min(100, g.expected / g.target * 100);
-  return `<div class="goal"><div class="row between"><span class="lbl">Objectif · ${g.target} séances d'ici le ${fmtD(g.until)}</span><span class="pill ${cls}">${lab}</span></div>
-    <div class="gv"><b>${nf1(g.done)}</b><span> / ${g.target} séances</span></div>
-    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, rythme attendu ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div>
-    <div class="xs muted">Séances du plan et entraînements libres comptent. Repère : ${nf1(g.expected)} attendue${g.expected >= 2 ? "s" : ""} aujourd'hui · il te faut ${nf1(g.need)} séance${g.need >= 2 ? "s" : ""} par semaine jusqu'au ${fmtD(g.until)} (rythme de départ ${nf1(g.perWeek)}).</div></div>`;
+  const wk = completions().filter(c => c.date >= mondayOf(iso()) && c.date <= iso()).reduce((a, c) => a + credit(c), 0), wkT = Math.round(g.perWeek);
+  const lab2 = cls === "ok" ? (g.diff >= 1 ? "En avance" : "Dans le rythme") : "En retard", sub2 = g.diff >= 1 ? `+${Math.floor(g.diff)} séance${Math.floor(g.diff) > 1 ? "s" : ""}` : g.diff > -1 ? "repère " + nf1(g.expected) : `−${Math.ceil(-g.diff)} séance${Math.ceil(-g.diff) > 1 ? "s" : ""}`;
+  return `<div class="goal">
+    <div class="gk"><div><span class="l">Faites</span><span class="v">${nf1(g.done)}<small> / ${g.target}</small></span><span class="s">d'ici le ${D(g.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</span></div>
+      <div><span class="l">Cette semaine</span><span class="v">${nf1(wk)}<small> / ${wkT}</small></span><span class="s">${wk >= wkT ? "objectif atteint" : `encore ${nf1(wkT - wk)}`}</span></div>
+      <div class="${cls}"><span class="l">Rythme</span><span class="v r">${lab2}</span><span class="s">${sub2}</span></div></div>
+    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, repère du jour ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div>
+  </div>`;
 }
 function sessionOrder(list) {   // les moins pratiquées d'abord, puis les plus anciennes
   const idx = new Map(S.plan.sessions.map((x, i) => [x.id, i]));
@@ -427,17 +431,28 @@ function indexChart(target, tDate) {
 }
 
 /* ---------- Plan & séances ---------- */
+function doneJournal() {   // séances du plan faites + entraînements libres, du plus récent au plus ancien
+  const a = completions().filter(c => !c.legacy || true).map(c => {
+    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, tags: freeTags(f), part: false } : null; }
+    const x = S.plan.sessions.find(y => y.id === c.session); return x ? { date: c.date, href: "#/seance/" + x.id, title: x.title, meta: `Séance du plan · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, tags: sessionTags(x), part: c.status === "Partielle" } : null; }).filter(Boolean);
+  return (S.tagFilter ? a.filter(e => e.tags.some(t => t === S.tagFilter || (LEGACY_TAG[t] || []).includes(S.tagFilter))) : a).reverse();
+}
 function vPlan() {
+  const f = S.planFilter === "all" || S.planFilter === "done" ? S.planFilter : "todo";
   let list = [...S.plan.sessions]; if (S.tagFilter) list = list.filter(x => sessionTags(x).includes(S.tagFilter));
-  const rows = sessionOrder(list);
+  const ord = sessionOrder(list), todo = ord.filter(r => !r.last), j = doneJournal();
+  const rows = f === "todo" ? todo : ord;
+  const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id);
+    return `<div class="srow ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
+      <a href="#/seance/${x.id}"><span class="nm">${esc(x.title)}</span><span class="mt">${n0(x.duration)} min · ${sessionTags(x).join(", ")}${dt ? " · faite aujourd'hui" : last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}</span></a>
+      <a class="go" href="#/seance/${x.id}" aria-label="Ouvrir">›</a></div>`; };
   const body = `<section class="view">
   ${goalGauge()}
+  <div class="chips" role="group" aria-label="Statut">${[["todo", `À faire · ${todo.length}`], ["done", `Faites · ${j.length}`], ["all", "Toutes"]].map(([k, l]) => `<button data-act="pf" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
   ${tagFilter()}
-  ${rows.length ? `<div class="slist">${rows.map(({ s: x, n, last }) => { const dt = doneToday(x.id);
-    return `<div class="srow ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
-      <a href="#/seance/${x.id}"><span class="nm">${esc(x.title)}</span><span class="mt">${n0(x.duration)} min · ${sessionTags(x).join(", ")}</span><span class="mt">${dt ? "faite aujourd'hui" : last ? `faite ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : "jamais faite"}</span></a>
-      <a class="go" href="#/seance/${x.id}" aria-label="Ouvrir">›</a></div>`; }).join("")}</div>
-    <p class="xs muted">Les séances les moins pratiquées apparaissent en premier. Coche une séance quand tu l'as faite.</p>` : `<p class="small muted">Aucune séance de ce type.</p>`}
+  ${f === "done" ? (j.length ? `<div class="slist">${j.map(e => `<a class="srow done" href="${e.href}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="txt"><span class="nm">${esc(e.title)}</span><span class="mt">${fmtDs(e.date).replace(/\.$/, "")} · ${esc(e.meta)}</span></span><span class="go">›</span></a>`).join("")}</div>` : `<p class="small muted">Aucune séance faite pour l'instant.</p>`)
+    : rows.length ? `<div class="slist">${rows.map(srow).join("")}</div>` : `<p class="small muted">${f === "todo" ? "Toutes les séances de ce type ont déjà été faites au moins une fois." : "Aucune séance de ce type."}</p>`}
+  ${canEdit() ? `<button class="btn ghost wide" data-act="form" data-kind="session">+ Entraînement libre (hors plan)</button>` : ""}
   <details class="fold"><summary>${icon("note", "flex:none")} Préconisations du coach<span class="xs muted">${(S.plan.recos || []).length}</span></summary>
     <p class="small" style="margin:8px 0 10px">${esc(S.plan.objective)}</p>
     ${(S.plan.recos || []).map((r, i) => `<div class="reco"><div class="p">${i + 1}</div><div><h3>${esc(r.title)}</h3>${r.why ? `<p class="small muted" style="margin-top:4px">${esc(r.why)}</p>` : ""}${r.how ? `<p class="small" style="margin-top:6px">${esc(r.how)}</p>` : ""}${r.kpi ? `<p class="small" style="margin-top:6px"><span class="muted">Indicateur : </span>${esc(r.kpi)}</p>` : ""}</div></div>`).join("")}</details>
