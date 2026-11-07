@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.15.1";
+const APP_VERSION = "1.16.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -177,14 +177,14 @@ function renderDenied(u) {
 }
 
 /* ---------- Rendu ---------- */
-const TAB_OF = { tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", cours: "plus", videos: "plus" };
+const TAB_OF = { video: "plus", tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", cours: "plus", videos: "plus" };
 function parts() { return (location.hash.replace(/^#\/?/, "") || "tableau").split("/").map(decodeURIComponent); }
 function render() {
   if (!S.user) return;
   const p = parts(); const tab = TAB_OF[p[0]] || "tableau";
   const keep = {}; document.querySelectorAll("#view [data-keep]").forEach(el => { if (el.value) keep[el.id] = el.value; });
   const focusId = document.activeElement && document.activeElement.id;
-  const views = { tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
+  const views = { video: vVideo, tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
   const v = views[p[0]] || vTableau;
   let out; try { out = v(p); } catch (e) { console.error(e); out = { body: `<div class="empty"><b>Erreur d'affichage</b>${esc(e.message)}</div>` }; }
   if (typeof out === "string") out = { body: out };
@@ -591,22 +591,41 @@ function coachChat(v) {
       <p class="xs muted" style="margin:0">Réponse en quelques secondes. Si le service est indisponible, réponse le soir vers 19 h.</p></form>` : ""}
   </section>`;
 }
-function videoItem(v, showRef) {
-  const a = v.analysis || {}; let refLink = "";
-  if (showRef && v.ref) { const [t, id] = v.ref.split(":"); if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); refLink = s ? `<a class="small" href="#/seance/${id}">${esc(s.title)}</a>` : ""; } else if (t === "free" && id !== "none") { refLink = `<a class="small" href="#/entrainement/${id}">Entraînement</a>`; } }
-  return `<div class="item"><div class="head"><span class="small">${fmtD(v.date)} · ${esc(v.angle || "")}${v.club ? " · " + esc(v.club) : ""}</span>
-    ${a.status === "done" ? `<span class="pill ok">analysée</span>` : a.status === "requested" ? `<span class="pill warn">analyse demandée</span>` : ""}</div>
-  ${refLink}
+const ANGLE_LABEL = { "Down-the-line": "Dans l'axe", "De face": "De face" };
+const angleLabel = a => ANGLE_LABEL[a] || a || "Vidéo";
+function videoRefLink(v) {
+  if (!v.ref) return ""; const [t, id] = v.ref.split(":");
+  if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); return s ? `<a href="#/seance/${id}">${esc(s.title)}</a>` : ""; }
+  if (t === "free" && id !== "none") return `<a href="#/entrainement/${id}">Entraînement</a>`; return "";
+}
+function videoRow(v, showRef) {
+  const a = v.analysis || {}, th = a.status === "done" && (a.frames || []).find(f => f.url);
+  const q = S.data.messages.filter(m => m.ref === "video:" + v._id && m.role === "user").length;
+  let refTxt = ""; if (showRef && v.ref) { const [t, id] = v.ref.split(":"); if (t === "plan") { const s = S.plan.sessions.find(x => x.id === id); if (s) refTxt = s.title; } else if (t === "free" && id !== "none") refTxt = "Entraînement libre"; }
+  const st = a.status === "done" ? `<span class="pill ok">analysée</span>` : a.status === "requested" ? `<span class="pill warn">en attente</span>` : `<span class="pill">non analysée</span>`;
+  return `<a class="vrow" href="#/video/${v._id}"><span class="vthumb">${th ? `<img src="${esc(th.url)}" alt="" loading="lazy">` : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6l11 6-11 6z" fill="currentColor"/></svg>`}</span>
+    <span class="vmain"><span class="vt">${esc(angleLabel(v.angle))}${v.club ? ` · ${esc(v.club)}` : ""}</span><span class="vs">${fmtD(v.date)}${refTxt ? " · " + esc(refTxt) : ""}${q ? ` · ${q} question${q > 1 ? "s" : ""}` : ""}</span></span>
+    <span class="vside">${st}<i>›</i></span></a>`;
+}
+function vVideo(p) {
+  const v = S.data.videos.find(x => x._id === p[1]);
+  if (!v) return { back: ["#/videos", "Vidéos"], title: "Vidéo", body: `<section class="view">${emptyBox("Vidéo introuvable", "Elle a peut-être été supprimée.")}</section>` };
+  const a = v.analysis || {}, ref = videoRefLink(v);
+  const body = `<section class="view">
   <video class="player" src="${esc(v.url)}" controls preload="metadata" playsinline></video>
-  ${v.comment ? `<p class="small pre">${esc(v.comment)}</p>` : ""}
-  ${coachEye(a, v._id)}
+  <div class="meta">${a.status === "done" ? `<span class="pill ok">analysée</span>` : a.status === "requested" ? `<span class="pill warn">analyse en attente</span>` : `<span class="pill">non analysée</span>`}${v.club ? `<span>${esc(v.club)}</span>` : ""}${ref ? `<span>${ref}</span>` : ""}</div>
+  ${canEdit() ? `<div class="row" style="gap:6px"><span class="xs muted">Angle :</span><div class="chips" style="margin:0">${["De face", "Down-the-line", "Autre"].map(x => `<button data-act="vid-angle" data-id="${v._id}" data-v="${x}" aria-pressed="${v.angle === x}">${esc(angleLabel(x))}</button>`).join("")}</div></div>` : ""}
+  ${v.comment ? `<div class="card"><span class="lbl">Ce que tu voulais qu'on regarde</span><p class="small pre" style="margin:3px 0 0">${esc(v.comment)}</p></div>` : ""}
+  ${coachEye(a, v._id) || (canEdit() ? `<section class="eye wait"><div class="eye-h"><span class="eye-t">L'œil du coach</span></div><p class="small muted" style="margin:0">Pas encore d'analyse pour cette vidéo.</p><div><button class="btn navy sm" data-act="ask-analysis" data-id="${v._id}">Demander l'analyse</button></div></section>` : "")}
   ${coachChat(v)}
-  ${canEdit() ? `<div class="row">${a.status !== "requested" ? `<button class="btn ghost sm" data-act="ask-analysis" data-id="${v._id}">${a.status === "done" ? "Redemander une analyse" : "Demander l'analyse à Claude"}</button>` : ""}<button class="btn ghost sm" data-act="del-video" data-id="${v._id}">Supprimer</button></div>` : ""}</div>`;
+  ${canEdit() ? `<div class="row">${a.status === "done" ? `<button class="btn ghost sm" data-act="ask-analysis" data-id="${v._id}">Redemander une analyse</button>` : ""}<button class="btn ghost sm" data-act="del-video" data-id="${v._id}">Supprimer la vidéo</button></div>` : ""}
+  </section>`;
+  return { back: ["#/videos", "Vidéos"], kicker: fmtD(v.date), title: angleLabel(v.angle), body };
 }
 function videosBlock(ref) {
   const vids = S.data.videos.filter(v => v.ref === ref).sort(byDateDesc); const k = ref.replace(/[^\w]/g, "_");
   return `<div class="card"><h2>Vidéos</h2>
-  ${vids.length ? `<div class="list">${vids.map(v => videoItem(v)).join("")}</div>` : ""}
+  ${vids.length ? `<div class="vlist">${vids.map(v => videoRow(v)).join("")}</div>` : ""}
   ${canEdit() ? videoForm(ref, k) : ""}</div>`;
 }
 function videoForm(ref, k) {
@@ -631,10 +650,11 @@ function videoForm(ref, k) {
 function vVideos() {
   const f = S.vidFilter; let l = [...S.data.videos].sort(byDateDesc);
   if (f === "req") l = l.filter(v => v.analysis && v.analysis.status === "requested"); if (f === "done") l = l.filter(v => v.analysis && v.analysis.status === "done");
-  const body = `<section class="view"><p class="small muted">Pour une analyse : demande-la ici, puis écris « analyse mes vidéos » dans le projet Coach de Golf. La réponse s'affiche sous la vidéo.</p>
-  <div class="chips">${[["all", "Toutes"], ["req", "Analyse demandée"], ["done", "Analysées"]].map(([k, lab]) => `<button data-act="vf" data-f="${k}" aria-pressed="${f === k}">${lab}</button>`).join("")}</div>
-  ${l.length ? `<div class="card"><div class="list">${l.map(v => videoItem(v, true)).join("")}</div></div>` : emptyBox("Aucune vidéo", "Filme-toi depuis une séance : la vidéo y reste rattachée.")}
-  ${canEdit() ? `<div class="card"><h2>Vidéo hors séance</h2>${videoForm("free:none", "free")}</div>` : ""}</section>`;
+  const n = S.data.videos.length;
+  const body = `<section class="view">
+  ${n ? `<div class="chips">${[["all", "Toutes"], ["req", "En attente"], ["done", "Analysées"]].map(([k, lab]) => `<button data-act="vf" data-f="${k}" aria-pressed="${f === k}">${lab}</button>`).join("")}</div>` : ""}
+  ${l.length ? `<div class="vlist">${l.map(v => videoRow(v, true)).join("")}</div>` : n ? `<p class="small muted">Aucune vidéo dans ce filtre.</p>` : emptyBox("Aucune vidéo", "Ajoute une vidéo ci-dessous ou depuis une séance : l'analyse du coach arrive le soir même.")}
+  ${canEdit() ? `<details class="card addvid"${n ? "" : " open"}><summary>+ Ajouter une vidéo</summary><div style="margin-top:10px">${videoForm("free:none", "free")}</div></details>` : ""}</section>`;
   return { back: ["#/plus", "Plus"], title: "Vidéos", body };
 }
 
@@ -1084,6 +1104,7 @@ document.addEventListener("click", async e => {
     case "chat-retry": { const m = S.data.messages.find(x => x._id === id); if (!m) break; b.disabled = true;
       try { await Store.del("messages", id); await Store.add("messages", { ref: m.ref, role: "user", text: m.text, at: new Date().toISOString(), status: "open" }); } catch (x) { console.error(x); toast("Nouvel essai impossible"); } break; }
     case "chat-sugg": case "chat-about": { const ta = document.getElementById("cq-" + id); if (ta) { ta.value = a === "chat-about" ? `À propos de « ${b.dataset.t} » : ` : b.dataset.t; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.scrollIntoView({ block: "center", behavior: "smooth" }); } break; }
+    case "vid-angle": await Store.set("videos", id, { angle: b.dataset.v }, true); break;
     case "ask-analysis": await Store.set("videos", id, { analysis: { status: "requested", requestedAt: iso() } }, true); toast("Analyse demandée"); break;
     case "draft-finish": if (!d) break; if (!d.holes.some(h => h.score != null)) { toast("Aucun trou saisi."); break; } d.stage = "finish"; saveDraft(); if (location.hash !== "#/partie/new") location.hash = "#/partie/new"; else render(); window.scrollTo(0, 0); break;
     case "draft-new": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer : abandonner la carte en cours"; break; } S.draft = null; saveDraft(); S.setup = { q: "", club: null, course: null, tee: null }; location.hash = "#/partie/new"; render(); break;
