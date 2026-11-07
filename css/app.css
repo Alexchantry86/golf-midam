@@ -406,3 +406,25 @@ details.dd[open]>summary{border-color:var(--navy)}
 .ddm .ddall{justify-content:center;color:var(--blue);font-size:13px;border-top:1px solid var(--line2);border-radius:0;margin-top:4px}
 .goal .gv{font-size:14px;color:var(--muted)}.goal .gv b{font-family:var(--f-serif);font-size:26px;color:var(--navy);margin-right:2px}.goal .gv small{display:block;font-size:12px}
 .srow .num{display:inline-block;min-width:22px;font-size:11.5px;font-weight:600;color:var(--muted);margin-right:6px}
+/* v1.20 lignes compactes + détail par type */
+.srow.c{grid-template-columns:28px 1fr;gap:10px;padding:9px 0}
+.srow.c .chk{width:24px;height:24px;font-size:13px;border-width:1.5px}
+.srow.c .chk.on{font-size:12px}
+.srow.c>a,.srow.c .row0{flex-direction:row;align-items:center;gap:8px;min-width:0;display:flex}
+.srow.c .num{min-width:18px;margin:0;font-weight:500;font-size:11.5px;color:var(--muted)}
+.srow.c .num.dt{min-width:40px}
+.srow.c .nm{flex:1;min-width:0;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tgi{display:inline-flex;gap:2px;flex:none;color:var(--muted)}
+.tgi .i,.du .i,.gti .i{width:16px;height:16px;stroke-width:1.6}
+.du{display:inline-flex;align-items:center;gap:2px;flex:none;min-width:40px;justify-content:flex-end;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+details.goal>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+details.goal>summary::-webkit-details-marker{display:none}
+.goal .gr{display:inline-flex;align-items:center;gap:8px}
+.gexp{display:inline-flex;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);align-items:center;justify-content:center;color:var(--muted)}
+.gexp .i{width:15px;height:15px}
+details.goal[open] .gexp{background:var(--navy);border-color:var(--navy);color:#fff}
+.gtypes{display:flex;flex-direction:column;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)}
+.gt{display:grid;grid-template-columns:18px 76px 1fr 46px;align-items:center;gap:8px;font-size:13px}
+.gti{display:flex;color:var(--muted)}
+.gtb{height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.gtb i{display:block;height:100%;background:var(--navy);border-radius:3px}
+.gtv{text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}

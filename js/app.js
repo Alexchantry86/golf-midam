@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.19.0";
+const APP_VERSION = "1.20.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -70,15 +70,23 @@ const IC = {
   video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
   pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
   dumb: '<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>', target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  t_long: '<path d="M3 19C7 6 15 4 21 12"/><circle cx="21" cy="15.5" r="1.6"/><path d="M2 21h20"/>',
+  t_wedge: '<path d="M4 18C6 6 12 6 14 18"/><path d="M18 18V6l4 2-4 2"/><path d="M2 21h20"/>',
+  t_chip: '<path d="M3 17c2-5 5-5 7 0"/><path d="M10 17h7"/><circle cx="19" cy="17" r="1.6"/><path d="M2 21h20"/>',
+  t_bunker: '<circle cx="12" cy="8" r="2.2"/><path d="M3 15c3-2.5 6-2.5 9 0s6 2.5 9 0M3 20h18"/>',
+  t_putt: '<ellipse cx="15" cy="19" rx="5.5" ry="1.8"/><path d="M15 19V4l5 2.5L15 9"/><circle cx="5" cy="18.5" r="1.6"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', out: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>'
 };
+const TAG_IC = { "Physique": "dumb", "Long jeu": "t_long", "Wedging": "t_wedge", "Chipping": "t_chip", "Bunker": "t_bunker", "Putting": "t_putt" };
+const tagIcons = tags => `<span class="tgi">${tags.map(t => `<span title="${esc(t)}" aria-label="${esc(t)}">${icon(TAG_IC[t] || "target")}</span>`).join("")}</span>`;
 const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}"` : ""}>${IC[k]}</svg>`;
 
 /* ---------- État ---------- */
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
   data: { completions: [], drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
-  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", statusSel: ["todo"], tagSel: [], ddOpen: null, vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
+  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", statusSel: ["todo"], tagSel: [], ddOpen: null, goalOpen: false, vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
 const valOf = id => S.data.validations.find(v => v._id === id) || null;
@@ -265,10 +273,24 @@ function paceOf(g) {
   if (g.diff > -1) return ["ok", "Dans le rythme"];
   const r = Math.ceil(-g.diff); return [r <= 3 ? "warn" : "bad", `En retard de ${r} séance${r > 1 ? "s" : ""}`];
 }
+function compTags(c) {
+  if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? freeTags(f) : []; }
+  const x = S.plan.sessions.find(y => y.id === c.session); return x ? sessionTags(x) : [];
+}
+function goalByType(g) {
+  const cs = completions().filter(c => c.date >= g.start && c.date <= g.until);
+  return TAGS.map(t => {
+    const lib = S.plan.sessions.filter(x => sessionTags(x).includes(t)).length;
+    const done = cs.filter(c => compTags(c).includes(t)).reduce((a, c) => a + credit(c), 0);
+    const p = lib ? Math.min(100, done / lib * 100) : 0;
+    return `<div class="gt"><span class="gti">${icon(TAG_IC[t])}</span><span class="gtn">${t}</span><span class="gtb"><i style="width:${p}%"></i></span><span class="gtv">${nf1(done)} / ${lib}</span></div>`;
+  }).join("");
+}
 function goalGauge() {
   const g = goal(), [cls, lab] = paceOf(g), p = Math.min(100, g.done / g.target * 100), pe = Math.min(100, g.expected / g.target * 100);
-  return `<div class="goal"><div class="row between"><span class="gv"><b>${nf1(g.done)}</b> / ${g.target} séances <small>d'ici le ${D(g.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</small></span><span class="pill ${cls}">${lab}</span></div>
-    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, repère du jour ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div></div>`;
+  return `<details class="goal"${S.goalOpen ? " open" : ""}><summary><div class="row between"><span class="gv"><b>${nf1(g.done)}</b> / ${g.target} séances <small>d'ici le ${D(g.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</small></span><span class="gr"><span class="pill ${cls}">${lab}</span><span class="gexp" aria-label="Détail par type">${icon("chart")}</span></span></div>
+    <div class="gbar" role="img" aria-label="${nf1(g.done)} séances sur ${g.target}, repère du jour ${nf1(g.expected)}"><i class="${cls}" style="width:${p}%"></i><em style="left:${pe}%"></em></div></summary>
+    <div class="gtypes"><p class="xs muted">Séances faites par type / séances du programme qui le travaillent</p>${goalByType(g)}</div></details>`;
 }
 /* Liste déroulante à choix multiples (filtres) */
 function dd(key, label, opts, sel) {
@@ -436,19 +458,19 @@ function indexChart(target, tDate) {
 /* ---------- Plan & séances ---------- */
 function doneJournal() {   // séances du plan faites + entraînements libres, du plus récent au plus ancien
   const a = completions().filter(c => !c.legacy || true).map(c => {
-    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, tags: freeTags(f), part: false } : null; }
-    const x = S.plan.sessions.find(y => y.id === c.session); return x ? { date: c.date, href: "#/seance/" + x.id, title: x.title, meta: `Séance du plan · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, tags: sessionTags(x), part: c.status === "Partielle" } : null; }).filter(Boolean);
+    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); return f ? { date: c.date, href: "#/entrainement/" + f._id, title: (f.content || "Entraînement libre").split("\n")[0], meta: `Entraînement libre · ${n0(f.duration)} min`, min: f.duration, tags: freeTags(f), part: false } : null; }
+    const x = S.plan.sessions.find(y => y.id === c.session); return x ? { date: c.date, href: "#/seance/" + x.id, title: x.title, meta: `Séance du plan · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, min: c.actualMin ?? x.duration, tags: sessionTags(x), part: c.status === "Partielle" } : null; }).filter(Boolean);
   return a.filter(e => tagMatch(e.tags)).reverse();
 }
 function vPlan() {
   const st = S.statusSel.length ? S.statusSel : ["todo", "done"];
   const list = S.plan.sessions.filter(x => tagMatch(sessionTags(x)));
   const ord = sessionOrder(list), todo = ord.filter(r => !r.last && !doneToday(r.s.id)), j = doneJournal();
-  const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id);
-    return `<div class="srow ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
-      <a href="#/seance/${x.id}"><span class="nm"><span class="num">${x.n}</span>${esc(x.title)}</span><span class="mt">${n0(x.duration)} min${sessionTags(x).length ? " · " + sessionTags(x).join(", ") : ""}${dt ? " · faite aujourd'hui" : last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}</span></a>
-      <a class="go" href="#/seance/${x.id}" aria-label="Ouvrir">›</a></div>`; };
-  const doneRows = j.map(e => `<a class="srow done" href="${e.href}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="txt"><span class="nm">${esc(e.title)}</span><span class="mt">${fmtDs(e.date).replace(/\.$/, "")} · ${esc(e.meta)}</span></span><span class="go">›</span></a>`).join("");
+  const dur = m => `<span class="du">${icon("clock")}${n0(m || 0)}'</span>`;
+  const srow = ({ s: x, n, last }) => { const dt = doneToday(x.id), tg = sessionTags(x);
+    return `<div class="srow c ${dt ? "on" : ""}">${canEdit() ? `<button class="chk" data-act="sess-check" data-sid="${x.id}" aria-pressed="${!!dt}" aria-label="${dt ? "Faite aujourd'hui : annuler" : "Marquer faite aujourd'hui"}">${dt ? "✓" : ""}</button>` : "<span></span>"}
+      <a href="#/seance/${x.id}" title="${esc(x.title)}${last ? ` · ${nf1(n)}× · dernière ${fmtDs(last).replace(/\.$/, "")}` : ""}"><span class="num">${x.n}</span><span class="nm">${esc(x.title)}</span>${tagIcons(tg)}${dur(x.duration)}</a></div>`; };
+  const doneRows = j.map(e => `<a class="srow c done" href="${e.href}" title="${esc(e.meta)}"><span class="chk on" aria-hidden="true">${e.part ? "½" : "✓"}</span><span class="row0"><span class="num dt">${D(e.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</span><span class="nm">${esc(e.title)}</span>${tagIcons(e.tags)}${dur(e.min)}</span></a>`).join("");
   const showTodo = st.includes("todo"), showDone = st.includes("done"), both = showTodo && showDone;
   const body = `<section class="view">
   ${goalGauge()}
@@ -1197,7 +1219,7 @@ document.addEventListener("submit", async e => {
     catch (x) { console.error(x); toast("Enregistrement impossible."); }
   }
 });
-document.addEventListener("toggle", e => { const d = e.target; if (d.classList && d.classList.contains("dd")) { if (d.open) { S.ddOpen = d.dataset.dd; document.querySelectorAll("details.dd[open]").forEach(o => { if (o !== d) o.open = false; }); } else if (S.ddOpen === d.dataset.dd) S.ddOpen = null; } }, true);
+document.addEventListener("toggle", e => { const d = e.target; if (d.classList && d.classList.contains("goal")) S.goalOpen = d.open; if (d.classList && d.classList.contains("dd")) { if (d.open) { S.ddOpen = d.dataset.dd; document.querySelectorAll("details.dd[open]").forEach(o => { if (o !== d) o.open = false; }); } else if (S.ddOpen === d.dataset.dd) S.ddOpen = null; } }, true);
 document.addEventListener("click", e => { if (!e.target.closest("details.dd")) document.querySelectorAll("details.dd[open]").forEach(o => { o.open = false; }); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
 boot();
