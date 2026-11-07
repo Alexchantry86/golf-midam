@@ -432,3 +432,18 @@ details.goal[open] .gexp{background:var(--navy);border-color:var(--navy);color:#
 .srow.c span.chk{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid var(--gold);width:24px;height:24px;font-size:12px}
 .srow.c span.chk.on{background:var(--ok);border-color:var(--ok);color:#fff}
 .srow.c .rep{flex:none;font-size:11px;color:var(--muted)}
+/* v1.21 fiche exercice */
+.exmeta{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0;font-size:12.5px;color:var(--ink)}
+.exmeta span{display:inline-flex;align-items:center;gap:4px}.exmeta .i{width:16px;height:16px;stroke-width:1.6;color:var(--muted)}
+.exobj{margin:0;font-size:15px;line-height:1.5}
+.card.ex{display:flex;flex-direction:column;gap:8px}
+.exh{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.card.ex>.exh:first-child{margin-top:0}
+.exok{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:10px 12px}
+.exok .i{width:20px;height:20px;color:var(--navy);margin-top:1px}.exok .lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.exok p{margin:2px 0 0;font-size:14px}
+.exeq{margin:0}
+.card.ex ol.steps{font-size:14.5px;gap:8px}
+ul.mk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+ul.mk li{position:relative;padding-left:22px;line-height:1.45}
+ul.mk li::before{position:absolute;left:0;top:0;width:16px;text-align:center;color:var(--muted)}
+ul.mk.bul li::before{content:"•"}ul.mk.yes li::before{content:"✓";color:var(--ok)}ul.mk.no li::before{content:"✕";color:var(--red);font-size:12px;top:1px}

@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.20.1";
+const APP_VERSION = "1.21.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -581,24 +581,30 @@ function vExercice(p) {
   const links = S.data.drillLinks.filter(l => l.drill === d.id);
   const lk = x => S.drillList.filter(o => o.id !== d.id).reduce((t, o) => t.split(esc(o.name)).join(`<a href="#/exercice/${o.id}">${esc(o.name)}</a>`), esc(x));
   const li = a => a && a.length ? `<ul class="plain small">${a.map(x => `<li>${lk(x)}</li>`).join("")}</ul>` : `<p class="small muted">—</p>`;
+  const nNotes = S.data.notes.filter(n => n.ref === "drill:" + d.id).length, nVid = (d.videos || []).length + links.length;
+  const sub = (t, x) => x && x.length ? `<h3 class="exh">${t}</h3>` : "";
+  const mk = (a, c) => a && a.length ? `<ul class="mk ${c}">${a.map(x => `<li>${lk(x)}</li>`).join("")}</ul>` : "";
   const body = `<section class="view">
-  <div class="row">${tagsHtml(d.tags)}<span class="pill">Défaut ciblé : ${esc(d.fault)}</span></div>
-  <p>${esc(d.objective)}</p>
-  <div class="card hl"><span class="lbl">Critère de réussite</span><p class="small" style="margin-top:3px">${esc(d.success)}</p></div>
-  <div class="dl"><a class="btn ghost sm" href="data/fiches/${d.id}.pdf" download="Fiche - ${esc(d.name)}.pdf">${icon("doc", "flex:none")} Fiche terrain à imprimer (PDF)</a><a class="xs" href="data/fiches/classeur-exercices.pdf" download="Classeur des exercices.pdf">Classeur des ${S.drillList.length} fiches</a></div>
+  <p class="exmeta">${(d.tags || []).map(t => `<span>${icon(TAG_IC[t] || "target")}${esc(t)}</span>`).join("")}${d.fault ? `<span class="muted">Défaut : ${esc(d.fault)}</span>` : ""}</p>
+  ${d.objective ? `<p class="exobj">${esc(d.objective)}</p>` : ""}
+  <div class="card ex">
+    ${d.success ? `<div class="exok">${icon("target", "flex:none")}<div><span class="lbl">Réussi si</span><p>${esc(d.success)}</p></div></div>` : ""}
+    ${sub("Mise en place", d.setup)}${mk(d.setup, "bul")}
+    ${d.equipment && d.equipment.length ? `<p class="xs muted exeq">Matériel : ${d.equipment.map(lk).join(" · ")}</p>` : ""}
+    ${sub("Déroulé", d.steps)}${d.steps && d.steps.length ? `<ol class="steps">${d.steps.map(x => `<li>${lk(x)}</li>`).join("")}</ol>` : ""}
+  </div>
+  ${(d.cues || []).length || (d.errors || []).length ? `<div class="card ex">${sub("Consignes clés", d.cues)}${mk(d.cues, "yes")}${sub("À éviter", d.errors)}${mk(d.errors, "no")}</div>` : ""}
   ${resultsCard(d, p[2])}
-  ${notesBlock("drill:" + d.id, { title: "Mes documents et notes", intro: "Photos (schéma, réglage, carte de score du practice), PDF (fiche de ton pro, protocole) ou simple note : tout reste attaché à cet exercice.", fileLabel: "Ajouter des photos ou des PDF (20 Mo max. par fichier)", btn: "Enregistrer" })}
-  <div class="card"><h2>Déroulé</h2><ol class="steps small">${(d.steps || []).map(x => `<li>${lk(x)}</li>`).join("")}</ol></div>
-  <div class="two"><div class="card"><h2>Matériel</h2>${li(d.equipment)}</div><div class="card"><h2>Mise en place</h2>${li(d.setup)}</div></div>
-  <div class="two"><div class="card"><h2>Consignes clés</h2>${li(d.cues)}</div><div class="card"><h2>Erreurs fréquentes</h2>${li(d.errors)}</div></div>
-  <div class="card"><h2>Vidéos et démonstrations</h2><div class="stack">
+  <details class="fold"><summary>${icon("play", "flex:none")} Vidéos et démonstrations<span class="xs muted">${nVid || ""}</span></summary><div class="stack" style="margin-top:10px">
     ${(d.videos || []).map(proVideo).join("")}
     ${links.map(l => { const y = ytId(l.url); return `<div class="stack">${y ? `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${y}" title="${esc(l.label || d.name)}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" loading="lazy"></iframe></div>` : ""}<div class="row between small"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>${canEdit() ? `<button class="btn ghost sm" data-act="del-link" data-id="${l._id}">Retirer</button>` : ""}</div></div>`; }).join("")}
     ${(d.refs || []).map(r => `<a class="small" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join("")}
     <a class="demo" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt || d.name)}" target="_blank" rel="noopener">${icon("play", "color:#c8372d;flex:none")}<span>Voir les démonstrations sur YouTube ↗</span></a>
     ${canEdit() ? `<form class="stack" data-form="link" data-drill="${d.id}"><div class="grid"><div class="f full"><label for="lk-url">Ajouter une vidéo (lien YouTube ou autre)</label><input id="lk-url" name="url" data-keep placeholder="https://youtu.be/…"></div><div class="f full"><label for="lk-label">Titre</label><input id="lk-label" name="label" data-keep placeholder="Ex. démo du pro"></div></div><div><button class="btn ghost sm" type="submit">Ajouter la vidéo</button></div></form>` : ""}
-  </div></div>
-  ${used.length ? `<div class="card"><h2>Séances qui l'utilisent</h2><div class="list">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">n° ${s.n || ""}</span></div></a>`).join("")}</div></div>` : ""}
+</div></details>
+  <details class="fold"><summary>${icon("clip", "flex:none")} Mes documents et notes<span class="xs muted">${nNotes || ""}</span></summary><div style="margin-top:8px">${notesBlock("drill:" + d.id, { title: "", intro: "Photos (schéma, carte de score du practice), PDF (fiche de ton pro) ou simple note : tout reste attaché à cet exercice.", fileLabel: "Ajouter des photos ou des PDF (20 Mo max. par fichier)", btn: "Enregistrer" })}</div></details>
+  ${used.length ? `<details class="fold"><summary>${icon("cal", "flex:none")} Séances qui l'utilisent<span class="xs muted">${used.length}</span></summary><div class="list" style="margin-top:8px">${used.map(s => `<a class="item" href="#/seance/${s.id}"><div class="head"><span>${esc(s.title)}</span><span class="small muted">n° ${s.n || ""}</span></div></a>`).join("")}</div></details>` : ""}
+  <div class="dl"><a class="btn ghost sm" href="data/fiches/${d.id}.pdf" download="Fiche - ${esc(d.name)}.pdf">${icon("doc", "flex:none")} Fiche à imprimer</a><a class="xs" href="data/fiches/classeur-exercices.pdf" download="Classeur des exercices.pdf">Classeur des ${S.drillList.length} fiches</a></div>
   </section>`;
   return { back: ["#", "Retour"], title: esc(d.name), body };
 }
@@ -607,7 +613,7 @@ function vExercice(p) {
 function notesBlock(ref, o = {}) {
   const notes = S.data.notes.filter(n => n.ref === ref).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   const k = ref.replace(/[^\w]/g, "_");
-  return `<div class="card"><h2>${o.title || "Notes"}</h2>${o.intro && !notes.length ? `<p class="small muted" style="margin:0 0 8px">${o.intro}</p>` : ""}
+  return `<div class="card">${o.title === "" ? "" : `<h2>${o.title || "Notes"}</h2>`}${o.intro && !notes.length ? `<p class="small muted" style="margin:0 0 8px">${o.intro}</p>` : ""}
   ${notes.length ? `<div class="list">${notes.map(n => `<div class="item"><div class="head"><span class="small muted">${fmtD(n.date)}</span>${canEdit() ? `<button class="btn ghost sm" data-act="del-note" data-id="${n._id}">Supprimer</button>` : ""}</div>
     ${n.text ? `<p class="pre small">${esc(n.text)}</p>` : ""}
     ${(n.files || []).map(f => /^image\//.test(f.type) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}" style="max-height:220px;max-width:100%;object-fit:contain;border-radius:10px;display:block"></a>` : `<a class="small" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)} (${sizeTxt(f.size || 0)}) ↗</a>`).join("")}</div>`).join("")}</div>` : ""}
