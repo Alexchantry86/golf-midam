@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.21.0";
+const APP_VERSION = "1.22.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -86,7 +86,7 @@ const icon = (k, st) => `<svg class="i" viewBox="0 0 24 24"${st ? ` style="${st}
 const S = {
   user: null, role: null, plan: null, drills: {}, drillList: [], profile: null,
   data: { completions: [], drillResults: [], messages: [], courseRequests: [], rounds: [], courses: [], lessons: [], sessions: [], validations: [], notes: [], videos: [], drillLinks: [] },
-  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", statusSel: ["todo"], tagSel: [], ddOpen: null, goalOpen: false, vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
+  catalog: [], setup: { q: "", club: null, course: null, tee: null }, loaded: false, planFilter: "todo", statusSel: ["todo"], tagSel: [], ddOpen: null, goalOpen: false, jSel: [], jMax: 60, vidFilter: "all", perf: { course: "", round: "all" }, draft: null, hole: 0, subs: [], run: null
 };
 const canEdit = () => S.role === "admin";
 const valOf = id => S.data.validations.find(v => v._id === id) || null;
@@ -192,14 +192,14 @@ function renderDenied(u) {
 }
 
 /* ---------- Rendu ---------- */
-const TAB_OF = { video: "plus", tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", cours: "plus", videos: "plus" };
+const TAB_OF = { video: "plus", tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", journal: "plus", cours: "plus", videos: "plus" };
 function parts() { return (location.hash.replace(/^#\/?/, "") || "tableau").split("/").map(decodeURIComponent); }
 function render() {
   if (!S.user) return;
   const p = parts(); const tab = TAB_OF[p[0]] || "tableau";
   const keep = {}; document.querySelectorAll("#view [data-keep]").forEach(el => { if (el.value) keep[el.id] = el.value; });
   const focusId = document.activeElement && document.activeElement.id;
-  const views = { video: vVideo, tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
+  const views = { video: vVideo, tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, journal: vJournal, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
   const v = views[p[0]] || vTableau;
   let out; try { out = v(p); } catch (e) { console.error(e); out = { body: `<div class="empty"><b>Erreur d'affichage</b>${esc(e.message)}</div>` }; }
   if (typeof out === "string") out = { body: out };
@@ -719,11 +719,78 @@ function vVideos() {
   return { back: ["#/plus", "Plus"], title: "Vidéos", body };
 }
 
+
+/* ---------- Journal : toutes les activités, horodatées ---------- */
+const J_KINDS = [["plan", "Séances du plan", "cal"], ["free", "Entraînements libres", "dumb"], ["round", "Parties", "flag"], ["lesson", "Cours", "user"], ["video", "Vidéos et analyses", "video"], ["result", "Résultats d'exercices", "chart"], ["note", "Notes et documents", "note"]];
+function stampOf(o) {   // horodatage réel de la saisie (at, sinon createdAt Firestore)
+  const t = o.at || o.createdAt; if (!t) return null;
+  const d = typeof t === "string" ? new Date(t) : t.toDate ? t.toDate() : t.seconds ? new Date(t.seconds * 1000) : null;
+  return d && !isNaN(d) ? d : null;
+}
+function refTarget(ref) {
+  const [t, id] = String(ref || "").split(":");
+  if (t === "plan") { const x = S.plan.sessions.find(y => y.id === id); return x ? ["#/seance/" + id, "Séance n° " + x.n] : null; }
+  if (t === "drill") { const d = S.drills[id]; return d ? ["#/exercice/" + id, d.name] : null; }
+  if (t === "free" && id !== "none") return ["#/entrainement/" + id, "Entraînement libre"];
+  if (t === "video") return ["#/video/" + id, "Vidéo"];
+  return null;
+}
+function journal() {
+  const a = [], push = (k, o, date, title, sub, href) => { if (!date) return; const st = stampOf(o); a.push({ k, date, st, title, sub, href, key: date + "T" + (st ? st.toISOString().slice(11, 19) : "00:00:00") }); };
+  for (const c of completions()) {
+    if (c.free) { const f = S.data.sessions.find(x => "free:" + x._id === c._id); if (f) push("free", f, f.date, (f.content || "Entraînement libre").split("\n")[0], `${n0(f.duration)} min${f.rating ? ` · ${f.rating}/5` : ""}`, "#/entrainement/" + f._id); continue; }
+    const x = S.plan.sessions.find(y => y.id === c.session); if (!x) continue;
+    push("plan", c, c.date, `${x.n ? "n° " + x.n + " · " : ""}${x.title}`, `${c.status === "Partielle" ? "Partielle" : "Faite"} · ${n0(c.actualMin ?? x.duration)} min${c.rating ? ` · ${c.rating}/5` : ""}`, "#/seance/" + x.id);
+  }
+  for (const r of S.data.rounds) { const c = roundCalc(r); push("round", r, r.date, r.course || "Partie", c.n ? `${c.score} (${sgn(c.score - c.par)}) · ${c.n} trous` : "Carte", "#/partie/" + r._id); }
+  for (const l of S.data.lessons) push("lesson", l, l.date, l.theme || "Cours", `Cours${l.pro ? " · " + l.pro : ""}`, "#/cours/" + l._id);
+  for (const v of S.data.videos) {
+    push("video", v, v.date, `${angleLabel(v.angle)}${v.club ? " · " + v.club : ""}`, "Vidéo ajoutée", "#/video/" + v._id);
+    const an = v.analysis || {}; if (an.status === "done" && an.at) push("video", { at: an.at }, String(an.at).slice(0, 10), `${angleLabel(v.angle)}${v.club ? " · " + v.club : ""}`, "Analyse du coach", "#/video/" + v._id);
+  }
+  for (const r of S.data.drillResults) { const d = S.drills[r.drill]; if (d) push("result", r, r.date, d.name, resultLine(d, r) || "Résultat", "#/exercice/" + d.id); }
+  for (const n of S.data.notes) { const t = refTarget(n.ref); const st = stampOf(n); push("note", n, n.date || (st && iso(st)), t ? t[1] : "Note", (n.files || []).length ? `${n.files.length} fichier${n.files.length > 1 ? "s" : ""}${n.text ? " · " + n.text.slice(0, 60) : ""}` : (n.text || "").slice(0, 80), t ? t[0] : "#/journal"); }
+  return a.sort((x, y) => y.key.localeCompare(x.key));
+}
+function journalChart(list) {   // activités par semaine, 12 dernières semaines
+  const W = 340, H = 96, L = 4, R = 4, T = 14, B = 18, N = 12, mon = d => { const x = D(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return iso(x); };
+  const w0 = mon(iso()), weeks = Array.from({ length: N }, (_, i) => { const x = D(w0); x.setDate(x.getDate() - 7 * (N - 1 - i)); return iso(x); });
+  const cnt = weeks.map(w => list.filter(e => mon(e.date) === w).length), mx = Math.max(3, ...cnt), bw = (W - L - R) / N;
+  let g = "";
+  weeks.forEach((w, i) => { const h = (H - T - B) * cnt[i] / mx, x = L + i * bw + 3, y = H - B - h;
+    g += `<rect x="${x}" y="${y}" width="${bw - 6}" height="${Math.max(h, cnt[i] ? 2 : 1)}" rx="2" fill="${i === N - 1 ? "#0f2340" : cnt[i] ? "#6b7280" : "#e5e7eb"}"/>`;
+    if (cnt[i]) g += `<text x="${x + (bw - 6) / 2}" y="${y - 3}" text-anchor="middle" font-size="10" fill="#6b7280">${cnt[i]}</text>`;
+    if (i % 3 === 0 || i === N - 1) g += `<text x="${i === N - 1 ? x + bw - 6 : x + (bw - 6) / 2}" y="${H - 4}" text-anchor="${i === N - 1 ? "end" : "middle"}" font-size="10" fill="#6b7280">${i === N - 1 ? "cette sem." : D(w).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "")}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Activités par semaine sur 12 semaines">${g}</svg>`;
+}
+function vJournal() {
+  const all = journal(), sel = S.jSel, l = sel.length ? all.filter(e => sel.includes(e.k)) : all;
+  const m0 = iso().slice(0, 7), pm = (() => { const x = D(iso()); x.setDate(1); x.setMonth(x.getMonth() - 1); return iso(x).slice(0, 7); })();
+  const nM = l.filter(e => e.date.slice(0, 7) === m0).length, nP = l.filter(e => e.date.slice(0, 7) === pm).length;
+  const ic = Object.fromEntries(J_KINDS.map(k => [k[0], k[2]])), lab = Object.fromEntries(J_KINDS.map(k => [k[0], k[1]]));
+  let cur = "", rows = "";
+  for (const e of l.slice(0, S.jMax)) {
+    const mo = e.date.slice(0, 7); if (mo !== cur) { if (cur) rows += `</div>`; cur = mo; const n = l.filter(x => x.date.slice(0, 7) === mo).length;
+      rows += `<div class="sec"><span>${D(mo + "-01").toLocaleDateString("fr-FR", { month: "long", year: "numeric" })} · ${n}</span></div><div class="jlist">`; }
+    const hr = e.st && iso(e.st) === e.date ? e.st.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
+    rows += `<a class="jrow" href="${e.href}"><span class="jd"><b>${D(e.date).getDate()}</b><small>${D(e.date).toLocaleDateString("fr-FR", { weekday: "short" }).replace(".", "")}</small></span><span class="jic" title="${esc(lab[e.k])}">${icon(ic[e.k])}</span><span class="jt"><span class="nm">${esc(e.title)}</span><span class="mt">${esc(e.sub)}</span></span><span class="jh">${hr}</span></a>`;
+  }
+  if (cur) rows += `</div>`;
+  const body = `<section class="view">
+  <div class="card"><div class="row between"><span class="small"><b class="jn">${nM}</b> activité${nM > 1 ? "s" : ""} ce mois-ci</span><span class="xs muted">${nP} le mois dernier</span></div>${journalChart(l)}</div>
+  <div class="ddrow">${dd("jk", "Activité", J_KINDS.map(k => [k[0], k[1], all.filter(e => e.k === k[0]).length]), sel)}</div>
+  ${l.length ? rows : emptyBox("Aucune activité", "Séances, parties, cours, vidéos, résultats et notes apparaîtront ici, du plus récent au plus ancien.")}
+  ${l.length > S.jMax ? `<button class="btn ghost wide" data-act="j-more">Afficher plus (${l.length - S.jMax})</button>` : ""}
+  </section>`;
+  return { back: ["#/plus", "Plus"], title: "Journal", body };
+}
+
 /* ---------- Plus : entraînements libres, cours, vidéos ---------- */
 function vPlus() {
   const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
   const it = (href, ic, col, t, s) => `<a href="${href}"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></a>`;
   const body = `<section class="view"><div class="card menu">
+    ${it("#/journal", "hist", "#374151", "Journal", `${journal().length} activités horodatées`)}
     ${it("#/entrainements", "dumb", "#2c5aa0", "Entraînements libres", `${S.data.sessions.length} séance${S.data.sessions.length > 1 ? "s" : ""} hors plan`)}
     ${it("#/cours", "user", "#a0612f", "Cours avec le pro", `${S.data.lessons.length} cours saisi${S.data.lessons.length > 1 ? "s" : ""}`)}
     ${it("#/videos", "video", "#c8372d", "Vidéos et analyses", pend ? `${pend} en attente d'analyse` : `${S.data.videos.length} vidéo${S.data.videos.length > 1 ? "s" : ""}`)}
@@ -754,14 +821,14 @@ function vEntrainement(p) {
   ${notesBlock("free:" + s._id)}${videosBlock("free:" + s._id)}</section>`;
   return { back: ["#/entrainements", "Entraînements libres"], title: esc(freeTags(s).join(" · ") || s.domain || "Entraînement"), body };
 }
-function vCours() {
-  const l = [...S.data.lessons].sort(byDateDesc);
-  const body = `<section class="view">${canEdit() ? `<button class="btn wide" data-act="form" data-kind="lesson">+ Cours avec le pro</button>` : ""}
+function vCours(p) {
+  const one = p && p[1], l = [...S.data.lessons].sort(byDateDesc).filter(x => !one || x._id === one);
+  const body = `<section class="view">${canEdit() && !one ? `<button class="btn wide" data-act="form" data-kind="lesson">+ Cours avec le pro</button>` : ""}
   ${l.length ? l.map(s => `<div class="card stack"><div class="row between"><h3>${esc(s.theme)}</h3><span class="small muted">${fmtD(s.date)}${s.pro ? " · " + esc(s.pro) : ""}</span></div>
   ${s.findings ? `<p class="small pre"><span class="lbl">Constats</span><br>${esc(s.findings)}</p>` : ""}${s.drills ? `<p class="small pre"><span class="lbl">Consignes</span><br>${esc(s.drills)}</p>` : ""}${s.toWork ? `<p class="small pre"><span class="lbl">À travailler</span><br>${esc(s.toWork)}</p>` : ""}
   <div class="row">${s.video ? `<a class="small" href="${esc(s.video)}" target="_blank" rel="noopener">Vidéo ↗</a>` : ""}${canEdit() ? `<button class="btn ghost sm" data-act="form" data-kind="lesson" data-id="${s._id}">Modifier</button>` : ""}</div></div>`).join("")
     : emptyBox("Aucun cours saisi", "Après chaque cours : thème, constats du pro, consignes et ce qui doit être travaillé.")}</section>`;
-  return { back: ["#/plus", "Plus"], title: "Cours avec le pro", body };
+  return { back: one ? ["#", "Retour"] : ["#/plus", "Plus"], title: one ? "Cours" : "Cours avec le pro", body };
 }
 
 /* ---------- Parties (UX Club-house) ---------- */
@@ -1139,8 +1206,9 @@ document.addEventListener("click", async e => {
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
-    case "dd": { const k = b.dataset.k, arr = k === "type" ? S.tagSel : S.statusSel, v = b.dataset.v, i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); S.ddOpen = k; render(); break; }
-    case "dd-all": { const k = b.dataset.k; if (k === "type") S.tagSel = []; else S.statusSel = []; S.ddOpen = null; render(); break; }
+    case "j-more": S.jMax += 60; render(); break;
+    case "dd": { const k = b.dataset.k, arr = k === "type" ? S.tagSel : k === "jk" ? S.jSel : S.statusSel, v = b.dataset.v, i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); S.ddOpen = k; render(); break; }
+    case "dd-all": { const k = b.dataset.k; if (k === "type") S.tagSel = []; else if (k === "jk") S.jSel = []; else S.statusSel = []; S.ddOpen = null; render(); break; }
     case "sess-check": { const x = S.plan.sessions.find(y => y.id === b.dataset.sid); if (x) { b.disabled = true; try { await markSession(x); } catch (e) { console.error(e); toast("Enregistrement impossible" + (e.code ? " · " + e.code : "")); b.disabled = false; } } break; }
     case "del-completion": if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirmer"; break; } await Store.del("completions", id); toast("Supprimée"); break;
     case "ex-toggle": { const s = S.plan.sessions.find(x => x.id === b.dataset.sid); if (!s) break; const d = doneOf(s).slice(); d[Number(b.dataset.i)] = !d[Number(b.dataset.i)]; const dt = doneToday(s.id);
