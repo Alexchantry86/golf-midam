@@ -20,3 +20,5 @@
   Vérifier par total, 18 SI distincts, longueurs = totaux publiés. Parcours absents saisis par Alexandre →
   collection Firestore `courseRequests` (visible dans l'export du dépôt data) : les rechercher, les ajouter au
   catalogue, puis passer la demande à `status: "done"` via l'export/Action.
+- Import (Plus › Import) : modèle `data/modele-import.xlsx` généré par `python3 tools/modele-import.py` (onglets Parties = une ligne par trou, Entraînements).
+  Lecture côté navigateur avec SheetJS embarqué (`js/vendor/xlsx.full.min.js`, chargé à la demande). Doublons (même date + parcours / même date + durée + contenu) écartés ; documents marqués `imported: true`.

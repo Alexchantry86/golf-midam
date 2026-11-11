@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.22.0";
+const APP_VERSION = "1.23.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -55,6 +55,7 @@ const IC = {
   play: '<path d="M8 5.5v13l10.5-6.5z"/>',
   chart: '<path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/>',
   clip: '<path d="M20 11.5l-8.3 8.3a5 5 0 0 1-7-7L13 4.5a3.3 3.3 0 0 1 4.7 4.7L9.4 17.5a1.7 1.7 0 0 1-2.4-2.4l7.6-7.6"/>',
+  imp: '<path d="M12 3v11M7.5 9.5 12 14l4.5-4.5M4 15v4.5h16V15"/>',
   hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
   note: '<path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4M8 9h8M8 13h5"/>',
   cam: '<path d="M3 7h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="13" r="3.5"/>',
@@ -192,14 +193,14 @@ function renderDenied(u) {
 }
 
 /* ---------- Rendu ---------- */
-const TAB_OF = { video: "plus", tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", journal: "plus", cours: "plus", videos: "plus" };
+const TAB_OF = { video: "plus", tableau: "tableau", plan: "plan", seance: "plan", exercice: "plan", parties: "parties", partie: "parties", plus: "plus", entrainements: "plus", entrainement: "plus", journal: "plus", import: "plus", cours: "plus", videos: "plus" };
 function parts() { return (location.hash.replace(/^#\/?/, "") || "tableau").split("/").map(decodeURIComponent); }
 function render() {
   if (!S.user) return;
   const p = parts(); const tab = TAB_OF[p[0]] || "tableau";
   const keep = {}; document.querySelectorAll("#view [data-keep]").forEach(el => { if (el.value) keep[el.id] = el.value; });
   const focusId = document.activeElement && document.activeElement.id;
-  const views = { video: vVideo, tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, journal: vJournal, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
+  const views = { video: vVideo, tableau: vTableau, plan: vPlan, seance: vSeance, exercice: vExercice, entrainements: vEntrainements, journal: vJournal, import: vImport, entrainement: vEntrainement, cours: vCours, parties: vParties, partie: vPartie, videos: vVideos, plus: vPlus };
   const v = views[p[0]] || vTableau;
   let out; try { out = v(p); } catch (e) { console.error(e); out = { body: `<div class="empty"><b>Erreur d'affichage</b>${esc(e.message)}</div>` }; }
   if (typeof out === "string") out = { body: out };
@@ -785,12 +786,143 @@ function vJournal() {
   return { back: ["#/plus", "Plus"], title: "Journal", body };
 }
 
+
+/* ---------- Import Excel / CSV : parties et entraînements ---------- */
+const nrm = x => String(x ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9<]/g, "");
+const IMP_R = { partie: "pid", carte: "pid", date: "date", parcours: "course", golf: "course", type: "type", repere: "tee", tee: "tee", cr: "cr", slope: "slope", trou: "hole", par: "par", score: "score", coups: "score", putts: "putts", fairway: "fw", fw: "fw", "<2mrates": "short", "putts<2mrates": "short", "2mrates": "short", penalites: "pen", notes: "notes" };
+const IMP_S = { date: "date", dureemin: "duration", duree: "duration", types: "tags", type: "tags", contenu: "content", mesureresultat: "result", mesure: "result", resultat: "result", qualite: "rating", sensationsremarques: "notes", remarques: "notes", sensations: "notes" };
+const R_TYPES = ["Compétition", "Partie qualificative", "Partie amicale", "Entraînement sur le parcours"];
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = "js/vendor/xlsx.full.min.js"; sc.onload = () => res(window.XLSX); sc.onerror = () => rej(new Error("Lecteur Excel indisponible")); document.head.appendChild(sc); });
+}
+function impDate(v) {
+  if (v == null || v === "") return null;
+  if (v instanceof Date) { if (isNaN(v)) return null; const d = new Date(v.getTime() + 12 * 3600e3); return iso(d); }
+  if (typeof v === "number" && window.XLSX) { const c = XLSX.SSF.parse_date_code(v); return c ? `${c.y}-${String(c.m).padStart(2, "0")}-${String(c.d).padStart(2, "0")}` : null; }
+  const t = String(v).trim(); let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  m = t.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; }
+  return null;
+}
+const impNum = v => { if (v == null || v === "") return null; const n = Number(String(v).replace(",", ".").trim()); return isFinite(n) ? n : NaN; };
+function impFw(v) { const t = nrm(v); if (!t) return null; if (/^(t|touche|y|oui|x|ok|1)$/.test(t)) return "Y"; if (/^(g|gauche|l|left)$/.test(t)) return "L"; if (/^(d|droite|r|right)$/.test(t)) return "R"; return undefined; }
+function impTags(v) {
+  const out = [], bad = [];
+  for (const p of String(v ?? "").split(/[,;\/+]| et /).map(x => x.trim()).filter(Boolean)) {
+    const t = nrm(p), m = TAGS.find(x => nrm(x) === t) || (/physi|muscu|mobil/.test(t) ? "Physique" : /long|driv|fer|bois/.test(t) ? "Long jeu" : /wedg|pitch/.test(t) ? "Wedging" : /chip|approche/.test(t) ? "Chipping" : /bunk|sable/.test(t) ? "Bunker" : /putt/.test(t) ? "Putting" : null);
+    if (m) { if (!out.includes(m)) out.push(m); } else bad.push(p);
+  }
+  return { tags: out, bad };
+}
+function impTable(rows, map, key) {   // repère la ligne d'en-tête, renvoie des objets clés internes + n° de ligne Excel
+  const hi = rows.slice(0, 8).findIndex(r => (r || []).some(c => map[nrm(c)] === key)); if (hi < 0) return null;
+  const cols = rows[hi].map(c => map[nrm(c)] || null), out = [];
+  rows.slice(hi + 1).forEach((r, i) => { if (!r || r.every(c => c == null || String(c).trim() === "")) return; const o = { _line: hi + i + 2 }; cols.forEach((k, j) => { if (k && o[k] == null) o[k] = r[j]; }); out.push(o); });
+  return out;
+}
+function parseImport(wb) {
+  const res = { rounds: [], sessions: [], sheets: [] };
+  for (const name of wb.SheetNames) {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null });
+    const R = impTable(rows, IMP_R, "hole");
+    if (R) {
+      res.sheets.push(name); const by = new Map(); let last = null;
+      for (const o of R) {
+        const help = !impDate(o.date) && o.date != null && isNaN(impNum(o.hole)); if (help) continue;   // ligne d'aide du modèle
+        const pid = o.pid != null && String(o.pid).trim() !== "" ? String(o.pid).trim() : last; last = pid;
+        const k = pid ?? "?"; if (!by.has(k)) by.set(k, { pid: k, lines: [], holes: [], errs: [] }); const g = by.get(k); g.lines.push(o._line);
+        for (const f of ["date", "course", "type", "tee", "cr", "slope", "notes"]) if (g[f] == null && o[f] != null && String(o[f]).trim() !== "") g[f] = o[f];
+        const n = impNum(o.hole), par = impNum(o.par), sc = impNum(o.score), pu = impNum(o.putts), fw = impFw(o.fw), sh = impNum(o.short), pen = impNum(o.pen), L = `ligne ${o._line}`;
+        if (!Number.isInteger(n) || n < 1 || n > 18) { g.errs.push(`${L} : n° de trou invalide`); continue; }
+        if (!Number.isInteger(par) || par < 3 || par > 6) { g.errs.push(`${L} : par invalide`); continue; }
+        if (!Number.isInteger(sc) || sc < 1 || sc > 15) { g.errs.push(`${L} : score invalide`); continue; }
+        if (pu != null && (!Number.isInteger(pu) || pu < 0 || pu > sc)) { g.errs.push(`${L} : putts invalides`); continue; }
+        if (fw === undefined) { g.errs.push(`${L} : fairway « ${o.fw} » (Touché, Gauche ou Droite)`); continue; }
+        if (g.holes.some(h => h.n === n)) { g.errs.push(`${L} : trou ${n} en double`); continue; }
+        g.holes.push({ n, par, score: sc, putts: pu, fw: par >= 4 ? fw : null, short: Number.isFinite(sh) ? sh : 0, pen: Number.isFinite(pen) ? pen : 0 });
+      }
+      for (const g of by.values()) {
+        g.date = impDate(g.date); g.course = g.course != null ? String(g.course).trim() : ""; g.holes.sort((a, b) => a.n - b.n);
+        g.type = R_TYPES.find(t => nrm(t) === nrm(g.type)) || "Compétition"; g.tee = g.tee != null ? String(g.tee).trim() : null;
+        g.cr = Number.isFinite(impNum(g.cr)) ? impNum(g.cr) : null; g.slope = Number.isFinite(impNum(g.slope)) ? impNum(g.slope) : null;
+        if (!g.date) g.errs.unshift("date manquante ou illisible"); if (!g.course) g.errs.unshift("parcours manquant"); if (!g.holes.length) g.errs.unshift("aucun trou valide");
+        g.dup = !!(g.date && g.course && S.data.rounds.some(r => r.date === g.date && nrm(r.course) === nrm(g.course)));
+        res.rounds.push(g);
+      }
+      continue;
+    }
+    const E = impTable(rows, IMP_S, "duration");
+    if (E) {
+      res.sheets.push(name);
+      for (const o of E) {
+        const d = impDate(o.date), du = impNum(o.duration); if (!d && isNaN(du)) continue;   // ligne d'aide
+        const errs = [], { tags, bad } = impTags(o.tags), rt = impNum(o.rating);
+        if (!d) errs.push("date manquante ou illisible"); if (!(du > 0 && du < 1000)) errs.push("durée invalide");
+        if (!tags.length) errs.push("type manquant"); if (bad.length) errs.push(`type inconnu : ${bad.join(", ")}`);
+        if (rt != null && !(Number.isInteger(rt) && rt >= 1 && rt <= 5)) errs.push("qualité de 1 à 5");
+        const txt = k => o[k] != null ? String(o[k]).trim() : "";
+        const x = { line: o._line, date: d, duration: du, tags, content: txt("content"), result: txt("result"), rating: rt != null && !isNaN(rt) ? String(rt) : "", notes: txt("notes"), errs };
+        if (!x.content) x.content = tags.join(" · ") + (x.notes ? " — " + x.notes.split("\n")[0].slice(0, 80) : "");
+        x.dup = !!(d && S.data.sessions.some(f => f.date === d && Number(f.duration) === du && nrm(f.content) === nrm(x.content)));
+        res.sessions.push(x);
+      }
+    }
+  }
+  return res;
+}
+async function saveImportedRound(g) {
+  const cName = g.course; let c = S.data.courses.find(x => nrm(x.name) === nrm(cName)), courseId = c ? c._id : null;
+  const pars = c && c.pars ? c.pars.slice() : Array(18).fill(null); for (const h of g.holes) pars[h.n - 1] = h.par;
+  if (courseId) await Store.set("courses", courseId, { name: c.name, pars }, true); else courseId = await Store.add("courses", { name: cName, pars });
+  const calc = roundCalc({ holesData: g.holes });
+  await Store.add("rounds", { date: g.date, type: g.type, courseId, course: c ? c.name : cName, holesCount: g.holes.length, startHole: g.holes[0].n, holesData: g.holes, cost: "", notes: g.notes ? String(g.notes) : "",
+    tee: g.tee || null, cr: g.cr, slope: g.slope, catalogId: null, imported: true,
+    diff: calc.n === 18 && g.cr && g.slope ? Math.round(113 / g.slope * (calc.score - g.cr) * 10) / 10 : null,
+    score: calc.score, par: calc.par, putts: calc.putts, fwHit: calc.fwHit, fwPoss: calc.fwPoss, missL: calc.missL, missR: calc.missR, gir: calc.gir, scr: calc.scr, scrOpp: calc.scrOpp, three: calc.three, short: calc.short, pen: calc.pen });
+}
+async function readImportFile(file) {
+  S.imp = { name: file.name, busy: true }; render();
+  try {
+    const X = await loadXLSX(), buf = await file.arrayBuffer();
+    const wb = X.read(buf, { type: "array", cellDates: true, codepage: 65001, raw: /\.csv$/i.test(file.name) });
+    const r = parseImport(wb); S.imp = { name: file.name, ...r };
+    if (!r.sheets.length) S.imp.fatal = "Aucun onglet reconnu : il faut une colonne « Trou » (parties) ou « Durée (min) » (entraînements). Pars du modèle.";
+  } catch (e) { console.error(e); S.imp = { name: file.name, fatal: "Fichier illisible : " + (e.message || e) }; }
+  render();
+}
+function vImport() {
+  const I = S.imp, okR = I && I.rounds ? I.rounds.filter(g => !g.errs.length && !g.dup) : [], okS = I && I.sessions ? I.sessions.filter(x => !x.errs.length && !x.dup) : [];
+  const st = o => o.errs.length ? `<span class="pill warn">à corriger</span>` : o.dup ? `<span class="pill">déjà présente</span>` : `<span class="pill ok">prête</span>`;
+  const errs = o => o.errs.length ? `<span class="ie">${o.errs.map(esc).join(" · ")}</span>` : "";
+  let prev = "";
+  if (I && I.busy) prev = `<p class="small muted">Lecture de ${esc(I.name)}…</p>`;
+  else if (I && I.fatal) prev = `<div class="card"><p class="small">${esc(I.fatal)}</p></div>`;
+  else if (I && I.done) prev = `<div class="card stack"><p class="small">Import terminé : ${I.done.r} partie${I.done.r > 1 ? "s" : ""} et ${I.done.s} entraînement${I.done.s > 1 ? "s" : ""} ajoutés.</p><div class="row">${I.done.r ? `<a class="btn ghost sm" href="#/parties">Voir les parties</a>` : ""}<a class="btn ghost sm" href="#/journal">Voir le journal</a></div></div>`;
+  else if (I && I.sheets) {
+    prev = `<div class="card stack"><div class="row between"><span class="small">${esc(I.name)}</span><button class="btn ghost sm" data-act="imp-reset">Annuler</button></div>
+    ${I.rounds.length ? `<div class="sec"><span>Parties · ${I.rounds.length}</span></div><div class="ilist">${I.rounds.map(g => { const c = g.holes.length ? roundCalc({ holesData: g.holes }) : null;
+      return `<div class="irow"><span class="it"><span class="nm">${g.date ? fmtD(g.date) : "—"} · ${esc(g.course || "?")}</span><span class="mt">${c ? `${c.score} (${sgn(c.score - c.par)}) · ${c.n} trou${c.n > 1 ? "s" : ""}` : ""}${g.tee ? " · " + esc(g.tee) : ""}</span>${errs(g)}</span>${st(g)}</div>`; }).join("")}</div>` : ""}
+    ${I.sessions.length ? `<div class="sec"><span>Entraînements · ${I.sessions.length}</span></div><div class="ilist">${I.sessions.map(x => `<div class="irow"><span class="it"><span class="nm">${x.date ? fmtD(x.date) : "—"} · ${Number.isFinite(x.duration) ? n0(x.duration) + " min" : "?"} · ${esc(x.tags.join(", ") || "?")}</span><span class="mt">${esc(x.content)}</span>${errs(x)}</span>${st(x)}</div>`).join("")}</div>` : ""}
+    ${!I.rounds.length && !I.sessions.length ? `<p class="small muted">Le fichier ne contient aucune ligne remplie.</p>` : ""}
+    ${okR.length + okS.length ? `<button class="btn wide" data-act="imp-go">Importer ${okR.length ? `${okR.length} partie${okR.length > 1 ? "s" : ""}` : ""}${okR.length && okS.length ? " et " : ""}${okS.length ? `${okS.length} entraînement${okS.length > 1 ? "s" : ""}` : ""}</button>` : ""}
+    ${I.rounds.concat(I.sessions).some(o => o.errs.length || o.dup) ? `<p class="xs muted">Les lignes « à corriger » ou « déjà présentes » ne sont pas importées. Corrige le fichier et recharge-le si besoin.</p>` : ""}</div>`;
+  }
+  const body = `<section class="view">
+  <div class="card stack"><h2>1. Modèle Excel</h2><p class="small muted">Un onglet « Parties » (une ligne par trou) et un onglet « Entraînements » (une ligne par séance). Mode d'emploi dans l'onglet « Lisez-moi ».</p>
+  <a class="btn ghost sm" href="data/modele-import.xlsx" download="Modele import Golf Mid-Am.xlsx">${icon("doc", "flex:none")} Télécharger le modèle</a></div>
+  ${canEdit() ? `<div class="card stack"><h2>2. Importer le fichier</h2><p class="small muted">.xlsx ou .csv. Un aperçu s'affiche avant tout enregistrement ; les doublons sont écartés.</p>
+  <label class="btn sm filebtn">${icon("imp", "flex:none")} Choisir un fichier<input type="file" id="imp-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden></label></div>${prev}` : `<p class="small muted">Import réservé au propriétaire du compte.</p>`}
+  </section>`;
+  return { back: ["#/plus", "Plus"], title: "Import", body };
+}
+
 /* ---------- Plus : entraînements libres, cours, vidéos ---------- */
 function vPlus() {
   const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
   const it = (href, ic, col, t, s) => `<a href="${href}"><span class="ic" style="background:${col}">${icon(ic)}</span><span>${t}<small>${s}</small></span></a>`;
   const body = `<section class="view"><div class="card menu">
     ${it("#/journal", "hist", "#374151", "Journal", `${journal().length} activités horodatées`)}
+    ${it("#/import", "imp", "#4b5563", "Import", "Parties et entraînements depuis Excel")}
     ${it("#/entrainements", "dumb", "#2c5aa0", "Entraînements libres", `${S.data.sessions.length} séance${S.data.sessions.length > 1 ? "s" : ""} hors plan`)}
     ${it("#/cours", "user", "#a0612f", "Cours avec le pro", `${S.data.lessons.length} cours saisi${S.data.lessons.length > 1 ? "s" : ""}`)}
     ${it("#/videos", "video", "#c8372d", "Vidéos et analyses", pend ? `${pend} en attente d'analyse` : `${S.data.videos.length} vidéo${S.data.videos.length > 1 ? "s" : ""}`)}
@@ -1206,6 +1338,13 @@ document.addEventListener("click", async e => {
     case "close-go": closeSheet(); break;
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
+    case "imp-reset": S.imp = null; render(); break;
+    case "imp-go": { const I = S.imp; if (!I || I.saving) break; I.saving = true; b.disabled = true; b.textContent = "Import en cours…"; let r = 0, s2 = 0;
+      try { for (const g of I.rounds.filter(g => !g.errs.length && !g.dup)) { await saveImportedRound(g); r++; }
+        for (const x of I.sessions.filter(x => !x.errs.length && !x.dup)) { await Store.add("sessions", { date: x.date, duration: x.duration, tags: x.tags, content: x.content, result: x.result, rating: x.rating, notes: x.notes, imported: true }); s2++; }
+        S.imp = { done: { r, s: s2 } }; toast("Import terminé"); }
+      catch (e) { console.error(e); S.imp = { done: { r, s: s2 } }; toast(`Import interrompu après ${r + s2} élément(s)` + (e.code ? " · " + e.code : "")); }
+      render(); break; }
     case "j-more": S.jMax += 60; render(); break;
     case "dd": { const k = b.dataset.k, arr = k === "type" ? S.tagSel : k === "jk" ? S.jSel : S.statusSel, v = b.dataset.v, i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); S.ddOpen = k; render(); break; }
     case "dd-all": { const k = b.dataset.k; if (k === "type") S.tagSel = []; else if (k === "jk") S.jSel = []; else S.statusSel = []; S.ddOpen = null; render(); break; }
@@ -1259,6 +1398,7 @@ function defaultTee() { const f = findCourse(S.setup.course); if (!f) return; co
   const t = f.course.tees.find(x => x.name === saved) || f.course.tees.find(x => x.name === "Blanc" && x.gender === "M") || f.course.tees.find(x => x.gender === "M") || f.course.tees[0]; S.setup.tee = t ? t.name : null; }
 document.addEventListener("input", e => { if (e.target.id === "ed-search") { S.setup.q = e.target.value; S.setup.newName = null; const el = document.getElementById("course-sugg"); if (el) el.innerHTML = suggList(S.setup.q); } });
 document.addEventListener("change", e => {
+  if (e.target.id === "imp-file") { const f = e.target.files && e.target.files[0]; if (f) readImportFile(f); return; }
   const el = e.target.closest("[data-act-change]"); if (!el) return;
   if (el.dataset.actChange === "perf-course") { S.perf.course = el.value; S.perf.round = "all"; }
   if (el.dataset.actChange === "perf-round") S.perf.round = el.value;
