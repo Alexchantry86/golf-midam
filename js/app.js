@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.23.0";
+const APP_VERSION = "1.24.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -361,7 +361,13 @@ function vTableau() {
   return { kicker: fmtDl(iso()), title: "Bonjour Alexandre", body };
 }
 
-/* Activité : trous joués, parties de 18 trous, score moyen (12 derniers mois) */
+/* Historique de jeu sans carte (profile/main.playHistory : [{date, holes, course, notes}]) — alimente les trous joués.
+   Une entrée est ignorée si une carte existe le même jour avec le même nombre de trous (pas de double comptage). */
+function playHistory() {
+  const h = (S.profile && S.profile.playHistory) || [], used = new Set();
+  return h.filter(x => { const i = S.data.rounds.findIndex((r, k) => !used.has(k) && r.date === x.date && roundCalc(r).n === Number(x.holes)); if (i >= 0) { used.add(i); return false; } return true; });
+}
+/* Activité : trous joués, parties de 18 trous, score moyen (12 derniers mois ou tout l'historique) */
 function sessionsChart() {
   const g = goal(), mon = d => mondayOf(d), cur = mon(iso()), cs = completions().filter(c => c.date >= g.start && c.date <= iso());
   const weeks = []; for (let w = mon(g.start); w <= cur; w = iso(new Date(D(w).getTime() + 7 * 864e5))) weeks.push(w);
@@ -395,18 +401,24 @@ function sessionsChart() {
   <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:0;border-top:2px dashed #2f6b45;vertical-align:3px"></i> rythme visé</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (séances)</span></div></div>`;
 }
 function activityChart() {
-  const months = []; const now = new Date(); for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
+  const all = lsGet("golf-act-all", false), hist = playHistory(), now = new Date();
+  const first = [...S.data.rounds.map(r => r.date), ...hist.map(x => x.date)].filter(Boolean).sort()[0];
+  let n = 12; if (all && first) { const f = D(first); n = Math.max(12, (now.getFullYear() - f.getFullYear()) * 12 + now.getMonth() - f.getMonth() + 1); }
+  const months = []; for (let k = n - 1; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
   const by = Object.fromEntries(months.map(m => [m, { holes: 0, r18: 0, sc: [], tp: [] }]));
   for (const r of S.data.rounds) { const m = (r.date || "").slice(0, 7); if (!by[m]) continue; const c = roundCalc(r); if (!c.n) continue;
     const o = by[m]; o.holes += c.n; if (c.n === 18) { o.r18++; o.sc.push(c.score); } o.tp.push((c.score - c.par) * 18 / c.n); }
+  for (const x of hist) { const o = by[(x.date || "").slice(0, 7)], h = Number(x.holes) || 0; if (!o || !h) continue; o.holes += h; if (h === 18) o.r18++; }
   const tot = months.reduce((a, m) => ({ holes: a.holes + by[m].holes, r18: a.r18 + by[m].r18, sc: a.sc.concat(by[m].sc), tp: a.tp.concat(by[m].tp) }), { holes: 0, r18: 0, sc: [], tp: [] });
-  if (!tot.holes) return `<div class="card"><h2>Activité · 12 mois</h2><p class="small muted">Les trous joués, les parties de 18 trous et le score moyen apparaîtront ici dès ta première carte.</p></div>`;
+  const per = `<div class="seg" style="width:118px;flex:none;gap:4px"><button type="button" data-act="act-per" data-v="12" aria-pressed="${!all}" style="padding:4px 2px;font-size:11px">12 mois</button><button type="button" data-act="act-per" data-v="all" aria-pressed="${all}" style="padding:4px 2px;font-size:11px">Tout</button></div>`;
+  const head = `<div class="row between" style="align-items:center;flex-wrap:nowrap;gap:8px;margin-bottom:8px"><h2 style="margin:0;min-width:0">Activité · ${all && first ? "depuis " + D(months[0] + "-15").toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "") : "12 mois"}</h2>${first ? per : ""}</div>`;
+  if (!tot.holes) return `<div class="card">${head}<p class="small muted">Les trous joués, les parties de 18 trous et le score moyen apparaîtront ici dès ta première carte.</p></div>`;
   const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
-  const W = 360, L = 28, R = 6, cw = (W - L - R) / 12, bw = cw * 0.62;
+  const W = 360, L = 28, R = 6, cw = (W - L - R) / months.length, bw = cw * 0.62, dense = months.length > 12;
   const sT = 24, sB = 128, bT = 158, bB = 262, H = 280;   // bande score (écart au par / 18 trous) en haut, trous joués en bas
   const maxH = Math.max(18, ...months.map(m => by[m].holes)); const top = Math.ceil(maxH / 18) * 18;
   const Y = v => bB - v / top * (bB - bT);
-  const allTp = months.flatMap(m => by[m].tp);
+  const allTp = months.flatMap(m => by[m].tp); if (!allTp.length) allTp.push(0);
   const lo = Math.min(-1, Math.floor(Math.min(...allTp))) - 0.5, hi = Math.max(2, Math.ceil(Math.max(...allTp))) + 0.5;
   const YS = v => sT + (v - lo) / (hi - lo) * (sB - sT);   // sous le par en haut
   const cx = i => L + i * cw + cw / 2;
@@ -417,18 +429,19 @@ function activityChart() {
   const step = hi - lo > 6 ? 2 : 1;
   for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) g += `<line x1="${L}" x2="${W - R}" y1="${YS(v)}" y2="${YS(v)}" stroke="${v === 0 ? "#0f2340" : "#eadfc8"}" stroke-width="${v === 0 ? 1.2 : 1}"/><text x="${L - 4}" y="${YS(v) + 3}" text-anchor="end" font-size="9" fill="${v === 0 ? "#0f2340" : "#7d7462"}" font-weight="${v === 0 ? 700 : 400}">${v === 0 ? "par" : sgnS(v)}</text>`;
   months.forEach((m, i) => { const t = by[m].tp; if (!t.length) return; const mn = Math.min(...t), mx = Math.max(...t), av = avg(t), x = cx(i);
-    if (t.length > 1) g += `<line x1="${x}" x2="${x}" y1="${YS(mn)}" y2="${YS(mx)}" stroke="#0f2340" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/>`;
+    if (t.length > 1) g += `<line x1="${x}" x2="${x}" y1="${YS(mn)}" y2="${YS(mx)}" stroke="#0f2340" stroke-opacity=".35" stroke-width="${dense ? Math.max(2, Math.min(5, cw * 0.35)) : 5}" stroke-linecap="round"/>`;
     const col = av <= 0 ? "#2f6b45" : av < 3 ? "#c9a227" : "#c8372d";
-    g += `<circle cx="${x}" cy="${YS(av)}" r="5.5" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
+    g += `<circle cx="${x}" cy="${YS(av)}" r="${dense ? Math.max(2.5, Math.min(5.5, cw * 0.4)) : 5.5}" fill="${col}" stroke="#fff" stroke-width="${dense ? 1 : 1.5}"/>`; if (dense) return;
     const below = YS(av) < sT + 14; g += `<text x="${x}" y="${below ? YS(Math.max(av, mx)) + 15 : YS(Math.min(av, mn)) - 7}" text-anchor="middle" font-size="8.5" fill="${col}" font-weight="700">${sgnS(Math.round(av * 10) / 10)}</text>`; });
   for (let v = 0; v <= top; v += top > 72 ? 36 : 18) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eadfc8"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#7d7462">${v}</text>`;
   months.forEach((m, i) => { const o = by[m], x = cx(i) - bw / 2;
     if (o.holes) { g += `<rect x="${x}" y="${Y(o.holes)}" width="${bw}" height="${bB - Y(o.holes)}" rx="2.5" fill="#c9b48c"/>`;
       if (o.r18) g += `<rect x="${x}" y="${Y(o.r18 * 18)}" width="${bw}" height="${bB - Y(o.r18 * 18)}" rx="2.5" fill="#0f2340"/>`;
-      g += `<text x="${cx(i)}" y="${Y(o.holes) - 4}" text-anchor="middle" font-size="9" fill="#0f2340" font-weight="700">${o.holes}</text>`;
-      if (o.r18 && bB - Y(o.r18 * 18) > 13) g += `<text x="${cx(i)}" y="${bB - 4}" text-anchor="middle" font-size="8.5" fill="#f3ead8" font-weight="700">${o.r18}×</text>`; }
-    g += `<text x="${cx(i)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#7d7462">${D(m + "-15").toLocaleDateString("fr-FR", { month: "short" }).replace(".", "").slice(0, 4)}</text>`; });
-  return `<div class="card"><h2>Activité · 12 mois</h2>
+      if (!dense) g += `<text x="${cx(i)}" y="${Y(o.holes) - 4}" text-anchor="middle" font-size="9" fill="#0f2340" font-weight="700">${o.holes}</text>`;
+      if (!dense && o.r18 && bB - Y(o.r18 * 18) > 13) g += `<text x="${cx(i)}" y="${bB - 4}" text-anchor="middle" font-size="8.5" fill="#f3ead8" font-weight="700">${o.r18}×</text>`; }
+    if (!dense) g += `<text x="${cx(i)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#7d7462">${D(m + "-15").toLocaleDateString("fr-FR", { month: "short" }).replace(".", "").slice(0, 4)}</text>`;
+    else if (m.endsWith("-01") || i === 0) g += `<line x1="${L + i * cw}" x2="${L + i * cw}" y1="${bT}" y2="${bB + 4}" stroke="#d8cbb0"/><text x="${L + i * cw + 2}" y="${H - 4}" font-size="9" fill="#7d7462">${m.endsWith("-01") ? m.slice(0, 4) : ""}</text>`; });
+  return `<div class="card">${head}
   <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
     <div class="kpi"><div class="l">Trous</div><div class="v">${n0(tot.holes)}</div><div class="s">joués</div></div>
     <div class="kpi"><div class="l">Parties 18 t.</div><div class="v">${tot.r18}</div><div class="s">+ ${n0(tot.holes - tot.r18 * 18)} trous</div></div>
@@ -436,7 +449,7 @@ function activityChart() {
   </div>
   <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Trous joués, parties de 18 trous et score moyen par mois">${g}</svg>
   <div class="row xs muted" style="gap:14px;margin-top:4px"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> trous joués</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> dont parties de 18 trous (n×)</span></div>
-  <p class="xs muted" style="margin-top:6px">Score : point = moyenne du mois, trait = meilleure et moins bonne carte. Chaque carte est ramenée à 18 trous (écart au par × 18 ÷ trous joués) : une carte de 9 trous à +2 compte +4. Vert : sous le par · jaune : moins de +3 · rouge : +3 et plus.</p></div>`;
+  ${hist.length ? `<p class="xs muted" style="margin-top:6px">Trous joués : cartes + historique sans carte (Plus › Import).</p>` : ""}<p class="xs muted" style="margin-top:6px">Score : point = moyenne du mois, trait = meilleure et moins bonne carte. Chaque carte est ramenée à 18 trous (écart au par × 18 ÷ trous joués) : une carte de 9 trous à +2 compte +4. Vert : sous le par · jaune : moins de +3 · rouge : +3 et plus.</p></div>`;
 }
 function indexChart(target, tDate) {
   const h = ((S.profile && S.profile.indexHistory) || []).slice().sort((a, b) => a.date.localeCompare(b.date));
@@ -791,6 +804,7 @@ function vJournal() {
 const nrm = x => String(x ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9<]/g, "");
 const IMP_R = { partie: "pid", carte: "pid", date: "date", parcours: "course", golf: "course", type: "type", repere: "tee", tee: "tee", cr: "cr", slope: "slope", trou: "hole", par: "par", score: "score", coups: "score", putts: "putts", fairway: "fw", fw: "fw", "<2mrates": "short", "putts<2mrates": "short", "2mrates": "short", penalites: "pen", notes: "notes" };
 const IMP_S = { date: "date", dureemin: "duration", duree: "duration", types: "tags", type: "tags", contenu: "content", mesureresultat: "result", mesure: "result", resultat: "result", qualite: "rating", sensationsremarques: "notes", remarques: "notes", sensations: "notes" };
+const IMP_H = { date: "date", trous: "holes", nbtrous: "holes", nombredetrous: "holes", trousjoues: "holes", golf: "course", parcours: "course", notes: "notes", commentaire: "notes", commentaires: "notes" };
 const R_TYPES = ["Compétition", "Partie qualificative", "Partie amicale", "Entraînement sur le parcours"];
 function loadXLSX() {
   if (window.XLSX) return Promise.resolve(window.XLSX);
@@ -821,7 +835,7 @@ function impTable(rows, map, key) {   // repère la ligne d'en-tête, renvoie de
   return out;
 }
 function parseImport(wb) {
-  const res = { rounds: [], sessions: [], sheets: [] };
+  const res = { rounds: [], sessions: [], hist: [], sheets: [] };
   for (const name of wb.SheetNames) {
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null });
     const R = impTable(rows, IMP_R, "hole");
@@ -866,6 +880,18 @@ function parseImport(wb) {
         x.dup = !!(d && S.data.sessions.some(f => f.date === d && Number(f.duration) === du && nrm(f.content) === nrm(x.content)));
         res.sessions.push(x);
       }
+      continue;
+    }
+    const Hh = impTable(rows, IMP_H, "holes");
+    if (Hh) {
+      res.sheets.push(name); const prevH = (S.profile && S.profile.playHistory) || [];
+      for (const o of Hh) {
+        const d = impDate(o.date), h = impNum(o.holes); if (!d && isNaN(h)) continue;   // ligne d'aide
+        const errs = []; if (!d) errs.push("date manquante ou illisible"); if (!(Number.isInteger(h) && h >= 1 && h <= 36)) errs.push("nombre de trous invalide");
+        const x = { line: o._line, date: d, holes: h, course: o.course != null ? String(o.course).trim() : "", notes: o.notes != null ? String(o.notes).trim() : "", errs };
+        x.dup = !!(d && (prevH.concat(res.hist.filter(y => !y.errs.length)).some(y => y.date === d && Number(y.holes) === h && nrm(y.course) === nrm(x.course) && nrm(y.notes) === nrm(x.notes))));
+        res.hist.push(x);
+      }
     }
   }
   return res;
@@ -891,27 +917,30 @@ async function readImportFile(file) {
   render();
 }
 function vImport() {
-  const I = S.imp, okR = I && I.rounds ? I.rounds.filter(g => !g.errs.length && !g.dup) : [], okS = I && I.sessions ? I.sessions.filter(x => !x.errs.length && !x.dup) : [];
+  const I = S.imp, okR = I && I.rounds ? I.rounds.filter(g => !g.errs.length && !g.dup) : [], okS = I && I.sessions ? I.sessions.filter(x => !x.errs.length && !x.dup) : [], okH = I && I.hist ? I.hist.filter(x => !x.errs.length && !x.dup) : [];
+  const nH = ((S.profile && S.profile.playHistory) || []).length, plH = n => `${n} partie${n > 1 ? "s" : ""} d'historique`;
   const st = o => o.errs.length ? `<span class="pill warn">à corriger</span>` : o.dup ? `<span class="pill">déjà présente</span>` : `<span class="pill ok">prête</span>`;
   const errs = o => o.errs.length ? `<span class="ie">${o.errs.map(esc).join(" · ")}</span>` : "";
   let prev = "";
   if (I && I.busy) prev = `<p class="small muted">Lecture de ${esc(I.name)}…</p>`;
   else if (I && I.fatal) prev = `<div class="card"><p class="small">${esc(I.fatal)}</p></div>`;
-  else if (I && I.done) prev = `<div class="card stack"><p class="small">Import terminé : ${I.done.r} partie${I.done.r > 1 ? "s" : ""} et ${I.done.s} entraînement${I.done.s > 1 ? "s" : ""} ajoutés.</p><div class="row">${I.done.r ? `<a class="btn ghost sm" href="#/parties">Voir les parties</a>` : ""}<a class="btn ghost sm" href="#/journal">Voir le journal</a></div></div>`;
+  else if (I && I.done) prev = `<div class="card stack"><p class="small">Import terminé : ${I.done.r} partie${I.done.r > 1 ? "s" : ""}, ${I.done.s} entraînement${I.done.s > 1 ? "s" : ""}${I.done.h ? " et " + plH(I.done.h) : ""} ajoutés.</p><div class="row">${I.done.h ? `<a class="btn ghost sm" href="#/tableau">Voir l'activité</a>` : ""}${I.done.r ? `<a class="btn ghost sm" href="#/parties">Voir les parties</a>` : ""}<a class="btn ghost sm" href="#/journal">Voir le journal</a></div></div>`;
   else if (I && I.sheets) {
     prev = `<div class="card stack"><div class="row between"><span class="small">${esc(I.name)}</span><button class="btn ghost sm" data-act="imp-reset">Annuler</button></div>
     ${I.rounds.length ? `<div class="sec"><span>Parties · ${I.rounds.length}</span></div><div class="ilist">${I.rounds.map(g => { const c = g.holes.length ? roundCalc({ holesData: g.holes }) : null;
       return `<div class="irow"><span class="it"><span class="nm">${g.date ? fmtD(g.date) : "—"} · ${esc(g.course || "?")}</span><span class="mt">${c ? `${c.score} (${sgn(c.score - c.par)}) · ${c.n} trou${c.n > 1 ? "s" : ""}` : ""}${g.tee ? " · " + esc(g.tee) : ""}</span>${errs(g)}</span>${st(g)}</div>`; }).join("")}</div>` : ""}
     ${I.sessions.length ? `<div class="sec"><span>Entraînements · ${I.sessions.length}</span></div><div class="ilist">${I.sessions.map(x => `<div class="irow"><span class="it"><span class="nm">${x.date ? fmtD(x.date) : "—"} · ${Number.isFinite(x.duration) ? n0(x.duration) + " min" : "?"} · ${esc(x.tags.join(", ") || "?")}</span><span class="mt">${esc(x.content)}</span>${errs(x)}</span>${st(x)}</div>`).join("")}</div>` : ""}
-    ${!I.rounds.length && !I.sessions.length ? `<p class="small muted">Le fichier ne contient aucune ligne remplie.</p>` : ""}
-    ${okR.length + okS.length ? `<button class="btn wide" data-act="imp-go">Importer ${okR.length ? `${okR.length} partie${okR.length > 1 ? "s" : ""}` : ""}${okR.length && okS.length ? " et " : ""}${okS.length ? `${okS.length} entraînement${okS.length > 1 ? "s" : ""}` : ""}</button>` : ""}
-    ${I.rounds.concat(I.sessions).some(o => o.errs.length || o.dup) ? `<p class="xs muted">Les lignes « à corriger » ou « déjà présentes » ne sont pas importées. Corrige le fichier et recharge-le si besoin.</p>` : ""}</div>`;
+    ${I.hist.length ? `<div class="sec"><span>Historique sans carte · ${I.hist.length} · ${n0(okH.reduce((a, x) => a + x.holes, 0))} trous</span></div><div class="ilist">${I.hist.map(x => `<div class="irow"><span class="it"><span class="nm">${x.date ? fmtD(x.date) : "—"} · ${Number.isFinite(x.holes) ? x.holes + " trous" : "?"}${x.course ? " · " + esc(x.course) : ""}</span>${x.notes ? `<span class="mt">${esc(x.notes)}</span>` : ""}${errs(x)}</span>${st(x)}</div>`).join("")}</div>` : ""}
+    ${!I.rounds.length && !I.sessions.length && !I.hist.length ? `<p class="small muted">Le fichier ne contient aucune ligne remplie.</p>` : ""}
+    ${okR.length + okS.length + okH.length ? `<button class="btn wide" data-act="imp-go">Importer ${[okR.length ? `${okR.length} partie${okR.length > 1 ? "s" : ""}` : "", okS.length ? `${okS.length} entraînement${okS.length > 1 ? "s" : ""}` : "", okH.length ? plH(okH.length) : ""].filter(Boolean).join(" et ")}</button>` : ""}
+    ${I.rounds.concat(I.sessions, I.hist).some(o => o.errs.length || o.dup) ? `<p class="xs muted">Les lignes « à corriger » ou « déjà présentes » ne sont pas importées. Corrige le fichier et recharge-le si besoin.</p>` : ""}</div>`;
   }
   const body = `<section class="view">
   <div class="card stack"><h2>1. Modèle Excel</h2><p class="small muted">Un onglet « Parties » (une ligne par trou) et un onglet « Entraînements » (une ligne par séance). Mode d'emploi dans l'onglet « Lisez-moi ».</p>
+  <p class="small muted">Historique sans carte : un onglet avec les colonnes Date, Trous (nombre de trous joués), Golf, Notes. Il alimente les trous joués de l'accueil, sans toucher aux statistiques de score.</p>
   <a class="btn ghost sm" href="data/modele-import.xlsx" download="Modele import Golf Mid-Am.xlsx">${icon("doc", "flex:none")} Télécharger le modèle</a></div>
   ${canEdit() ? `<div class="card stack"><h2>2. Importer le fichier</h2><p class="small muted">.xlsx ou .csv. Un aperçu s'affiche avant tout enregistrement ; les doublons sont écartés.</p>
-  <label class="btn sm filebtn">${icon("imp", "flex:none")} Choisir un fichier<input type="file" id="imp-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden></label></div>${prev}` : `<p class="small muted">Import réservé au propriétaire du compte.</p>`}
+  <label class="btn sm filebtn">${icon("imp", "flex:none")} Choisir un fichier<input type="file" id="imp-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden></label>${nH ? `<div class="row between" style="align-items:center"><span class="small muted">Historique enregistré : ${plH(nH)}</span><button class="btn ghost sm" data-act="imp-hist-clear">Effacer</button></div>` : ""}</div>${prev}` : `<p class="small muted">Import réservé au propriétaire du compte.</p>`}
   </section>`;
   return { back: ["#/plus", "Plus"], title: "Import", body };
 }
@@ -1339,10 +1368,14 @@ document.addEventListener("click", async e => {
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
     case "imp-reset": S.imp = null; render(); break;
+    case "act-per": lsSet("golf-act-all", b.dataset.v === "all"); render(); break;
+    case "imp-hist-clear": if (!confirm("Effacer tout l'historique de jeu sans carte ? Les cartes ne sont pas touchées.")) break; await Store.set("profile", "main", { playHistory: [] }, true); toast("Historique effacé"); break;
     case "imp-go": { const I = S.imp; if (!I || I.saving) break; I.saving = true; b.disabled = true; b.textContent = "Import en cours…"; let r = 0, s2 = 0;
       try { for (const g of I.rounds.filter(g => !g.errs.length && !g.dup)) { await saveImportedRound(g); r++; }
         for (const x of I.sessions.filter(x => !x.errs.length && !x.dup)) { await Store.add("sessions", { date: x.date, duration: x.duration, tags: x.tags, content: x.content, result: x.result, rating: x.rating, notes: x.notes, imported: true }); s2++; }
-        S.imp = { done: { r, s: s2 } }; toast("Import terminé"); }
+        const okH = (I.hist || []).filter(x => !x.errs.length && !x.dup);
+        if (okH.length) { const h = ((S.profile && S.profile.playHistory) || []).concat(okH.map(x => ({ date: x.date, holes: x.holes, course: x.course, notes: x.notes }))).sort((a, b) => a.date.localeCompare(b.date)); await Store.set("profile", "main", { playHistory: h }, true); }
+        S.imp = { done: { r, s: s2, h: okH.length } }; toast("Import terminé"); }
       catch (e) { console.error(e); S.imp = { done: { r, s: s2 } }; toast(`Import interrompu après ${r + s2} élément(s)` + (e.code ? " · " + e.code : "")); }
       render(); break; }
     case "j-more": S.jMax += 60; render(); break;
