@@ -22,3 +22,4 @@
   catalogue, puis passer la demande à `status: "done"` via l'export/Action.
 - Import (Plus › Import) : modèle `data/modele-import.xlsx` généré par `python3 tools/modele-import.py` (onglets Parties = une ligne par trou, Entraînements).
   Lecture côté navigateur avec SheetJS embarqué (`js/vendor/xlsx.full.min.js`, chargé à la demande). Doublons (même date + parcours / même date + durée + contenu) écartés ; documents marqués `imported: true`.
+  Historique sans carte (onglet Date, Trous, Golf, Notes) → `profile/main.playHistory` [{date, holes, course, notes}] : alimente seulement les trous joués de l'accueil (vue 12 mois / Tout), ignoré si une carte existe le même jour avec le même nombre de trous.
