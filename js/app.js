@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.26.0";
+const APP_VERSION = "1.26.1";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -457,7 +457,7 @@ function activityChart() {
   </div>
   <svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto" role="img" aria-label="Trous joués, parties de 18 trous et score moyen par mois">${g}</svg>
   <div class="row xs muted" style="gap:14px;margin-top:4px"><span><i style="display:inline-block;width:10px;height:10px;background:#c9b48c;border-radius:2px;vertical-align:-1px"></i> trous joués</span><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> dont parties de 18 trous (n×)</span></div>
-  ${hist.length ? `<p class="xs muted" style="margin-top:6px">Trous joués : cartes + historique sans carte (Plus › Import).</p>` : ""}<p class="xs muted" style="margin-top:6px">Score : point = moyenne du mois, trait = meilleure et moins bonne carte. Chaque carte est ramenée à 18 trous (écart au par × 18 ÷ trous joués) : une carte de 9 trous à +2 compte +4. Vert : sous le par · jaune : moins de +3 · rouge : +3 et plus.</p></div>`;
+  </div>`;
 }
 function indexChart(target, tDate) {
   const h = ((S.profile && S.profile.indexHistory) || []).slice().sort((a, b) => a.date.localeCompare(b.date));
