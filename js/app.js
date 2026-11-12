@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.24.0";
+const APP_VERSION = "1.26.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -401,20 +401,21 @@ function sessionsChart() {
   <div class="row xs muted" style="gap:12px;margin-top:4px;flex-wrap:wrap"><span><i style="display:inline-block;width:10px;height:10px;background:#0f2340;border-radius:2px;vertical-align:-1px"></i> réalisées</span><span><i style="display:inline-block;width:12px;height:0;border-top:2px dashed #2f6b45;vertical-align:3px"></i> rythme visé</span><span><i style="display:inline-block;width:12px;height:2px;background:#c8372d;vertical-align:3px"></i> retard cumulé (séances)</span></div></div>`;
 }
 function activityChart() {
-  const all = lsGet("golf-act-all", false), hist = playHistory(), now = new Date();
+  const per = lsGet("golf-act-per", lsGet("golf-act-all", false) ? "all" : "12"), all = per === "all", hist = playHistory(), now = new Date();
   const first = [...S.data.rounds.map(r => r.date), ...hist.map(x => x.date)].filter(Boolean).sort()[0];
-  let n = 12; if (all && first) { const f = D(first); n = Math.max(12, (now.getFullYear() - f.getFullYear()) * 12 + now.getMonth() - f.getMonth() + 1); }
+  let n = { "6": 6, "24": 24 }[per] || 12; if (all && first) { const f = D(first); n = Math.max(12, (now.getFullYear() - f.getFullYear()) * 12 + now.getMonth() - f.getMonth() + 1); }
   const months = []; for (let k = n - 1; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(iso(d).slice(0, 7)); }
   const by = Object.fromEntries(months.map(m => [m, { holes: 0, r18: 0, sc: [], tp: [] }]));
   for (const r of S.data.rounds) { const m = (r.date || "").slice(0, 7); if (!by[m]) continue; const c = roundCalc(r); if (!c.n) continue;
     const o = by[m]; o.holes += c.n; if (c.n === 18) { o.r18++; o.sc.push(c.score); } o.tp.push((c.score - c.par) * 18 / c.n); }
   for (const x of hist) { const o = by[(x.date || "").slice(0, 7)], h = Number(x.holes) || 0; if (!o || !h) continue; o.holes += h; if (h === 18) o.r18++; }
   const tot = months.reduce((a, m) => ({ holes: a.holes + by[m].holes, r18: a.r18 + by[m].r18, sc: a.sc.concat(by[m].sc), tp: a.tp.concat(by[m].tp) }), { holes: 0, r18: 0, sc: [], tp: [] });
-  const per = `<div class="seg" style="width:118px;flex:none;gap:4px"><button type="button" data-act="act-per" data-v="12" aria-pressed="${!all}" style="padding:4px 2px;font-size:11px">12 mois</button><button type="button" data-act="act-per" data-v="all" aria-pressed="${all}" style="padding:4px 2px;font-size:11px">Tout</button></div>`;
-  const head = `<div class="row between" style="align-items:center;flex-wrap:nowrap;gap:8px;margin-bottom:8px"><h2 style="margin:0;min-width:0">Activité · ${all && first ? "depuis " + D(months[0] + "-15").toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "") : "12 mois"}</h2>${first ? per : ""}</div>`;
+  const PER = [["6", "6 mois"], ["12", "12 mois"], ["24", "2 ans"], ["all", "Tout"]];
+  const seg = `<div class="seg" style="gap:4px;margin-bottom:10px">${PER.map(([v, l]) => `<button type="button" data-act="act-per" data-v="${v}" aria-pressed="${(all ? "all" : String(n === 6 || n === 24 ? n : 12)) === v}" style="padding:5px 2px;font-size:12px">${l}</button>`).join("")}</div>`;
+  const head = `<h2>Activité · ${all && first ? "depuis " + D(months[0] + "-15").toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "") : n === 24 ? "2 ans" : n + " mois"}</h2>${first ? seg : ""}`;
   if (!tot.holes) return `<div class="card">${head}<p class="small muted">Les trous joués, les parties de 18 trous et le score moyen apparaîtront ici dès ta première carte.</p></div>`;
   const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
-  const W = 360, L = 28, R = 6, cw = (W - L - R) / months.length, bw = cw * 0.62, dense = months.length > 12;
+  const W = 360, L = 28, R = 6, cw = (W - L - R) / months.length, bw = Math.min(cw * 0.62, 24), dense = months.length > 12;
   const sT = 24, sB = 128, bT = 158, bB = 262, H = 280;   // bande score (écart au par / 18 trous) en haut, trous joués en bas
   const maxH = Math.max(18, ...months.map(m => by[m].holes)); const top = Math.ceil(maxH / 18) * 18;
   const Y = v => bB - v / top * (bB - bT);
@@ -441,6 +442,13 @@ function activityChart() {
       if (!dense && o.r18 && bB - Y(o.r18 * 18) > 13) g += `<text x="${cx(i)}" y="${bB - 4}" text-anchor="middle" font-size="8.5" fill="#f3ead8" font-weight="700">${o.r18}×</text>`; }
     if (!dense) g += `<text x="${cx(i)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#7d7462">${D(m + "-15").toLocaleDateString("fr-FR", { month: "short" }).replace(".", "").slice(0, 4)}</text>`;
     else if (m.endsWith("-01") || i === 0) g += `<line x1="${L + i * cw}" x2="${L + i * cw}" y1="${bT}" y2="${bB + 4}" stroke="#d8cbb0"/><text x="${L + i * cw + 2}" y="${H - 4}" font-size="9" fill="#7d7462">${m.endsWith("-01") ? m.slice(0, 4) : ""}</text>`; });
+  // survol : une zone par mois (score + trous) avec le détail chiffré
+  months.forEach((m, i) => { const o = by[m], t = o.tp, r1 = v => sgnS(Math.round(v * 10) / 10), pl = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
+    const l = [D(m + "-15").toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase()), o.holes ? pl(o.holes, "trou") + " joué" + (o.holes > 1 ? "s" : "") : "Aucun trou joué"];
+    if (o.r18) l.push(`dont ${pl(o.r18, "partie")} de 18 trous${o.holes > o.r18 * 18 ? ` + ${pl(o.holes - o.r18 * 18, "trou")}` : ""}`);
+    if (t.length) l.push(`Score moyen ${r1(avg(t))} (ramené à 18 t.) · ${pl(t.length, "carte")}` + (t.length > 1 ? ` · meilleure ${r1(Math.min(...t))} · moins bonne ${r1(Math.max(...t))}` : ""));
+    if (o.sc.length) l.push(`Score brut moyen sur 18 trous : ${n1(avg(o.sc))}`);
+    g += `<rect x="${L + i * cw}" y="${sT}" width="${cw}" height="${bB - sT}" fill="transparent" data-tip="${esc(l.join("\n"))}" style="cursor:default"/>`; });
   return `<div class="card">${head}
   <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px">
     <div class="kpi"><div class="l">Trous</div><div class="v">${n0(tot.holes)}</div><div class="s">joués</div></div>
@@ -1352,6 +1360,21 @@ async function submitVideo(form) {
   clearInterval(watch); btn.disabled = false; box.hidden = true;
 }
 
+/* ---------- Infobulle des graphiques (survol souris ou appui au doigt) ---------- */
+(() => {
+  let tip = null, cur = null;
+  const show = (el, e) => {
+    if (!tip) { tip = document.createElement("div"); tip.style.cssText = "position:fixed;z-index:9999;pointer-events:none;max-width:260px;padding:7px 9px;border-radius:8px;background:#0f2340;color:#f3ead8;font:12px/1.45 'IBM Plex Sans',system-ui,sans-serif;white-space:pre-line;box-shadow:0 4px 14px rgba(0,0,0,.18)"; document.body.appendChild(tip); }
+    if (cur !== el) { if (cur) cur.setAttribute("fill", "transparent"); cur = el; el.setAttribute("fill", "rgba(15,35,64,.07)"); tip.textContent = el.dataset.tip; }
+    tip.style.display = "block"; const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, e.clientX + 12)) + "px"; tip.style.top = (e.clientY - h - 12 < 8 ? e.clientY + 16 : e.clientY - h - 12) + "px";
+  };
+  const hide = () => { if (cur) cur.setAttribute("fill", "transparent"); cur = null; if (tip) tip.style.display = "none"; };
+  document.addEventListener("pointermove", e => { const el = e.target.closest && e.target.closest("[data-tip]"); if (el) show(el, e); else if (cur) hide(); });
+  document.addEventListener("pointerdown", e => { const el = e.target.closest && e.target.closest("[data-tip]"); if (el) show(el, e); else hide(); });
+  addEventListener("scroll", hide, { passive: true }); addEventListener("hashchange", hide);
+})();
+
 /* ---------- Événements ---------- */
 document.addEventListener("click", async e => {
   const seg = e.target.closest(".seg button[data-v]:not([data-act])");
@@ -1368,7 +1391,7 @@ document.addEventListener("click", async e => {
     case "add-menu": openAddMenu(); break;
     case "upload-cancel": if (S.uploadTask) S.uploadTask.cancel(); break;
     case "imp-reset": S.imp = null; render(); break;
-    case "act-per": lsSet("golf-act-all", b.dataset.v === "all"); render(); break;
+    case "act-per": lsSet("golf-act-per", b.dataset.v); render(); break;
     case "imp-hist-clear": if (!confirm("Effacer tout l'historique de jeu sans carte ? Les cartes ne sont pas touchées.")) break; await Store.set("profile", "main", { playHistory: [] }, true); toast("Historique effacé"); break;
     case "imp-go": { const I = S.imp; if (!I || I.saving) break; I.saving = true; b.disabled = true; b.textContent = "Import en cours…"; let r = 0, s2 = 0;
       try { for (const g of I.rounds.filter(g => !g.errs.length && !g.dup)) { await saveImportedRound(g); r++; }
