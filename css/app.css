@@ -464,3 +464,4 @@ ul.mk.bul li::before{content:"•"}ul.mk.yes li::before{content:"✓";color:var(
 .irow .it{display:flex;flex-direction:column;min-width:0}.irow .nm{font-size:13.5px;font-weight:500}.irow .mt{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .irow .ie{font-size:12px;color:var(--red);margin-top:2px}
 .irow .pill{flex:none}
+.tile .v small{font-size:14px;font-weight:500;color:var(--muted);font-family:var(--f-sans,inherit)}

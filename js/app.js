@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.26.1";
+const APP_VERSION = "1.27.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -237,7 +237,7 @@ function statsOf(rounds) {
   }
   if (!t.n) return null;
   const per18 = (v, base) => base ? v * 18 / base : null; const avg = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : null;
-  return { n: t.n, fw: t.fwPoss ? t.fwHit / t.fwPoss * 100 : null, gir: per18(t.gir, t.holes), scr: t.scrOpp ? t.scr / t.scrOpp * 100 : null,
+  return { n: t.n, fw: t.fwPoss ? t.fwHit / t.fwPoss * 100 : null, fwN: per18(t.fwHit, t.holes), fwP: per18(t.fwPoss, t.holes), gir: per18(t.gir, t.holes), scr: t.scrOpp ? t.scr / t.scrOpp * 100 : null,
     putts: per18(t.putts, t.puttsN), three: per18(t.three, t.puttsN), short: per18(t.short, t.holes), pen: per18(t.pen, t.holes),
     missL: t.missL, missR: t.missR, toPar: avg(t.toPar), score18: avg(t.score18) };
 }
@@ -334,7 +334,8 @@ function vTableau() {
   const todayDone = plan.sessions.filter(x => doneToday(x.id));
   const today = todayDone[0] || (sessionOrder(plan.sessions)[0] || {}).s;
   const since = iso(new Date(Date.now() - 30 * 864e5)); const mins = practiceLog().filter(p => p.date >= since && p.date <= iso()).reduce((s, p) => s + (p.min || 0), 0);
-  const st = statsOf(S.data.rounds); const G = st ? gaps(st).filter(g => g.v != null).slice(0, 3) : [];
+  const st = statsOf(S.data.rounds), GA = st ? gaps(st).filter(g => g.v != null) : [];
+  const G = [...["fw", "putts"].map(k => GA.find(g => g.k === k)).filter(Boolean), ...GA.filter(g => g.k !== "fw" && g.k !== "putts").slice(0, 3)];
   const ph = currentPhase(); const pend = S.data.videos.filter(v => v.analysis && v.analysis.status === "requested").length;
   const doneBlocks = today ? doneOf(today).filter(Boolean).length : 0;
   const body = `<section class="view">
@@ -347,7 +348,7 @@ function vTableau() {
     ${doneBlocks ? `<span class="pg"><i style="width:${doneBlocks / today.blocks.length * 100}%"></i></span>` : ""}
     <span class="cta">${doneToday(today.id) ? "Voir la séance" : doneBlocks ? "Continuer la séance" : "Commencer la séance"}</span></a>` : ""}
   <div class="sec"><span>Ce qu'il faut travailler</span><a href="#/parties/perf">Détail</a></div>
-  <div class="tiles">${G.map(g => `<a class="tile" href="#/parties/perf"><div class="l">${esc(g.short)}</div><div class="v">${fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`).join("")}
+  <div class="tiles">${G.map(g => { const fw = g.k === "fw" && st.fwN != null; return `<a class="tile" href="#/parties/perf"><div class="l">${fw ? "Fairways touchés /18" : esc(g.short)}</div><div class="v">${fw ? `${n1(st.fwN)}<small> / ${n0(st.fwP)}</small>` : fmtVal(g, g.v)}</div><div class="s ${gapCls(g.g)}">${fw ? pct(g.v) + " · " : ""}${g.g <= 0 ? "au niveau +2" : "objectif " + fmtVal(g, g.t)}</div><div class="tb"><i style="width:${Math.max(8, Math.min(100, g.dir === "high" ? g.v / g.t * 100 : g.t / Math.max(g.v, .01) * 100))}%;background:${gapCol(g.g)}"></i></div></a>`; }).join("")}
     ${(() => { const n30 = completions().filter(c => c.date >= since && c.date <= iso()).reduce((a, c) => a + credit(c), 0);
       return `<a class="tile" href="#/plan"><div class="l">Entraînement 30 j</div><div class="v">${n1(mins / 60)} h</div><div class="s ${paceCls}">${nf1(n30)} séance${n30 >= 2 ? "s" : ""} · ${paceLab.toLowerCase()}</div><div class="tb"><i style="width:${pPlan * 100}%;background:#0f2340"></i></div></a>`; })()}</div>
   ${!st ? emptyBox("Pas encore de carte saisie", "Saisis ta prochaine partie trou par trou : les tuiles ci-dessus se rempliront avec tes écarts au niveau +2.", canEdit() ? `<a class="btn sm" href="#/partie/new">Saisir une carte</a>` : "") : ""}
