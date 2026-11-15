@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.28.1";
+const APP_VERSION = "1.28.2";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -1231,7 +1231,7 @@ function vEditor(p) {
   <div class="f"><span class="lbl">Putts</span><div class="pick">${[0, 1, 2, 3, 4].map(v => `<button type="button" data-act="h-set" data-k="putts" data-v="${v}" aria-pressed="${h.putts === v}"><b>${v}</b></button>`).join("")}</div></div>
   ${par >= 4 ? `<div class="f"><span class="lbl">Fairway</span><div class="seg red">${[["L", "← Gauche"], ["Y", "Touché"], ["R", "Droite →"]].map(([v, l]) => `<button type="button" data-act="h-set" data-k="fw" data-v="${v}" aria-pressed="${h.fw === v}">${l}</button>`).join("")}</div></div>` : `<p class="xs muted">Par 3 : pas de fairway.</p>`}
   <div class="two" style="grid-template-columns:1fr 1fr;gap:8px">${mini("short", "Putts < 2 m ratés")}${mini("pen", "Pénalités")}</div>
-  <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}${scr == null ? "" : `<button type="button" class="pill ${scr ? "ok" : "bad"} pbtn" data-act="scr-flip" aria-label="Scrambling ${scr ? "réussi" : "raté"} : toucher pour corriger">Scrambling ${scr ? "réussi" : "raté"}${h.scrX ? " · corrigé" : ""} <span aria-hidden="true">⇄</span></button>`}</div>
+  <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}${scr == null ? "" : `<button type="button" class="pill ${scr ? "ok" : "bad"} pbtn" data-act="scr-flip" aria-label="Scrambling ${scr ? "réussi" : "raté"} : toucher pour corriger">Scrambling ${scr ? "réussi" : "raté"} <span aria-hidden="true">⇄</span></button>`}</div>
 
   <div class="row between"><button class="btn ghost" type="button" data-act="h-go" data-i="${i - 1}" ${i === 0 ? "disabled" : ""}>← Trou ${i ? d.holes[i - 1].n : ""}</button>
     ${i < d.holes.length - 1 ? `<button class="btn navy" type="button" data-act="h-next">Trou ${d.holes[i + 1].n} →</button>` : `<button class="btn" type="button" data-act="h-finish">Terminer la carte</button>`}</div>
@@ -1459,7 +1459,9 @@ document.addEventListener("click", async e => {
       if (!h || !flipScr(h)) break; b.disabled = true;
       try { await Store.set("rounds", id, roundFields(hd), true); toast(`Trou ${n} : scrambling ${holeScr(h) ? "réussi" : "raté"}`); } catch (x) { console.error(x); toast("Modification impossible"); b.disabled = false; }
       break; }
-    case "scr-flip": { const h = d.holes[S.hole]; if (flipScr(h)) { saveDraft(); render(); } break; }
+    case "scr-flip": { const h = d.holes[S.hole]; if (!flipScr(h)) break; saveDraft(); render();
+      if (d.id) { try { await Store.set("rounds", d.id, roundFields(d.holes.map(x => ({ ...x }))), true); } catch (x) { console.error(x); toast("Correction non enregistrée : termine la carte pour l'enregistrer"); } }   // carte existante : correction enregistrée tout de suite
+      break; }
     case "h-set": { const h = d.holes[S.hole]; const k = b.dataset.k; let v = b.dataset.v;
       if (k === "par") { v = Number(v); h.par = v; if (v === 3) h.fw = null; } else if (k === "putts") { v = Number(v); h.putts = h.putts === v ? null : v; } else h[k] = h[k] === v ? null : v;
       saveDraft(); render(); break; }
