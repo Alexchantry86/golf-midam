@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.28.4";
+const APP_VERSION = "1.29.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -1118,7 +1118,11 @@ function vPartie(p) {
   if (p[1] === "new" || p[2] === "edit") return vEditor(p);
   const r = S.data.rounds.find(x => x._id === p[1]); if (!r) return S.loaded ? emptyBox("Carte introuvable", "", `<a class="btn ghost sm" href="#/parties">Retour</a>`) : `<p class="muted">Chargement…</p>`;
   const c = roundCalc(r);
-  const body = `<section class="view">
+  const ord = [...S.data.rounds].sort((a, b) => (a.date || "").localeCompare(b.date || "") || String(a._id).localeCompare(String(b._id))), k = ord.indexOf(r);
+  const prev = ord[k - 1], next = ord[k + 1];   // précédente = plus ancienne, suivante = plus récente
+  const nav = `<div class="rnav" data-prev="${prev ? prev._id : ""}" data-next="${next ? next._id : ""}">${prev ? `<a class="rn" href="#/partie/${prev._id}" aria-label="Partie précédente">‹</a>` : `<span class="rn off">‹</span>`}<span class="xs muted">Partie ${k + 1} / ${ord.length}</span>${next ? `<a class="rn" href="#/partie/${next._id}" aria-label="Partie suivante">›</a>` : `<span class="rn off">›</span>`}</div>`;
+  const body = `<section class="view" data-swipe="round">
+  ${nav}
   <div class="meta"><span>${fmtD(r.date)}</span><span>·</span><span>${esc(r.type || "")}</span><span>·</span><span>${c.n} trous</span>${r.tee ? `<span>· repère ${esc(r.tee)}</span>` : ""}${r.cr ? `<span>· SSS ${n1(r.cr)} / slope ${r.slope}</span>` : ""}${r.diff != null ? `<span class="pill acc">différentiel ${n1(r.diff)}</span>` : ""}</div>
   ${perfKpis([r])}
   ${scorecardTable(holeRowsOne(r), "one", canEdit() ? r._id : null)}
@@ -1383,6 +1387,19 @@ async function submitVideo(form) {
   } catch (e) { console.error(e); toast(upErr(e)); }
   clearInterval(watch); btn.disabled = false; box.hidden = true;
 }
+
+/* ---------- Glisser à gauche / à droite sur une carte : partie suivante / précédente ---------- */
+(() => {
+  let x0 = null, y0 = 0, t0 = 0;
+  const scrollsX = el => { for (let e = el; e && e !== document.body; e = e.parentElement) if (e.scrollWidth > e.clientWidth + 2 && /(auto|scroll)/.test(getComputedStyle(e).overflowX)) return true; return false; };
+  document.addEventListener("touchstart", e => { const v = e.target.closest && e.target.closest('[data-swipe="round"]'); if (!v || e.touches.length > 1 || scrollsX(e.target)) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (x0 == null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+    if (Date.now() - t0 > 700 || Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8) return;
+    const n = document.querySelector(".rnav"); if (!n) return; const id = dx < 0 ? n.dataset.next : n.dataset.prev;
+    if (id) location.hash = "#/partie/" + id;
+  }, { passive: true });
+})();
 
 /* ---------- Infobulle des graphiques (survol souris ou appui au doigt) ---------- */
 (() => {

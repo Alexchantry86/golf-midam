@@ -469,3 +469,6 @@ ul.mk.bul li::before{content:"•"}ul.mk.yes li::before{content:"✓";color:var(
 .pbtn{cursor:pointer;font:inherit;border:0}
 .scrb{background:none;border:0;padding:2px 4px;margin:-2px -4px;font:inherit;color:inherit;cursor:pointer;border-radius:4px}
 .scrb.mod{box-shadow:inset 0 -2px 0 var(--gold)}
+.rnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:-4px}
+.rnav .rn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--navy);font-size:22px;line-height:1;text-decoration:none;padding-bottom:3px}
+.rnav .rn.off{opacity:.3}
