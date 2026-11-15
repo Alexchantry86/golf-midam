@@ -472,3 +472,4 @@ ul.mk.bul li::before{content:"•"}ul.mk.yes li::before{content:"✓";color:var(
 .rnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:-4px}
 .rnav .rn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--navy);font-size:22px;line-height:1;text-decoration:none;padding-bottom:3px}
 .rnav .rn.off{opacity:.3}
+.kpi .v small{font-family:var(--f-sans,inherit);font-size:13px;font-weight:500;color:var(--muted)}
