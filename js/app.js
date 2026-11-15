@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.27.2";
+const APP_VERSION = "1.28.0";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -214,6 +214,12 @@ function render() {
 function emptyBox(t, s, btn) { return `<div class="empty"><b>${t}</b>${s}${btn ? `<div style="margin-top:12px">${btn}</div>` : ""}</div>`; }
 
 /* ---------- Calculs ---------- */
+/* Scrambling : déduit (green manqué puis par ou mieux), modifiable par trou via h.scrX = "ok" | "ko" | "na" (ne compte pas). */
+function holeScr(h) {
+  if (h.score == null || h.putts == null || holeGir(h) || h.scrX === "na") return null;
+  if (h.scrX === "ok") return true; if (h.scrX === "ko") return false;
+  return h.score <= (h.par || 4);
+}
 function holeGir(h) { return h.score != null && h.putts != null && (h.score - h.putts) <= (h.par || 4) - 2; }
 function roundCalc(r) {
   const hs = (r.holesData || []).filter(h => h.score != null);
@@ -222,7 +228,7 @@ function roundCalc(r) {
     const par = h.par || 4; o.score += h.score; o.par += par;
     if (h.putts != null) { o.putts += h.putts; o.puttsN++; if (h.putts >= 3) o.three++; }
     if (par >= 4 && h.fw) { o.fwPoss++; if (h.fw === "Y") o.fwHit++; else if (h.fw === "L") o.missL++; else if (h.fw === "R") o.missR++; }
-    if (holeGir(h)) o.gir++; else if (h.putts != null) { o.scrOpp++; if (h.score <= par) o.scr++; }
+    if (holeGir(h)) o.gir++; { const sc = holeScr(h); if (sc != null) { o.scrOpp++; if (sc) o.scr++; } }
     o.short += h.short || 0; o.pen += h.pen || 0;
   }
   return o;
@@ -1034,7 +1040,7 @@ function scorecardTable(rows, mode) {
   const fwCell = r => mode === "one" ? (r.par < 4 ? `<span class="muted">·</span>` : r.fw === "Y" ? `<span class="dot on"></span>` : r.fw === "L" ? `<span class="miss">G</span>` : r.fw === "R" ? `<span class="miss">D</span>` : "—")
     : (r.fwPoss ? `${pc(r.fwHit / r.fwPoss * 100)}<div class="xs miss">${r.missL ? r.missL + "G " : ""}${r.missR ? r.missR + "D" : ""}</div>` : `<span class="muted">·</span>`);
   const girCell = r => mode === "one" ? (r.score == null ? "—" : `<span class="dot ${r.gir ? "on" : ""}"></span>`) : (r.cnt ? `<span style="display:block;margin:-6px -3px;padding:6px 3px;background:rgba(15,35,64,${(r.gir / r.cnt) * .35})">${pc(r.gir / r.cnt * 100)}</span>` : "—");
-  const scrCell = r => mode === "one" ? (r.score == null || r.gir ? `<span class="muted">·</span>` : r.scr ? "✓" : `<span class="miss">✗</span>`) : (r.scrOpp ? `${r.scr}/${r.scrOpp}` : `<span class="muted">·</span>`);
+  const scrCell = r => mode === "one" ? (r.score == null || r.scr == null ? `<span class="muted">·</span>` : r.scr ? "✓" : `<span class="miss">✗</span>`) : (r.scrOpp ? `${r.scr}/${r.scrOpp}` : `<span class="muted">·</span>`);
   return halves.map(h => {
     const sum = k => h.reduce((s, r) => s + (r[k] || 0), 0);
     const totScore = mode === "one" ? (h.every(r => r.score != null) ? sum("score") : "—") : n1(sum("avg"));
@@ -1050,14 +1056,14 @@ function scorecardTable(rows, mode) {
   }).join("");
 }
 function holeRowsOne(r) {
-  return (r.holesData || []).slice().sort((a, b) => a.n - b.n).map(h => ({ n: h.n, par: h.par || 4, score: h.score, putts: h.putts, fw: h.fw, gir: holeGir(h), scr: !holeGir(h) && h.score != null && h.score <= (h.par || 4), short: h.short || 0 }));
+  return (r.holesData || []).slice().sort((a, b) => a.n - b.n).map(h => ({ n: h.n, par: h.par || 4, score: h.score, putts: h.putts, fw: h.fw, gir: holeGir(h), scr: holeScr(h), short: h.short || 0 }));
 }
 function holeRowsAvg(rounds, pars) {
   const by = {};
   for (const r of rounds) for (const h of r.holesData || []) { if (h.score == null) continue; const o = by[h.n] = by[h.n] || { n: h.n, par: h.par || pars[h.n - 1] || 4, cnt: 0, sc: 0, pt: 0, ptN: 0, fwPoss: 0, fwHit: 0, missL: 0, missR: 0, gir: 0, scrOpp: 0, scr: 0, short: 0 };
     o.cnt++; o.sc += h.score; if (h.putts != null) { o.pt += h.putts; o.ptN++; }
     if (o.par >= 4 && h.fw) { o.fwPoss++; if (h.fw === "Y") o.fwHit++; if (h.fw === "L") o.missL++; if (h.fw === "R") o.missR++; }
-    if (holeGir(h)) o.gir++; else if (h.putts != null) { o.scrOpp++; if (h.score <= o.par) o.scr++; } o.short += h.short || 0; }
+    if (holeGir(h)) o.gir++; { const sc = holeScr(h); if (sc != null) { o.scrOpp++; if (sc) o.scr++; } } o.short += h.short || 0; }
   return Object.values(by).sort((a, b) => a.n - b.n).map(o => ({ ...o, avg: o.sc / o.cnt, puttsAvg: o.ptN ? o.pt / o.ptN : 0 }));
 }
 function perfKpis(rounds) {
@@ -1203,7 +1209,7 @@ function vEditor(p) {
     return { back: ["#", "Retour aux trous"], title: "Terminer la carte", body, backAct: "ed-holes" };
   }
   const i = Math.min(S.hole, d.holes.length - 1); const h = d.holes[i]; const par = h.par || 4;
-  const g = h.score != null && h.putts != null ? holeGir(h) : null; const scr = g === false ? (h.score <= par) : null;
+  const g = h.score != null && h.putts != null ? holeGir(h) : null; const scr = g === false ? holeScr(h) : null, scrAuto = g === false ? h.score <= par : null;
   const tot = d.holes.filter(x => x.score != null); const toPar = tot.reduce((s, x) => s + x.score - (x.par || 4), 0);
   const opts = [par - 2, par - 1, par, par + 1, par + 2]; const custom = h.score != null && !opts.includes(h.score);
   const mini = (k, l) => `<div class="mini"><button type="button" data-act="h-step" data-k="${k}" data-d="-1" aria-label="Moins">−</button><div class="v">${h[k] ?? 0}</div><button type="button" data-act="h-step" data-k="${k}" data-d="1" aria-label="Plus">+</button><div class="l">${l}</div></div>`;
@@ -1220,7 +1226,9 @@ function vEditor(p) {
   <div class="f"><span class="lbl">Putts</span><div class="pick">${[0, 1, 2, 3, 4].map(v => `<button type="button" data-act="h-set" data-k="putts" data-v="${v}" aria-pressed="${h.putts === v}"><b>${v}</b></button>`).join("")}</div></div>
   ${par >= 4 ? `<div class="f"><span class="lbl">Fairway</span><div class="seg red">${[["L", "← Gauche"], ["Y", "Touché"], ["R", "Droite →"]].map(([v, l]) => `<button type="button" data-act="h-set" data-k="fw" data-v="${v}" aria-pressed="${h.fw === v}">${l}</button>`).join("")}</div></div>` : `<p class="xs muted">Par 3 : pas de fairway.</p>`}
   <div class="two" style="grid-template-columns:1fr 1fr;gap:8px">${mini("short", "Putts < 2 m ratés")}${mini("pen", "Pénalités")}</div>
-  <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}${scr == null ? "" : `<span class="pill ${scr ? "ok" : "bad"}">Scrambling ${scr ? "réussi" : "raté"}</span>`}</div>
+  <div class="auto">${g == null ? `<span class="pill">GIR calculé après le score et les putts</span>` : `<span class="pill ${g ? "ok" : ""}">${g ? "Green en régulation" : "Green manqué"}</span>`}</div>
+  ${g === false ? `<div class="f"><span class="lbl">Scrambling <span class="xs muted" style="text-transform:none;letter-spacing:0">· déduit : ${scrAuto ? "réussi" : "raté"}${h.scrX ? " · modifié" : ""}</span></span><div class="seg">${[["ok", "Réussi"], ["ko", "Raté"], ["na", "Ne compte pas"]].map(([v, l]) => `<button type="button" data-act="h-set" data-k="scrX" data-v="${v}" aria-pressed="${h.scrX ? h.scrX === v : v !== "na" && (v === "ok") === scrAuto}">${l}</button>`).join("")}</div>
+  <p class="xs muted" style="margin:4px 0 0">« Ne compte pas » : green manqué à cause du grand jeu (coup raté, pénalité, recovery) ; le trou sort du calcul du scrambling.</p></div>` : ""}
   <div class="row between"><button class="btn ghost" type="button" data-act="h-go" data-i="${i - 1}" ${i === 0 ? "disabled" : ""}>← Trou ${i ? d.holes[i - 1].n : ""}</button>
     ${i < d.holes.length - 1 ? `<button class="btn navy" type="button" data-act="h-next">Trou ${d.holes[i + 1].n} →</button>` : `<button class="btn" type="button" data-act="h-finish">Terminer la carte</button>`}</div>
   <div class="row" style="justify-content:center">${tot.length ? `<button class="btn ghost sm" type="button" data-act="draft-finish">Terminer ici (${tot.length} trou${tot.length > 1 ? "s" : ""})</button>` : ""}<button class="btn ghost sm" type="button" data-act="draft-discard">Abandonner la carte</button></div>
