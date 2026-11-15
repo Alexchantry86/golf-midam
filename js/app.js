@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.28.2";
+const APP_VERSION = "1.28.3";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -1178,7 +1178,18 @@ function draftCard() {
 }
 
 /* ---------- Saisie de carte (UX Club-house) ---------- */
-function saveDraft() { lsSet("golf-draft", S.draft); }
+function saveDraft() { lsSet("golf-draft", S.draft); if (S.draft && S.draft.id) persistEdit(); }
+/* Modification d'une carte déjà enregistrée : chaque changement de trou est enregistré tout de suite (synthèse et stats à jour). */
+let editTimer = null;
+function persistEdit() {
+  const d = S.draft; clearTimeout(editTimer);
+  editTimer = setTimeout(async () => {
+    if (!d || !d.id || S.draft !== d) return;
+    const f = roundFields(d.holes.map(x => ({ ...x }))), n = d.holes.filter(h => h.score != null).length;
+    f.diff = n === 18 && d.cr && d.slope ? Math.round(113 / d.slope * (f.score - d.cr) * 10) / 10 : null;
+    try { await Store.set("rounds", d.id, f, true); } catch (x) { console.error(x); toast("Modification non enregistrée (" + ((x && x.code) || "réseau") + ")"); }
+  }, 400);
+}
 function draftFromRound(r) { return { id: r._id, date: r.date, type: r.type, courseId: r.courseId, catalogId: r.catalogId || null, tee: r.tee || null, cr: r.cr ?? null, slope: r.slope ?? null, course: r.course, holesCount: r.holesCount || (r.holesData || []).length, startHole: r.startHole || 1, holes: (r.holesData || []).map(h => ({ ...h })), cost: r.cost || "", notes: r.notes || "", stage: "holes" }; }
 function holeNumbers(start, count) { const a = []; for (let i = 0; i < count; i++) a.push(((start - 1 + i) % 18) + 1); return a; }
 const SCORE_NAMES = { "-3": "albatros", "-2": "eagle", "-1": "birdie", "0": "par", "1": "bogey", "2": "double", "3": "triple" };
@@ -1459,9 +1470,7 @@ document.addEventListener("click", async e => {
       if (!h || !flipScr(h)) break; b.disabled = true;
       try { await Store.set("rounds", id, roundFields(hd), true); toast(`Trou ${n} : scrambling ${holeScr(h) ? "réussi" : "raté"}`); } catch (x) { console.error(x); toast("Modification impossible"); b.disabled = false; }
       break; }
-    case "scr-flip": { const h = d.holes[S.hole]; if (!flipScr(h)) break; saveDraft(); render();
-      if (d.id) { try { await Store.set("rounds", d.id, roundFields(d.holes.map(x => ({ ...x }))), true); } catch (x) { console.error(x); toast("Correction non enregistrée : termine la carte pour l'enregistrer"); } }   // carte existante : correction enregistrée tout de suite
-      break; }
+    case "scr-flip": { const h = d.holes[S.hole]; if (flipScr(h)) { saveDraft(); render(); } break; }
     case "h-set": { const h = d.holes[S.hole]; const k = b.dataset.k; let v = b.dataset.v;
       if (k === "par") { v = Number(v); h.par = v; if (v === 3) h.fw = null; } else if (k === "putts") { v = Number(v); h.putts = h.putts === v ? null : v; } else h[k] = h[k] === v ? null : v;
       saveDraft(); render(); break; }
