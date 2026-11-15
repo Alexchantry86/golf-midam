@@ -1,7 +1,7 @@
 /* Objectif Mid-Am 2028 — app de pilotage golf (GitHub Pages + Firebase). */
 (function () {
 "use strict";
-const APP_VERSION = "1.28.3";
+const APP_VERSION = "1.28.4";
 const DEMO = /[?&]demo=1/.test(location.search);
 
 /* ---------- Utilitaires ---------- */
@@ -250,7 +250,7 @@ function statsOf(rounds) {
   const per18 = (v, base) => base ? v * 18 / base : null; const avg = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : null;
   return { n: t.n, fw: t.fwPoss ? t.fwHit / t.fwPoss * 100 : null, fwN: per18(t.fwHit, t.holes), fwP: per18(t.fwPoss, t.holes), fwL: t.missL + t.missR ? t.missL / (t.missL + t.missR) * 100 : null, fwR: t.missL + t.missR ? t.missR / (t.missL + t.missR) * 100 : null, gir: per18(t.gir, t.holes), scr: t.scrOpp ? t.scr / t.scrOpp * 100 : null,
     putts: per18(t.putts, t.puttsN), three: per18(t.three, t.puttsN), short: per18(t.short, t.holes), pen: per18(t.pen, t.holes),
-    missL: t.missL, missR: t.missR, toPar: avg(t.toPar), score18: avg(t.score18) };
+    missL: t.missL, missR: t.missR, scrN: t.scr, scrO: t.scrOpp, toPar: avg(t.toPar), score18: avg(t.score18) };
 }
 function gaps(st) {
   const tg = (S.plan && S.plan.targets) || {};
@@ -1055,7 +1055,7 @@ function scorecardTable(rows, mode, rid) {
     <tr><td class="rl">Putts</td>${h.map(r => `<td>${mode === "one" ? (r.putts ?? "—") : (r.cnt ? n1(r.puttsAvg) : "—")}</td>`).join("")}<td class="tot">${mode === "one" ? sum("putts") : n1(sum("puttsAvg"))}</td></tr>
     <tr><td class="rl">Fairway</td>${h.map(r => `<td>${fwCell(r)}</td>`).join("")}<td class="tot"></td></tr>
     <tr><td class="rl">GIR</td>${h.map(r => `<td>${girCell(r)}</td>`).join("")}<td class="tot">${mode === "one" ? h.filter(r => r.gir).length : ""}</td></tr>
-    <tr><td class="rl">Scrambling</td>${h.map(r => `<td>${scrCell(r)}</td>`).join("")}<td class="tot"></td></tr>
+    <tr><td class="rl">Scrambling</td>${h.map(r => `<td>${scrCell(r)}</td>`).join("")}<td class="tot">${mode === "one" ? (() => { const o = h.filter(r => r.scr != null); return o.length ? `${o.filter(r => r.scr).length}/${o.length}` : ""; })() : ""}</td></tr>
     <tr><td class="rl">&lt; 2 m ratés</td>${h.map(r => `<td>${r.score == null && mode === "one" ? "—" : (r.short ? `<span class="miss">${r.short}</span>` : `<span class="muted">·</span>`)}</td>`).join("")}<td class="tot">${sum("short")}</td></tr>
     </tbody></table></div>`;
   }).join("");
@@ -1076,7 +1076,7 @@ function perfKpis(rounds) {
   const tm = st.missL + st.missR;
   return `<div class="kpis"><div class="kpi"><div class="l">Score / par</div><div class="v">${sgn(st.toPar)}</div><div class="s">ramené à 18 trous</div></div>
   <div class="kpi"><div class="l">Fairways</div><div class="v">${pct(st.fw)}</div><div class="s">${tm ? `ratés ${pc(st.missL / tm * 100)} G · ${pc(st.missR / tm * 100)} D` : "aucun raté"}</div></div>
-  <div class="kpi"><div class="l">GIR /18</div><div class="v">${n1(st.gir)}</div><div class="s">scrambling ${pct(st.scr)}</div></div>
+  <div class="kpi"><div class="l">GIR /18</div><div class="v">${n1(st.gir)}</div><div class="s">scrambling ${pct(st.scr)}${st.scrO ? ` (${st.scrN}/${st.scrO})` : ""}</div></div>
   <div class="kpi"><div class="l">Putts /18</div><div class="v">${n1(st.putts)}</div><div class="s">${n1(st.short)} ratés &lt; 2 m · ${n1(st.three)} 3-putts</div></div></div>`;
 }
 function synthesis(rows, rounds) {
